@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tutor Certification</title>
+</head>
+<body>
+
+<h2>Upload Your Certification</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div>
+        <label for="certification">Certification Upload</label>
+        <input type="file" name="certification" id="certification" required>
+    </div>
+
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+
+</form>
+
+</body>
+</html>

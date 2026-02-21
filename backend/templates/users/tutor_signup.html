@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tutor Signup</title>
+</head>
+<body>
+
+<div class="signup-container">
+
+    <h2>Tutor Registration</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div>
+            <label>First Name</label>
+            {{ form.first_name }}
+        </div>
+
+        <div>
+            <label>Last Name</label>
+            {{ form.last_name }}
+        </div>
+
+        <div>
+            <label>Email</label>
+            {{ form.email }}
+        </div>
+
+        <div>
+            <label>Gender</label>
+            {{ form.gender }}
+        </div>
+
+        <div>
+            <label>Password</label>
+            {{ form.password1 }}
+        </div>
+
+        <div>
+            <label>Confirm Password</label>
+            {{ form.password2 }}
+        </div>
+
+        <button type="submit">Next</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
-
 class TutorsConfig(AppConfig):
-    name = 'tutors'
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.tutors'

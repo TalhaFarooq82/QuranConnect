@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Select Account Type</h2>
+
+    <div class="button-group">
+        <a href="{% url 'student_signup' %}">
+            <button>Signup as Student</button>
+        </a>
+
+        <a href="{% url 'tutor_signup' %}">
+            <button>Signup as Tutor</button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
