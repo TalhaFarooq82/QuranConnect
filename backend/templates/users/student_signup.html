@@ -11,6 +11,11 @@
 
     <form method="POST">
         {% csrf_token %}
+        
+        <div>
+            <label>Username</label>
+            {{ form.username }}
+        </div>
 
         <div>
             <label>First Name</label>
