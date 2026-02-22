@@ -32,9 +32,6 @@ def student_signup(request):
 def tutor_signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
-        # #  ADD THESE TWO LINES HERE
-        # print("FORM VALID:", form.is_valid())
-        # print("FORM ERRORS:", form.errors)
 
         if form.is_valid():
             user = form.save(commit=False)
