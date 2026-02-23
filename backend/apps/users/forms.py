@@ -13,10 +13,13 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-    class Meta:
-        db_table = 'users_table'
+    
 
+class ProfileImageForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_image']
+        
 class TutorCertificationForm(forms.Form):
     certification = forms.FileField(required=True)
-    class Meta:
-        db_table = 'tutor_certifications'
+    

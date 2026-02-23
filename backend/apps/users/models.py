@@ -14,11 +14,18 @@ class CustomUser(AbstractUser):
         ('other', 'Other'),
     )
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+
+    class Meta:
+        db_table = 'users_table'
 
 class TutorProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     certification = models.FileField(upload_to='certifications/')
     is_verified = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'tutor_certifications'
 
     def __str__(self):
         return self.user.username

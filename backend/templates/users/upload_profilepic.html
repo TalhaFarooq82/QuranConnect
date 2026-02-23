@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Profile Picture</title>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Upload Profile Picture</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="profile_image">Profile Picture</label>
+                <input type="file" name="profile_image" id="profile_image" accept="image/*">
+
+                {% if form.profile_image.errors %}
+                    <div class="error">
+                        {{ form.profile_image.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if request.user.role == "student" %}
+                <button type="submit">Submit</button>
+            {% elif request.user.role == "tutor" %}
+                <button type="submit">Next</button>
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html>

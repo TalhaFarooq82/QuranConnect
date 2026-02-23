@@ -10,11 +10,11 @@
     <h2>Select Account Type</h2>
 
     <div class="button-group">
-        <a href="{% url 'student_signup' %}">
+        <a href="{% url 'user_signup' 'student' %}">
             <button>Signup as Student</button>
         </a>
 
-        <a href="{% url 'tutor_signup' %}">
+        <a href="{% url 'user_signup' 'tutor' %}">
             <button>Signup as Tutor</button>
         </a>
     </div>
