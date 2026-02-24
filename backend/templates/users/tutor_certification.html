@@ -1,18 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tutor Certification</title>
+    <title>Tutor Professional Details</title>
 </head>
 <body>
 
-<h2>Upload Your Certification</h2>
+<h2>Tutor Professional Details</h2>
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div>
-        <label for="certification">Certification Upload</label>
+        <label for="higher_qualification">Higher Qualification</label>
+        <select name="higher_qualification" id="higher_qualification" required>
+            <option value="">-- Select Qualification --</option>
+            <option value="bachelor">Bachelor's Degree</option>
+            <option value="master">Master's Degree</option>
+            <option value="phd">PhD</option>
+            <option value="diploma">Diploma</option>
+            <option value="other">Other</option>
+        </select>
+        {% if form.higher_qualification.errors %}
+            {{ form.higher_qualification.errors }}
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="institute_name">Institute Name</label>
+        <input type="text" name="institute_name" id="institute_name" required>
+        {% if form.institute_name.errors %}
+            {{ form.institute_name.errors }}
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="teaching_experience">Teaching Experience (Years)</label>
+        <input type="number" name="teaching_experience" id="teaching_experience" min="0" required>
+        {% if form.teaching_experience.errors %}
+            {{ form.teaching_experience.errors }}
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="certification">Upload Certificate</label>
         <input type="file" name="certification" id="certification" required>
+        {% if form.certification.errors %}
+            {{ form.certification.errors }}
+        {% endif %}
     </div>
 
     <div>

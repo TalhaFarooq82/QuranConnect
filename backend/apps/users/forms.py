@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import CustomUser, TutorProfile    
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -20,6 +20,13 @@ class ProfileImageForm(forms.ModelForm):
         model = CustomUser
         fields = ['profile_image']
         
-class TutorCertificationForm(forms.Form):
-    certification = forms.FileField(required=True)
+class TutorCertificationForm(forms.ModelForm):
+    class Meta:
+        model = TutorProfile
+        fields = [
+            'higher_qualification',
+            'institute_name',
+            'teaching_experience',
+            'certification'
+        ]   
     

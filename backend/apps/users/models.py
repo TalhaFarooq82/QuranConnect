@@ -6,14 +6,14 @@ class CustomUser(AbstractUser):
         ('student', 'Student'),
         ('tutor', 'Tutor'),
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True, blank=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True)
 
     GENDER_CHOICES = (
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other'),
     )
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
 
     class Meta:
@@ -21,6 +21,11 @@ class CustomUser(AbstractUser):
 
 class TutorProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+
+    higher_qualification = models.CharField(max_length=255, null=True)
+    institute_name = models.CharField(max_length=255, null=True)
+    teaching_experience = models.PositiveIntegerField(help_text="Experience in years", null=True)
+
     certification = models.FileField(upload_to='certifications/')
     is_verified = models.BooleanField(default=False)
 
