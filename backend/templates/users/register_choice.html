@@ -1,23 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register</title>
+    <title>Join QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/users/register_choice.css' %}">
 </head>
 <body>
 
-<div class="container">
+<div class="page-wrapper">
 
-    <h2>Select Account Type</h2>
+    <!-- Logo -->
+    <h1 class="logo">QuranConnect</h1>
 
-    <div class="button-group">
-        <a href="{% url 'user_signup' 'student' %}">
-            <button>Signup as Student</button>
+    <!-- Heading -->
+    <h2 class="title">Join Quran Connect</h2>
+    <p class="subtitle">
+        To get started, please tell us how you want to use the platform
+    </p>
+
+    <!-- Options -->
+    <div class="options">
+
+        <a href="{% url 'user_signup' 'student' %}" class="option-card">
+            <div class="icon">📖</div>
+            <p>I want to Learn</p>
         </a>
 
-        <a href="{% url 'user_signup' 'tutor' %}">
-            <button>Signup as Tutor</button>
+        <a href="{% url 'user_signup' 'tutor' %}" class="option-card">
+            <div class="icon">🕌</div>
+            <p>I want to Teach</p>
         </a>
+
     </div>
+
+    <!-- Continue Button (Optional UI Only) -->
+    {% comment %} <div class="continue-section">
+        <button class="continue-btn" disabled>Continue</button>
+    </div> {% endcomment %}
 
 </div>
 

@@ -1,0 +1,188 @@
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT SECTION */
+.left-section {
+    flex: 1;
+    background: url('/static/images/user_signup/user_signup_pic.jpeg') no-repeat center center/cover;
+    position: relative;
+    color: white;
+    border-radius: 20px 0 0 20px;
+}
+
+.overlay {
+    background: rgba(0, 0, 0, 0.6);
+    height: 100%;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.overlay h1 {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.overlay p {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.bottom-text h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* RIGHT SECTION */
+.right-section {
+    flex: 1;
+    background-color: white;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo {
+    color: #0e8ca0;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.subtitle {
+    margin-bottom: 30px;
+    color: gray;
+}
+
+/* FORM */
+form {
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+}
+
+.input-group {
+    flex: 1;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.input-group input,
+.input-group select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #0e8ca0;
+    outline: none;
+}
+
+/* TERMS */
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.terms a {
+    color: #ff6b6b;
+    text-decoration: none;
+}
+
+/* BUTTON */
+.signup-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #0e8ca0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.signup-btn:hover {
+    background-color: #0c7484;
+}
+
+/* LOGIN */
+.login-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.login-link a {
+    color: #ff6b6b;
+    text-decoration: none;
+}
+
+/* ========================= */
+/* MOBILE RESPONSIVENESS */
+/* ========================= */
+
+@media (max-width: 992px) {
+
+    .container {
+        flex-direction: column;
+    }
+
+    .left-section {
+        height: 300px;
+    }
+
+    .overlay {
+        padding: 30px;
+    }
+
+    .right-section {
+        padding: 30px;
+    }
+
+    .row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .overlay h1 {
+        font-size: 24px;
+    }
+
+    .bottom-text h2 {
+        font-size: 20px;
+    }
+}

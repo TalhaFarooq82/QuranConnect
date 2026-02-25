@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'apps.users.apps.UsersConfig',
-    'apps.tutors.apps.TutorsConfig',
     'apps.bookings.apps.BookingsConfig',
     'apps.payments.apps.PaymentsConfig',
     'apps.ai_tutor.apps.AiTutorConfig',

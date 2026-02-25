@@ -1,0 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background-color: #f5f7f8;
+}
+
+.page-wrapper {
+    max-width: 600px;
+    margin: auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+/* Back Button */
+.top-bar {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #118a9c;
+    font-weight: 500;
+}
+
+/* Logo */
+.logo {
+    color: #118a9c;
+    margin-bottom: 20px;
+}
+
+/* Title */
+.title {
+    font-size: 28px;
+    color: #118a9c;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #555;
+    margin-bottom: 40px;
+}
+
+/* Form */
+.cert-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #118a9c;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-group span {
+    color: red;
+}
+
+select,
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+/* Upload Box */
+.upload-box {
+    border: 2px dashed #118a9c;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    background-color: #eef6f7;
+    cursor: pointer;
+}
+
+.upload-content {
+    color: #333;
+}
+
+.upload-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.upload-content span {
+    color: #118a9c;
+    font-weight: 500;
+}
+
+.upload-content small {
+    display: block;
+    margin-top: 10px;
+    color: #666;
+}
+
+/* Button */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #118a9c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #0f7686;
+}
+
+/* Error */
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: 5px;
+}

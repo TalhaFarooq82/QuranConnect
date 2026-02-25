@@ -1,59 +1,116 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tutor Professional Details</title>
+    <title>Showcase Your Expertise</title>
+    <link rel="stylesheet" href="{% static 'css/users/tutor_certification.css' %}">
 </head>
 <body>
 
-<h2>Tutor Professional Details</h2>
+<div class="page-wrapper">
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    <div>
-        <label for="higher_qualification">Higher Qualification</label>
-        <select name="higher_qualification" id="higher_qualification" required>
-            <option value="">-- Select Qualification --</option>
-            <option value="bachelor">Bachelor's Degree</option>
-            <option value="master">Master's Degree</option>
-            <option value="phd">PhD</option>
-            <option value="diploma">Diploma</option>
-            <option value="other">Other</option>
-        </select>
-        {% if form.higher_qualification.errors %}
-            {{ form.higher_qualification.errors }}
-        {% endif %}
+    <!-- Back Button -->
+    <div class="top-bar">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
     </div>
 
-    <div>
-        <label for="institute_name">Institute Name</label>
-        <input type="text" name="institute_name" id="institute_name" required>
-        {% if form.institute_name.errors %}
-            {{ form.institute_name.errors }}
-        {% endif %}
+    <!-- Logo -->
+    <h1 class="logo">QuranConnect</h1>
+
+    <!-- Heading -->
+    <h2 class="title">Showcase Your Expertise</h2>
+    <p class="subtitle">
+        Scholars with verified certificates get a 'Verified Badge' and rank higher in search results.
+    </p>
+
+    <!-- Form -->
+    <form method="POST" enctype="multipart/form-data" class="cert-form">
+        {% csrf_token %}
+
+        <!-- Higher Qualification -->
+        <div class="form-group">
+            <label>Highest Qualification <span>*</span></label>
+            <select name="higher_qualification" required>
+                <option value="">Select Higher Education</option>
+                <option value="bachelor">Bachelor's Degree</option>
+                <option value="master">Master's Degree</option>
+                <option value="phd">PhD</option>
+                <option value="diploma">Diploma</option>
+                <option value="other">Other</option>
+            </select>
+            {% if form.higher_qualification.errors %}
+                <div class="error">{{ form.higher_qualification.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Institute Name -->
+        <div class="form-group">
+            <label>Institute Name <span>*</span></label>
+            <input type="text" name="institute_name" required>
+            {% if form.institute_name.errors %}
+                <div class="error">{{ form.institute_name.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Teaching Experience -->
+        <div class="form-group">
+            <label>Teaching Experience (Years) <span>*</span></label>
+            <input type="number" name="teaching_experience" min="0" required>
+            {% if form.teaching_experience.errors %}
+                <div class="error">{{ form.teaching_experience.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Upload Certificate -->
+        <div class="form-group">
+            <label>Upload Certificates <span>*</span></label>
+
+            <div class="upload-box">
+                <input type="file" name="certification" id="certification" hidden required>
+
+                <label for="certification" class="upload-label">
+                    <div class="upload-content" id="upload-content">
+                        <div class="upload-icon">⬆</div>
+                        <p>Drag & drop files or <span>Browse</span></p>
+                        <small>Supported formats: JPEG, PNG, PDF, Word, PPT</small>
+                    </div>
+                </label>
+
+        <!-- File Name Preview -->
+        <div id="file-name" class="file-name"></div>
     </div>
 
-    <div>
-        <label for="teaching_experience">Teaching Experience (Years)</label>
-        <input type="number" name="teaching_experience" id="teaching_experience" min="0" required>
-        {% if form.teaching_experience.errors %}
-            {{ form.teaching_experience.errors }}
-        {% endif %}
-    </div>
+    {% if form.certification.errors %}
+        <div class="error">{{ form.certification.errors }}</div>
+    {% endif %}
+</div>
 
-    <div>
-        <label for="certification">Upload Certificate</label>
-        <input type="file" name="certification" id="certification" required>
-        {% if form.certification.errors %}
-            {{ form.certification.errors }}
-        {% endif %}
-    </div>
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">Submit</button>
 
-    <div>
-        <button type="submit">Submit</button>
-    </div>
+    </form>
 
-</form>
+</div>
+
+
+
+    <script>
+        const fileInput = document.getElementById('certification');
+        const fileNameDiv = document.getElementById('file-name');
+        const uploadContent = document.getElementById('upload-content');
+
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+            // Show file name
+            fileNameDiv.innerHTML = "✔ " + file.name;
+
+            // Optional: change upload box style
+            uploadContent.style.display = "none";
+            }
+        });
+    </script>
 
 </body>
 </html>

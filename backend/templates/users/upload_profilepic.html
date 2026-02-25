@@ -1,33 +1,82 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Upload Profile Picture</title>
+    <link rel="stylesheet" href="{% static 'css/users/upload_profilepic.css' %}">
 </head>
 <body>
 
-    <div class="container">
-        <h2>Upload Profile Picture</h2>
+<div class="page-wrapper">
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <div class="form-group">
-                <label for="profile_image">Profile Picture</label>
-                <input type="file" name="profile_image" id="profile_image" accept="image/*">
-
-                {% if form.profile_image.errors %}
-                    <div class="error">
-                        {{ form.profile_image.errors }}
-                    </div>
-                {% endif %}
-            </div>
-
-            {% if request.user.role == "student" %}
-                <button type="submit">Submit</button>
-            {% elif request.user.role == "tutor" %}
-                <button type="submit">Next</button>
-            {% endif %}
-        </form>
+    <!-- Back Button -->
+    <div class="top-bar">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
     </div>
+
+    <!-- Logo -->
+    <h1 class="logo">QuranConnect</h1>
+
+    <!-- Heading -->
+    <h2 class="title">Build Your Profile</h2>
+    <p class="subtitle">
+        Upload a professional photo.
+    </p>
+
+    <!-- Form -->
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+
+        <!-- Circle Upload Area -->
+        <label for="profile_image" class="upload-circle">
+            <input type="file" name="profile_image" id="profile_image" accept="image/*" hidden>
+            <div class="circle-content">
+                <span class="plus-icon">＋</span>
+                <img id="preview" src="#" alt="Profile Preview" style="display:none; border-radius:50%; width:180px; height:180px; object-fit:cover;">
+            </div>
+        </label>
+
+        {% if form.profile_image.errors %}
+            <div class="error">
+                {{ form.profile_image.errors }}
+            </div>
+        {% endif %}
+
+        <!-- Buttons -->
+        <div class="action-buttons">
+            <button type="button" class="secondary-btn">Skip for Now</button>
+        </div>
+
+        {% if request.user.role == "student" %}
+            <button type="submit" class="primary-btn">Submit</button>
+        {% elif request.user.role == "tutor" %}
+            <button type="submit" class="primary-btn">Continue</button>
+        {% endif %}
+
+    </form>
+
+</div>
+
+
+
+    <script>
+        const input = document.getElementById('profile_image');
+        const preview = document.getElementById('preview');
+        const plusIcon = document.querySelector('.plus-icon');
+
+        input.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    plusIcon.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </body>
 </html>
