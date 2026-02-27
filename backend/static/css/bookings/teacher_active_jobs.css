@@ -1,0 +1,298 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #1f2937;
+}
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    width: 90%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+.job-title-link {
+    color: #1f2937;
+}
+
+.job-title-link:hover {
+    color: #0b8fb3;
+}
+
+.topbar {
+    background: #0b8fb3;
+    padding: 14px 0;
+    color: #fff;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.menu {
+    display: flex;
+    gap: 28px;
+}
+
+.menu a {
+    color: white;
+    font-size: 14px;
+}
+
+.profile {
+    font-size: 20px;
+}
+
+.hero {
+    background: linear-gradient(to bottom, #1ec7df, #f5f5f5);
+    text-align: center;
+    padding: 70px 0 60px;
+}
+
+.hero h1 {
+    font-size: 56px;
+    margin-bottom: 10px;
+}
+
+.underline {
+    width: 70px;
+    height: 4px;
+    background: #3b82f6;
+    margin: 0 auto 18px;
+    border-radius: 4px;
+}
+
+.hero p {
+    color: #4b5563;
+    margin-bottom: 18px;
+}
+
+.breadcrumb {
+    display: inline-flex;
+    gap: 10px;
+    background: #dbe4ff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.main-section {
+    padding: 40px 0 80px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.results-bar {
+    background: #0b8fb3;
+    color: white;
+    padding: 14px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.controls select {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 4px;
+}
+
+.job-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    margin-bottom: 18px;
+}
+
+.job-left h3 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.job-line {
+    width: 60px;
+    height: 3px;
+    background: #0b8fb3;
+    margin-bottom: 14px;
+}
+
+.job-left p {
+    color: #4b5563;
+    line-height: 1.7;
+}
+
+.job-left a {
+    color: #0b8fb3;
+    font-weight: 600;
+}
+
+.meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.label {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 5px;
+}
+
+.meta strong {
+    font-size: 14px;
+}
+
+.desc-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #0b8fb3;
+    color: #0b8fb3;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.filter-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 0 0 18px;
+}
+
+.filter-box h3 {
+    background: #0b8fb3;
+    color: white;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+.filter-box input {
+    width: calc(100% - 20px);
+    margin: 0 10px 12px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+}
+
+.filter-box button {
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 12px;
+    background: #0b8fb3;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.pagination span {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.pagination .active {
+    background: #243c84;
+    color: white;
+}
+
+.footer {
+    background: #08162f;
+    color: white;
+    padding-top: 50px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 30px;
+    padding-bottom: 28px;
+}
+
+.footer h3,
+.footer h4 {
+    margin-bottom: 14px;
+}
+
+.footer p,
+.footer a {
+    color: #cbd5e1;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+    padding: 16px 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+@media (max-width: 900px) {
+    .layout,
+    .job-card,
+    .footer-grid,
+    .meta {
+        grid-template-columns: 1fr;
+    }
+
+    .menu {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .results-bar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+}

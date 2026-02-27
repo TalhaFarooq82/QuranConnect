@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/student_dashboard.css' %}">
+</head>
+<body>
+    <div class="header-right">
+    <a href="{% url 'student_dashboard' %}" class="message-icon">
+        💬
+        {% if unread_messages > 0 %}
+        <span class="message-badge">{{ unread_messages }}</span>
+        {% endif %}
+    </a>
+
+    <details class="profile-dropdown">
+        <summary class="profile-summary">
+            <div class="profile-avatar">{{ student.username|slice:":1"|upper }}</div>
+            <div class="profile-meta">
+                <strong>{{ student.get_full_name|default:student.username }}</strong>
+                <span>${{ wallet.balance }} USD</span>
+            </div>
+        </summary>
+
+        <div class="dropdown-menu">
+            <a href="{% url 'student_dashboard' %}">Profile</a>
+
+            <form method="post" action="{% url 'add_funds' %}" class="fund-form">
+                {% csrf_token %}
+                <input type="number" step="0.01" name="amount" placeholder="Add funds amount" required>
+                <button type="submit">Add Funds</button>
+            </form>
+
+            <a href="#">Settings</a>
+            <a href="/users/logout/">Logout</a>
+        </div>
+    </details>
+</div>
+
+    <main class="dashboard-wrapper">
+        <div class="container">
+            <section class="dashboard-hero">
+                <div>
+                    <p class="eyebrow">Student Dashboard</p>
+                    <h1>Welcome back, {{ student_name }}</h1>
+                    <p class="hero-text">
+                        Manage your posted requests, review scholar proposals, and keep track of your Quran learning journey.
+                    </p>
+                </div>
+                <div class="hero-actions">
+                    <a href="{% url 'post_job' %}" class="btn-primary">Post New Request</a>
+                    <a href="{% url 'teacher_active_jobs' %}" class="btn-secondary">Browse Scholars</a>
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Requests</p>
+                    <h3>{{ total_requests }}</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Open Requests</p>
+                    <h3>{{ open_requests }}</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Proposals Received</p>
+                    <h3>{{ total_proposals }}</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Assigned Requests</p>
+                    <h3>{{ assigned_requests }}</h3>
+                </div>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="section-head-row">
+                    <div>
+                        <h2>Recent Posted Requests</h2>
+                        <p>Your latest job posts and their current activity.</p>
+                    </div>
+                    <a href="{% url 'post_job' %}" class="btn-outline-sm-dark">+ New Request</a>
+                </div>
+
+                <div class="request-list">
+                    {% if recent_jobs %}
+                        {% for job in recent_jobs %}
+                        <div class="request-card">
+                            <div class="request-main">
+                                <div class="request-top">
+                                    <h3>{{ job.title }}</h3>
+                                    <span class="status-badge">{{ job.status }}</span>
+                                </div>
+
+                                <p class="request-meta">
+                                    <strong>Course:</strong> {{ job.course }} |
+                                    <strong>Budget:</strong> {{ job.budget }} |
+                                    <strong>Schedule:</strong> {{ job.schedule }}
+                                </p>
+
+                                <p class="request-desc">{{ job.description|truncatechars:140 }}</p>
+                            </div>
+
+                            <div class="request-side">
+                                <div class="mini-stat">
+                                    <span>Proposals</span>
+                                    <strong>{{ job.proposals.count }}</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span>Posted</span>
+                                    <strong>{{ job.created_at|date:"d M Y" }}</strong>
+                                </div>
+                                <a href="{% url 'job_detail' job.id %}" class="view-btn">View Request</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <h3>No requests posted yet</h3>
+                            <p>You have not posted any job requests yet. Start by creating your first learning request.</p>
+                            <a href="{% url 'post_job' %}" class="btn-primary">Post Your First Job</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="quick-actions-grid">
+                <div class="quick-card">
+                    <h3>Post a New Learning Request</h3>
+                    <p>Create a new request and receive bids from verified scholars.</p>
+                    <a href="{% url 'post_job' %}" class="card-link">Create Request</a>
+                </div>
+
+                <div class="quick-card">
+                    <h3>Review Scholar Bids</h3>
+                    <p>Open your requests and review the proposals received from teachers.</p>
+                    <a href="#recent-requests" class="card-link">See Requests</a>
+                </div>
+
+                <div class="quick-card">
+                    <h3>Browse Available Tutors</h3>
+                    <p>Explore active scholar listings and compare tutor options.</p>
+                    <a href="{% url 'teacher_active_jobs' %}" class="card-link">Browse Now</a>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.users.views import home  # import home view
+from apps.users.views import home
 
 urlpatterns = [
-    path('', home, name='home'),  # root URL shows home page
+    path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('users/', include('apps.users.urls')),
+    path("", include("apps.bookings.urls")),
 ]
 
 if settings.DEBUG:

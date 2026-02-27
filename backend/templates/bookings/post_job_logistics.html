@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job - Step 2</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/post_job_logistics.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">QuranConnect</div>
+            <nav class="menu">
+                <a href="/">Home</a>
+                <a href="#">About us</a>
+                <a href="#">AI Tutor</a>
+                <a href="#">Contact us</a>
+            </nav>
+            <div class="profile">👤</div>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="form-container">
+            <div class="step-label">Step 2 of 2: Logistics</div>
+            <div class="progress-bar">
+                <div class="progress-fill full"></div>
+            </div>
+
+            <h1>Schedule Preference</h1>
+
+            {% if error %}
+                <div class="error-box">{{ error }}</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label>Preferred Time</label>
+                    <div class="two-col">
+                        <select name="start_time" required>
+                            <option value="">Start time</option>
+                            <option>4:00 PM</option>
+                            <option>5:00 PM</option>
+                            <option>6:00 PM</option>
+                            <option>7:00 PM</option>
+                            <option>8:00 PM</option>
+                        </select>
+
+                        <select name="end_time" required>
+                            <option value="">End time</option>
+                            <option>5:00 PM</option>
+                            <option>6:00 PM</option>
+                            <option>7:00 PM</option>
+                            <option>8:00 PM</option>
+                            <option>9:00 PM</option>
+                        </select>
+                    </div>
+                    <p class="helper-text">Detected Timezone: Pakistan Standard Time (PKT)</p>
+                </div>
+
+                <div class="form-group">
+                    <label>What is your Budget?</label>
+
+                    <div class="budget-type-group">
+                        <label class="budget-option">
+                            <input type="radio" name="budget_type" value="hourly" checked required>
+                            <span>Hourly Rate</span>
+                        </label>
+
+                        <label class="budget-option">
+                            <input type="radio" name="budget_type" value="fixed" required>
+                            <span>Fixed Price</span>
+                        </label>
+                    </div>
+
+                    <div class="two-col">
+                        <select name="budget_min" required>
+                            <option value="">Min</option>
+                            <option value="5">5</option>
+                            <option value="8">8</option>
+                            <option value="10">10</option>
+                            <option value="12">12</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                        </select>
+
+                        <select name="budget_max" required>
+                            <option value="">Max</option>
+                            <option value="10">10</option>
+                            <option value="12">12</option>
+                            <option value="15">15</option>
+                            <option value="18">18</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+
+                    <p class="helper-text">Average for hifz is $8-$12/hr</p>
+                </div>
+
+                <div class="form-actions between">
+                    <a href="{% url 'post_job' %}" class="btn-outline">Back</a>
+                    <button type="submit" class="next-btn">Next</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

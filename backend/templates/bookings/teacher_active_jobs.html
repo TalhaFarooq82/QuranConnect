@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Active Jobs</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/teacher_active_jobs.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">QuranConnect</div>
+            <nav class="menu">
+                <a href="/">Home</a>
+                <a href="#">About us</a>
+                <a href="#">AI Tutor</a>
+                <a href="#">Contact us</a>
+            </nav>
+            <div class="profile">👤</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Browse Active Jobs</h1>
+            <div class="underline"></div>
+            <p>Browse open requests from students and submit your proposal to start teaching.</p>
+            <div class="breadcrumb">
+                <span>Home</span>
+                <span>›</span>
+                <span>Auction</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="main-section">
+        <div class="container layout">
+            <div class="left-panel">
+                <div class="results-bar">
+                    <div>Showing 1-{{ total_results }} of {{ total_results }} Results</div>
+                    <div class="controls">
+                        <select>
+                            <option>Sort By Newness</option>
+                            <option>Lowest Budget</option>
+                            <option>Highest Budget</option>
+                        </select>
+                    </div>
+                </div>
+
+                {% for job in jobs %}
+                <div class="job-card">
+                    <div class="job-left">
+                        <h3><a href="{% url 'job_detail' job.id %}" class="job-title-link">{{ job.title }}</a></h3>
+                        <div class="job-line"></div>
+                        <p>{{ job.description }} <a href="#">View Details</a></p>
+                    </div>
+
+                    <div class="job-right">
+                        <div class="meta">
+                            <div>
+                                <span class="label">Budget</span>
+                                <strong>{{ job.budget }}</strong>
+                            </div>
+                            <div>
+                                <span class="label">Total Bids</span>
+                                <strong>{{ job.total_bids }}</strong>
+                            </div>
+                            <div>
+                                <span class="label">Posted</span>
+                                <strong>{{ job.posted }}</strong>
+                            </div>
+                        </div>
+                        <a href="{% url 'job_detail' job.id %}" class="desc-btn">View Description</a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="pagination">
+                    <span>←</span>
+                    <span class="active">1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <span>→</span>
+                </div>
+            </div>
+
+            <aside class="filter-panel">
+                <div class="filter-box">
+                    <h3>Filter By</h3>
+                    <input type="text" placeholder="Course Type">
+                    <input type="text" placeholder="Language">
+                    <input type="text" placeholder="Student Profile">
+                    <input type="text" placeholder="Hourly Rate">
+                    <button>Filter</button>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>QuranConnect</h3>
+                <p>Making Quran learning accessible worldwide through expert online tutoring.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="#">Home</a>
+                <a href="#">About Us</a>
+                <a href="#">AI Tutor</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <div>
+                <h4>Contact Info</h4>
+                <p>Email: info@quranconnect.com</p>
+                <p>WhatsApp: +92 300 1234567</p>
+                <p>Phone: +92 300 1234567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 QuranConnect. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

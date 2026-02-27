@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Request</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/student_request_detail.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">QuranConnect</div>
+            <nav class="menu">
+                <a href="{% url 'student_dashboard' %}">Dashboard</a>
+                <a href="{% url 'post_job' %}">Post Job</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <section class="job-box">
+                <h1>{{ job.title }}</h1>
+                <p><strong>Course:</strong> {{ job.course }}</p>
+                <p><strong>Budget:</strong> {{ job.budget }}</p>
+                <p><strong>Schedule:</strong> {{ job.schedule }}</p>
+                <p><strong>Status:</strong> {{ job.status }}</p>
+                <p>{{ job.description }}</p>
+            </section>
+
+            <section class="proposal-box">
+                <h2>Received Proposals ({{ proposals.count }})</h2>
+
+                {% for proposal in proposals %}
+                <div class="proposal-card">
+                    <div>
+                        <h3>{{ proposal.teacher.username }}</h3>
+                        <p>{{ proposal.proposal_text }}</p>
+                        <p><strong>Rate:</strong> {{ proposal.hourly_rate }}</p>
+                        <p><strong>Status:</strong> {{ proposal.status }}</p>
+                    </div>
+
+                    <div class="proposal-actions">
+                        {% if job.status == "Open" %}
+                        <form method="post" action="{% url 'award_project' proposal.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-primary">Award Project</button>
+                        </form>
+                        {% endif %}
+
+                        {% if job.status == "Awarded" and job.awarded_teacher == proposal.teacher %}
+                        <a href="{% url 'chat_room' job.id %}" class="btn-secondary">Chat</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p>No proposals received yet.</p>
+                {% endfor %}
+            </section>
+        </div>
+    </main>
+</body>
+</html>

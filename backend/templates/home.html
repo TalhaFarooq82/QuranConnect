@@ -1,22 +1,266 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>QuranConnect Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">QuranConnect</div>
 
-<h1>Welcome to QuranConnect</h1>
-<p>Learn and teach Quran online.</p>
+            <nav class="menu">
+                <a href="/">Home</a>
+                <a href="#about">About</a>
+                <a href="#ai-tutor">AI Tutor</a>
+                <a href="#contact">Contact us</a>
+            </nav>
 
-<div>
-    <a href="{% url 'register_choice' %}">
-        <button>Signup</button>
-    </a>
+            <div class="auth-actions">
+                <a href="/users/login/" class="btn-outline-sm">Login</a>
+                <a href="{% url 'register_choice' %}" class="btn-primary-sm">Sign Up</a>
+            </div>
+        </div>
+    </header>
 
-    {% comment %} <a href="{% url 'login' %}">
-        <button>Login</button>
-    </a> {% endcomment %}
-</div>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-left">
+                <p class="eyebrow">Trusted Quran Learning Platform</p>
+                <h1>Find the Perfect Quran Tutor on Your Terms</h1>
+                <p class="hero-text">
+                    Post your learning requirements and get matched with verified scholars,
+                    or browse our directory to find your perfect match.
+                </p>
 
+                <div class="hero-buttons">
+                    <a href="/student/post-job/" class="btn-primary">Post a Job Request</a>
+                    <a href="/teacher/active-jobs/" class="btn-secondary">Browse Tutors</a>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="hero-visual-card">
+                    <div class="hero-window"></div>
+                    <div class="hero-content-box">
+                        <div class="hero-avatar">🧑‍🏫</div>
+                        <div class="hero-screen">
+                            <div class="line short"></div>
+                            <div class="line"></div>
+                            <div class="line medium"></div>
+                            <div class="mini-cards">
+                                <span>Hifz</span>
+                                <span>Nazra</span>
+                                <span>Tajweed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-floating-card">
+                        <strong>Verified Scholars</strong>
+                        <p>Safe, trusted, and flexible online Quran learning.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container stats-grid">
+            <div class="stat-box">
+                <h3>50K+</h3>
+                <p>Active Students</p>
+            </div>
+            <div class="stat-box">
+                <h3>100+</h3>
+                <p>Certified Teachers</p>
+            </div>
+            <div class="stat-box">
+                <h3>4.9★</h3>
+                <p>Excellent Rating</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-section" id="about">
+        <div class="container">
+            <div class="section-head">
+                <h2>Why Choose Us?</h2>
+                <p>Discover what makes QuranConnect the preferred choice for thousands of students.</p>
+            </div>
+
+            <div class="card-grid five-cards">
+                <div class="card">
+                    <h3>Expert Tutors</h3>
+                    <p>Certified and experienced tutors with strong Quran education backgrounds.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Flexible Scheduling</h3>
+                    <p>Learn at your convenience with timing that fits your daily life.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Personalized Classes</h3>
+                    <p>Choose one-to-one or group sessions based on your needs and goals.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Proven Results</h3>
+                    <p>Students and families trust our platform for consistent learning progress.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Trusted Since 2012</h3>
+                    <p>Built on a mission to make Quran education accessible and reliable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="reviews-section">
+        <div class="container">
+            <div class="section-head">
+                <h2>Loved by Students Worldwide</h2>
+                <p>Join thousands of satisfied students who have transformed their Quran learning journey.</p>
+            </div>
+
+            <div class="review-stats">
+                <div>
+                    <h3>50,000+</h3>
+                    <p>Happy Students</p>
+                </div>
+                <div>
+                    <h3>4.9/5</h3>
+                    <p>Average Rating</p>
+                </div>
+                <div>
+                    <h3>98%</h3>
+                    <p>Completion Rate</p>
+                </div>
+                <div>
+                    <h3>1M+</h3>
+                    <p>Classes Completed</p>
+                </div>
+            </div>
+
+            <div class="card-grid three-cards">
+                <div class="card review-card">
+                    <p>“We matched with a great Quran teacher quickly. The platform made everything simple and professional.”</p>
+                    <div class="review-user">
+                        <div class="avatar">S</div>
+                        <div>
+                            <strong>Sarah</strong>
+                            <span>Parent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card review-card">
+                    <p>“I love how easy it is to post a request and receive qualified bids from verified scholars.”</p>
+                    <div class="review-user">
+                        <div class="avatar">U</div>
+                        <div>
+                            <strong>Usman</strong>
+                            <span>Student</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card review-card">
+                    <p>“The flexibility and tutor quality make this one of the best Quran learning platforms I have used.”</p>
+                    <div class="review-user">
+                        <div class="avatar">A</div>
+                        <div>
+                            <strong>Ayesha</strong>
+                            <span>Guardian</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-box">
+                <h3>Ready to Start Your Own Success Story?</h3>
+                <p>Post your learning request today and receive bids from verified scholars.</p>
+                <a href="/student/post-job/" class="btn-primary">Create a Job Post</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section" id="ai-tutor">
+        <div class="container narrow">
+            <div class="section-head">
+                <h2>Frequently Asked Questions</h2>
+                <p>Find answers to common questions about our online Quran learning platform.</p>
+            </div>
+
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>How do online Quran classes work?</summary>
+                    <p>Students post a request or select a tutor, schedule sessions, and attend online classes with verified scholars.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Are the teachers qualified?</summary>
+                    <p>Yes. QuranConnect is built around verified scholars and trust-focused onboarding.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Can kids take classes?</summary>
+                    <p>Yes. Many students on the platform are children learning Hifz, Nazra, and Tajweed.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>What if I am not satisfied?</summary>
+                    <p>You can review bids carefully and choose the teacher that best fits your learning needs.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>What technology do I need for online classes?</summary>
+                    <p>You only need a stable internet connection, a phone/laptop, and a video calling setup.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>How flexible are the class schedules?</summary>
+                    <p>Very flexible. You can define your preferred time while posting your learning request.</p>
+                </details>
+            </div>
+
+            <div class="support-links">
+                <a href="#contact">Contact our support team</a>
+                <a href="/student/post-job/">Schedule a free consultation</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <div class="container footer-grid">
+            <div>
+                <h3>QuranConnect</h3>
+                <p>Making Quran learning accessible worldwide through trusted online education.</p>
+            </div>
+
+            <div>
+                <h4>Quick Links</h4>
+                <a href="/">Home</a>
+                <a href="#about">About</a>
+                <a href="#ai-tutor">AI Tutor</a>
+                <a href="#contact">Contact us</a>
+            </div>
+
+            <div>
+                <h4>Contact Info</h4>
+                <p>Email: info@quranconnect.com</p>
+                <p>WhatsApp: +92 300 1234567</p>
+                <p>Phone: +92 300 1234567</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 QuranConnect. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>

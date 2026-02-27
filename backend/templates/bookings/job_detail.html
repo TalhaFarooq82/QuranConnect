@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Detail</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/job_detail.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">QuranConnect</div>
+            <nav class="menu">
+                <a href="/">Home</a>
+                <a href="#">About us</a>
+                <a href="#">AI Tutor</a>
+                <a href="#">Contact us</a>
+            </nav>
+            <div class="profile">👤</div>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <section class="job-summary-card">
+                <div class="job-summary-left">
+                    <h1>{{ job.title }}</h1>
+                    <span class="status-badge">Open For Bidding</span>
+                </div>
+                <div class="job-summary-right">
+                    <div class="meta-box">
+                        <span>Budget</span>
+                        <strong>{{ job.budget }}</strong>
+                    </div>
+                    <div class="meta-box">
+                        <span>Total Bids</span>
+                        <strong>{{ job.total_bids }}</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-card">
+                <h2>Project Description</h2>
+                <p>{{ job.description }}</p>
+
+                <ul class="details-list">
+                    <li><strong>Course:</strong> {{ job.course }}</li>
+                    <li><strong>Schedule:</strong> {{ job.schedule }}</li>
+                    <li><strong>Duration:</strong> {{ job.duration }}</li>
+                    <li><strong>Preferred Gender:</strong> {{ job.preferred_gender }}</li>
+                </ul>
+            </section>
+
+            {% if can_bid %}
+<section class="content-card">
+    <h2>Place a Bid on this Project</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="rate">Hourly Rate</label>
+            <input type="text" id="rate" name="rate" placeholder="Enter your bidding rate">
+        </div>
+
+        <div class="form-group">
+            <label for="proposal">Proposal</label>
+            <textarea id="proposal" name="proposal" rows="5" placeholder="Enter your proposal. Please describe your teaching approach here."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Place Bid</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+            <section class="content-card">
+                <div class="proposal-header">
+                    <h2>Proposal Submitted ({{ proposals|length }})</h2>
+                    <div class="sort-box">Sort by: Lowest Price</div>
+                </div>
+
+                <div class="proposal-list">
+                    {% for proposal in proposals %}
+                    <div class="proposal-card">
+                        <div class="teacher-info">
+                            <div class="avatar">
+                                {% if proposal.image %}
+                                    <img src="{{ proposal.image }}" alt="{{ proposal.name }}">
+                                {% else %}
+                                    <span>{{ proposal.name|slice:":1" }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                               <h3>{{ proposal.teacher.username }}</h3>
+                                <p class="rating">⭐ {{ proposal.rating }} ({{ proposal.reviews }} Reviews)</p>
+                            </div>
+                        </div>
+
+                        <div class="proposal-price">
+                            <strong>{{ proposal.hourly_rate }}</strong>
+                            <span>{{ proposal.availability }}</span>
+                        </div>
+
+                        <div class="proposal-time">
+<span>{{ proposal.created_at|date:"d M Y, h:i A" }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>QuranConnect</h3>
+                <p>Making Quran learning accessible worldwide through expert online tutoring.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="/">Home</a>
+                <a href="#">About Us</a>
+                <a href="#">AI Tutor</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <div>
+                <h4>Contact Info</h4>
+                <p>Email: info@quranconnect.com</p>
+                <p>WhatsApp: +92 300 1234567</p>
+                <p>Phone: +92 300 1234567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 QuranConnect. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

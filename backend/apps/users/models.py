@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
@@ -34,3 +35,30 @@ class TutorProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_profile")
+    display_name = models.CharField(max_length=120)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=5.0)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
+
+    def __str__(self):
+        return self.display_name
+
+
+class WalletTransaction(models.Model):
+    TRANSACTION_TYPES = [
+        ("credit", "Credit"),
+        ("debit", "Debit"),
+    ]
+
+    student = models.ForeignKey("users.StudentProfile", on_delete=models.CASCADE, related_name="wallet_transactions")
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    note = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.display_name} - {self.transaction_type} - {self.amount}"
+    
