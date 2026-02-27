@@ -5,6 +5,11 @@
     <title>Showcase Your Expertise</title>
     <link rel="stylesheet" href="{% static 'css/users/tutor_certification.css' %}">
 </head>
+{% comment %} <style>
+#successPopup {
+    display: none !important;
+}
+</style> {% endcomment %}
 <body>
 
 <div class="page-wrapper">
@@ -93,24 +98,47 @@
 </div>
 
 
+<!-- Success Popup -->
+<div id="successPopup" class="popup">
+    <div class="popup-content">
+        <h3>🎉 Signup Successful!</h3>
+        <p>Your tutor profile has been submitted successfully.</p>
+    </div>
+</div>
+
 
     <script>
-        const fileInput = document.getElementById('certification');
-        const fileNameDiv = document.getElementById('file-name');
-        const uploadContent = document.getElementById('upload-content');
+    document.addEventListener('DOMContentLoaded', function() {
 
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
+    const certForm = document.querySelector('.cert-form');
+    const popup = document.getElementById('successPopup');
+    const fileInput = document.getElementById('certification');
+    const fileNameDiv = document.getElementById('file-name');
+    const uploadContent = document.getElementById('upload-content');
 
-            // Show file name
+    // File preview logic
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
             fileNameDiv.innerHTML = "✔ " + file.name;
-
-            // Optional: change upload box style
             uploadContent.style.display = "none";
-            }
-        });
-    </script>
+        }
+    });
 
+    // Popup on submit
+    certForm.addEventListener('submit', function(e) {
+        e.preventDefault();   // stop default submit
+
+        // Show popup
+        popup.classList.add("active");
+
+        // Wait 1.5s, then submit form
+        setTimeout(() => {
+            certForm.submit();
+        }, 1500);
+    });
+
+});
+</script>
 </body>
 </html>

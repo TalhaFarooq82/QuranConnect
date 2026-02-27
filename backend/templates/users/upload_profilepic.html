@@ -45,7 +45,7 @@
 
         <!-- Buttons -->
         <div class="action-buttons">
-            <button type="button" class="secondary-btn">Skip for Now</button>
+            <button type="submit" class="secondary-btn">Skip for Now</button>
         </div>
 
         {% if request.user.role == "student" %}
@@ -58,25 +58,57 @@
 
 </div>
 
+<!-- Success Popup for Students -->
+{% if request.user.role == "student" %}
+<div id="successPopup" class="popup">
+    <div class="popup-content">
+        <h3>🎉 Signup Successful!</h3>
+        <p>Your profile has been uploaded successfully.</p>
+    </div>
+</div>
+{% endif %}
 
 
     <script>
-        const input = document.getElementById('profile_image');
-        const preview = document.getElementById('preview');
-        const plusIcon = document.querySelector('.plus-icon');
+document.addEventListener('DOMContentLoaded', function() {
 
-        input.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    plusIcon.style.display = 'none';
-                }
-                reader.readAsDataURL(file);
+    const input = document.getElementById('profile_image');
+    const preview = document.getElementById('preview');
+    const plusIcon = document.querySelector('.plus-icon');
+    const uploadForm = document.querySelector('.upload-form');
+    {% if request.user.role == "student" %}
+    const popup = document.getElementById('successPopup');
+    {% endif %}
+
+    // File preview
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                plusIcon.style.display = 'none';
             }
-        });
-    </script>
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Show popup only for student
+    {% if request.user.role == "student" %}
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // prevent immediate submit
+        popup.classList.add("active");
+
+        // submit after 1.5s
+        setTimeout(() => {
+            uploadForm.submit();
+        }, 1500);
+    });
+    {% endif %}
+
+});
+</script>
+
 </body>
 </html>

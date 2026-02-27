@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
-from .forms import CustomUserCreationForm, TutorCertificationForm, ProfileImageForm
+from django.contrib.auth import login, authenticate, logout
+from .forms import CustomUserCreationForm, TutorCertificationForm, ProfileImageForm, CustomLoginForm
 from .models import CustomUser, TutorProfile
+from django.contrib import messages
 
 def home(request):
     return render(request, 'home.html')
-
+#--------------------------------------------Signup View---------------------------------------------
 # → Role selection page
 def register_choice(request):
     return render(request, 'users/register_choice.html')
@@ -40,7 +41,8 @@ def upload_profile(request):
 
             # If student → go to dashboard
             if request.user.role == 'student':
-                return redirect('dashboard')
+                messages.success(request, "Signup Successful! You can now login.")
+                return redirect('login')
 
             # If tutor → go to certification step
             elif request.user.role == 'tutor':
@@ -50,6 +52,7 @@ def upload_profile(request):
         form = ProfileImageForm(instance=request.user)
 
     return render(request, 'users/upload_profilepic.html', {'form': form})
+
 
 # → Tutor certification upload
 def tutor_certification(request, user_id):
@@ -63,8 +66,26 @@ def tutor_certification(request, user_id):
                 certification=form.cleaned_data['certification']
             )
             login(request, user)
-            return redirect('dashboard')
+            messages.success(request, "Signup Successful! Your tutor profile has been created.")
+            return redirect('login')
     else:
         form = TutorCertificationForm()
 
     return render(request, 'users/tutor_certification.html', {'form': form})
+
+
+#--------------------------------------------Login view-----------------------------------------------
+def login_view(request):
+    if request.method == "POST":
+        form = CustomLoginForm(request ,  data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+
+            if user.role == 'student':
+                return redirect('student_dashboard')
+            elif user.role == 'tutor':
+                return redirect('tutor_dashboard') 
+    else:
+        form = CustomLoginForm(request)
+    return render(request, 'users/login.html', {'form':form})

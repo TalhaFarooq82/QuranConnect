@@ -1,7 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser, TutorProfile    
 
+#---------------------------------------------Signup Portion--------------------------------------
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
@@ -19,7 +20,8 @@ class ProfileImageForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['profile_image']
-        
+
+# just for the tutor        
 class TutorCertificationForm(forms.ModelForm):
     class Meta:
         model = TutorProfile
@@ -30,3 +32,8 @@ class TutorCertificationForm(forms.ModelForm):
             'certification'
         ]   
     
+
+#----------------------------------------Login Module-----------------------------------------------
+
+class CustomLoginForm(AuthenticationForm):
+    pass
