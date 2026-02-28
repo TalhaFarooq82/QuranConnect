@@ -4,42 +4,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browse Active Jobs</title>
+    <title>Teacher Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/bookings/teacher_active_jobs.css' %}">
 </head>
 <body>
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">QuranConnect</div>
+            <div class="brand-wrap">
+                <a href="{% url 'home' %}" class="brand">QuranConnect</a>
+            </div>
+
             <nav class="menu">
-                <a href="/">Home</a>
-                <a href="#">About us</a>
-                <a href="#">AI Tutor</a>
-                <a href="#">Contact us</a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}#about">About</a>
+                <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
+                <a href="{% url 'home' %}#contact">Contact us</a>
             </nav>
-            <div class="profile">👤</div>
+
+            <div class="header-right">
+                <a href="#" class="message-icon" title="Messages">
+                    💬
+                    {% if unread_messages > 0 %}
+                    <span class="message-badge">{{ unread_messages }}</span>
+                    {% endif %}
+                </a>
+
+                <details class="profile-dropdown">
+                    <summary class="profile-summary">
+                        <div class="profile-avatar">
+                            {% if request.user.profile_image %}
+                                <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.username }}">
+                            {% else %}
+                                {{ request.user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+
+                        <div class="profile-meta">
+                            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                            <span>${{ wallet.balance }} USD</span>
+                        </div>
+                    </summary>
+
+                    <div class="dropdown-menu">
+                        <a href="{% url 'teacher_profile' %}">My Profile</a>
+                        <a href="{% url 'teacher_settings' %}">Settings</a>
+                        <a href="/users/logout/">Logout</a>
+                    </div>
+                </details>
+            </div>
         </div>
     </header>
 
-    <section class="hero">
+    <main class="dashboard-wrapper">
         <div class="container">
-            <h1>Browse Active Jobs</h1>
-            <div class="underline"></div>
-            <p>Browse open requests from students and submit your proposal to start teaching.</p>
-            <div class="breadcrumb">
-                <span>Home</span>
-                <span>›</span>
-                <span>Auction</span>
-            </div>
-        </div>
-    </section>
+            <section class="dashboard-hero">
+                <div>
+                    <p class="eyebrow">Teacher Dashboard</p>
+                    <h1>Browse Active Jobs</h1>
+                    <p class="hero-text">
+                        Explore open student requests, review requirements, and submit your proposals to start teaching.
+                    </p>
+                </div>
 
-    <section class="main-section">
-        <div class="container layout">
-            <div class="left-panel">
-                <div class="results-bar">
-                    <div>Showing 1-{{ total_results }} of {{ total_results }} Results</div>
-                    <div class="controls">
+                <div class="hero-actions">
+                    <a href="#job-list" class="btn-primary">View Open Jobs</a>
+                    <a href="{% url 'home' %}" class="btn-secondary">Back to Home</a>
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Open Jobs</p>
+                    <h3>{{ total_results }}</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Unread Messages</p>
+                    <h3>{{ unread_messages }}</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Role</p>
+                    <h3>Teacher</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Wallet Balance</p>
+                    <h3>${{ wallet.balance }}</h3>
+                </div>
+            </section>
+
+            <section class="dashboard-section" id="job-list">
+                <div class="section-head-row">
+                    <div>
+                        <h2>Available Student Requests</h2>
+                        <p>Review open requests posted by students and apply to the ones that fit your expertise.</p>
+                    </div>
+
+                    <div class="sort-wrap">
                         <select>
                             <option>Sort By Newness</option>
                             <option>Lowest Budget</option>
@@ -48,71 +107,86 @@
                     </div>
                 </div>
 
-                {% for job in jobs %}
-                <div class="job-card">
-                    <div class="job-left">
-                        <h3><a href="{% url 'job_detail' job.id %}" class="job-title-link">{{ job.title }}</a></h3>
-                        <div class="job-line"></div>
-                        <p>{{ job.description }} <a href="#">View Details</a></p>
-                    </div>
+                <div class="request-list">
+                    {% if jobs %}
+                        {% for job in jobs %}
+                        <div class="request-card">
+                            <div class="request-main">
+                                <div class="request-top">
+                                    <h3>{{ job.title }}</h3>
+                                    <span class="status-badge">{{ job.status }}</span>
+                                </div>
 
-                    <div class="job-right">
-                        <div class="meta">
-                            <div>
-                                <span class="label">Budget</span>
-                                <strong>{{ job.budget }}</strong>
+                                <p class="request-meta">
+                                    <strong>Course:</strong> {{ job.course }} |
+                                    <strong>Budget:</strong> {{ job.budget }} |
+                                    <strong>Schedule:</strong> {{ job.schedule }}
+                                </p>
+
+                                <p class="request-desc">{{ job.description|truncatechars:160 }}</p>
                             </div>
-                            <div>
-                                <span class="label">Total Bids</span>
-                                <strong>{{ job.total_bids }}</strong>
-                            </div>
-                            <div>
-                                <span class="label">Posted</span>
-                                <strong>{{ job.posted }}</strong>
+
+                            <div class="request-side">
+                                <div class="mini-stat">
+                                    <span>Proposals</span>
+                                    <strong>{{ job.proposals.count }}</strong>
+                                </div>
+
+                                <div class="mini-stat">
+                                    <span>Posted</span>
+                                    <strong>{{ job.created_at|date:"d M Y" }}</strong>
+                                </div>
+
+                                <a href="{% url 'job_detail' job.id %}" class="view-btn">View Description</a>
                             </div>
                         </div>
-                        <a href="{% url 'job_detail' job.id %}" class="desc-btn">View Description</a>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <h3>No active jobs right now</h3>
+                            <p>There are currently no open student requests. Please check again later.</p>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endfor %}
+            </section>
 
-                <div class="pagination">
-                    <span>←</span>
-                    <span class="active">1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                    <span>5</span>
-                    <span>→</span>
+            <section class="quick-actions-grid">
+                <div class="quick-card">
+                    <h3>Browse New Jobs</h3>
+                    <p>Review the latest requests from students looking for Quran teachers.</p>
+                    <a href="#job-list" class="card-link">See Jobs</a>
                 </div>
-            </div>
 
-            <aside class="filter-panel">
-                <div class="filter-box">
-                    <h3>Filter By</h3>
-                    <input type="text" placeholder="Course Type">
-                    <input type="text" placeholder="Language">
-                    <input type="text" placeholder="Student Profile">
-                    <input type="text" placeholder="Hourly Rate">
-                    <button>Filter</button>
+                <div class="quick-card">
+                    <h3>Send Proposals</h3>
+                    <p>Open a request, review the details, and submit your best teaching proposal.</p>
+                    <a href="#job-list" class="card-link">Start Applying</a>
                 </div>
-            </aside>
+
+                <div class="quick-card">
+                    <h3>Manage Your Earnings</h3>
+                    <p>Track your current wallet balance and withdraw your earnings securely.</p>
+                    <a href="{% url 'teacher_profile' %}" class="card-link">Open Profile</a>
+                </div>
+            </section>
         </div>
-    </section>
+    </main>
 
     <footer class="footer">
         <div class="container footer-grid">
             <div>
                 <h3>QuranConnect</h3>
-                <p>Making Quran learning accessible worldwide through expert online tutoring.</p>
+                <p>Making Quran learning accessible worldwide through trusted online education.</p>
             </div>
+
             <div>
                 <h4>Quick Links</h4>
-                <a href="#">Home</a>
-                <a href="#">About Us</a>
-                <a href="#">AI Tutor</a>
-                <a href="#">Contact Us</a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}#about">About</a>
+                <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
+                <a href="{% url 'home' %}#contact">Contact us</a>
             </div>
+
             <div>
                 <h4>Contact Info</h4>
                 <p>Email: info@quranconnect.com</p>
@@ -120,6 +194,7 @@
                 <p>Phone: +92 300 1234567</p>
             </div>
         </div>
+
         <div class="footer-bottom">
             <p>© 2026 QuranConnect. All rights reserved.</p>
         </div>

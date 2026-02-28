@@ -85,7 +85,7 @@ def login_view(request):
             if user.role == 'student':
                 return redirect('student_dashboard')
             elif user.role == 'tutor':
-                return redirect('tutor_dashboard') 
+                return redirect('teacher_active_jobs') 
     else:
         form = CustomLoginForm(request)
     return render(request, 'users/login.html', {'form':form})

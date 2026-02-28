@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Settings</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/teacher_profile.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <a href="{% url 'home' %}" class="brand">QuranConnect</a>
+            <nav class="menu">
+                <a href="{% url 'teacher_active_jobs' %}">Dashboard</a>
+                <a href="{% url 'teacher_profile' %}">My Profile</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <section class="profile-card">
+                <h1>Settings</h1>
+
+                <form method="post" enctype="multipart/form-data" class="withdraw-form">
+                    {% csrf_token %}
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" id="first_name" value="{{ request.user.first_name }}">
+
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" value="{{ request.user.last_name }}">
+
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" value="{{ request.user.email }}">
+
+                    <label for="profile_image">Profile Image</label>
+                    <input type="file" name="profile_image" id="profile_image">
+
+                    <button type="submit">Save Settings</button>
+                </form>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

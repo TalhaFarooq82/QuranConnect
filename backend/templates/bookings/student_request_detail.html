@@ -10,7 +10,7 @@
 <body>
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">QuranConnect</div>
+            <a href="{% url 'home' %}" class="brand">QuranConnect</a>
             <nav class="menu">
                 <a href="{% url 'student_dashboard' %}">Dashboard</a>
                 <a href="{% url 'post_job' %}">Post Job</a>
@@ -21,44 +21,141 @@
     <main class="page-wrapper">
         <div class="container">
             <section class="job-box">
-                <h1>{{ job.title }}</h1>
-                <p><strong>Course:</strong> {{ job.course }}</p>
-                <p><strong>Budget:</strong> {{ job.budget }}</p>
-                <p><strong>Schedule:</strong> {{ job.schedule }}</p>
-                <p><strong>Status:</strong> {{ job.status }}</p>
-                <p>{{ job.description }}</p>
+                <div class="job-top">
+                    <div>
+                        <h1>{{ job.title }}</h1>
+                        <p class="job-subtitle">Review proposals, chat with teachers, and award the best match.</p>
+                    </div>
+                    <span class="status-badge">{{ job.status }}</span>
+                </div>
+
+                <div class="job-meta-grid">
+                    <div class="meta-card">
+                        <span>Course</span>
+                        <strong>{{ job.course }}</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Budget</span>
+                        <strong>{{ job.budget }}</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Schedule</span>
+                        <strong>{{ job.schedule }}</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Posted</span>
+                        <strong>{{ job.created_at|date:"d M Y" }}</strong>
+                    </div>
+                </div>
+
+                <div class="description-box">
+                    <h3>Request Description</h3>
+                    <p>{{ job.description }}</p>
+                </div>
             </section>
 
             <section class="proposal-box">
-                <h2>Received Proposals ({{ proposals.count }})</h2>
+                <div class="section-head">
+                    <h2>Received Proposals ({{ proposal_rows|length }})</h2>
+                    <p>Chat with teachers before making your final decision, or award directly when you are ready.</p>
+                </div>
 
-                {% for proposal in proposals %}
+                {% for row in proposal_rows %}
+                {% with proposal=row.proposal conversation=row.conversation %}
                 <div class="proposal-card">
-                    <div>
-                        <h3>{{ proposal.teacher.username }}</h3>
-                        <p>{{ proposal.proposal_text }}</p>
-                        <p><strong>Rate:</strong> {{ proposal.hourly_rate }}</p>
-                        <p><strong>Status:</strong> {{ proposal.status }}</p>
+                    <div class="proposal-main">
+                        <div class="proposal-top">
+                            <div class="teacher-avatar">
+                                {{ proposal.teacher.username|slice:":1"|upper }}
+                            </div>
+
+                            <div class="teacher-info">
+                                <h3>{{ proposal.teacher.username }}</h3>
+                                <p>⭐ {{ proposal.rating }} ({{ proposal.reviews }} Reviews)</p>
+                            </div>
+
+                            <span class="proposal-status status-{{ proposal.status|lower }}">
+                                {{ proposal.status }}
+                            </span>
+                        </div>
+
+                        <div class="proposal-details">
+                            <div class="detail-box">
+                                <span>Hourly Rate</span>
+                                <strong>{{ proposal.hourly_rate }}</strong>
+                            </div>
+                            <div class="detail-box">
+                                <span>Availability</span>
+                                <strong>{{ proposal.availability }}</strong>
+                            </div>
+                            <div class="detail-box">
+                                <span>Submitted</span>
+                                <strong>{{ proposal.created_at|date:"d M Y, h:i A" }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="proposal-text-box">
+                            <h4>Proposal</h4>
+                            <p>{{ proposal.proposal_text }}</p>
+                        </div>
                     </div>
 
                     <div class="proposal-actions">
+                        {% if conversation %}
+                            <a href="{% url 'chat_room' conversation.id %}" class="btn-secondary full-btn">Chat</a>
+                        {% else %}
+                            <a href="{% url 'start_chat' proposal.id %}" class="btn-secondary full-btn">Chat</a>
+                        {% endif %}
+
                         {% if job.status == "Open" %}
                         <form method="post" action="{% url 'award_project' proposal.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn-primary">Award Project</button>
+                            <button type="submit" class="btn-primary full-btn">Award Project</button>
                         </form>
-                        {% endif %}
-
-                        {% if job.status == "Awarded" and job.awarded_teacher == proposal.teacher %}
-                        <a href="{% url 'chat_room' job.id %}" class="btn-secondary">Chat</a>
+                        {% elif job.awarded_teacher == proposal.teacher %}
+                            <button type="button" class="btn-awarded full-btn" disabled>Awarded</button>
+                        {% else %}
+                            <button type="button" class="btn-disabled full-btn" disabled>Not Selected</button>
                         {% endif %}
                     </div>
                 </div>
+                {% endwith %}
                 {% empty %}
-                <p>No proposals received yet.</p>
+                <div class="empty-state">
+                    <h3>No proposals received yet</h3>
+                    <p>Once teachers start bidding on your request, their proposals will appear here.</p>
+                </div>
                 {% endfor %}
             </section>
         </div>
     </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>QuranConnect</h3>
+                <p>Making Quran learning accessible worldwide through trusted online education.</p>
+            </div>
+
+            <div>
+                <h4>Quick Links</h4>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}#about">About</a>
+                <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
+                <a href="{% url 'home' %}#contact">Contact us</a>
+            </div>
+
+            <div>
+                <h4>Contact Info</h4>
+                <p>Email: info@quranconnect.com</p>
+                <p>WhatsApp: +92 300 1234567</p>
+                <p>Phone: +92 300 1234567</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 QuranConnect. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>

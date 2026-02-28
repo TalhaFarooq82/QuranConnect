@@ -1,15 +1,95 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Job, Proposal, Wallet, Notification, Conversation, Message
-
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Job, Proposal, Conversation, Message, Notification, Wallet
 
 @login_required
 def teacher_active_jobs(request):
     jobs = Job.objects.filter(status="Open").order_by("-created_at")
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    unread_messages = Notification.objects.filter(
+        user=request.user,
+        type="message",
+        is_read=False
+    ).count()
+
     return render(request, "bookings/teacher_active_jobs.html", {
         "jobs": jobs,
         "total_results": jobs.count(),
+        "unread_messages": unread_messages,
+        "wallet": wallet,
+    })
+
+@login_required
+def teacher_profile(request):
+    if request.user.role != "tutor":
+        return redirect("student_dashboard")
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    return render(request, "bookings/teacher_profile.html", {
+        "wallet": wallet,
+    })
+
+
+@login_required
+def withdraw_funds(request):
+    if request.user.role != "tutor":
+        return redirect("student_dashboard")
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        raw_amount = request.POST.get("amount", "").strip()
+
+        try:
+            amount = Decimal(raw_amount)
+        except (InvalidOperation, TypeError):
+            messages.error(request, "Please enter a valid amount.")
+            return redirect("teacher_profile")
+
+        if amount <= 0:
+            messages.error(request, "Withdrawal amount must be greater than zero.")
+            return redirect("teacher_profile")
+
+        if amount > wallet.balance:
+            messages.error(request, "You do not have enough balance to withdraw that amount.")
+            return redirect("teacher_profile")
+
+        wallet.balance -= amount
+        wallet.save()
+
+        messages.success(request, f"${amount} has been withdrawn successfully.")
+        return redirect("teacher_profile")
+
+    return redirect("teacher_profile")
+
+
+@login_required
+def teacher_settings(request):
+    if request.user.role != "tutor":
+        return redirect("student_dashboard")
+
+    if request.method == "POST":
+        request.user.first_name = request.POST.get("first_name", "").strip()
+        request.user.last_name = request.POST.get("last_name", "").strip()
+        request.user.email = request.POST.get("email", "").strip()
+
+        if "profile_image" in request.FILES:
+            request.user.profile_image = request.FILES["profile_image"]
+
+        request.user.save()
+        messages.success(request, "Your settings have been updated.")
+        return redirect("teacher_settings")
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    return render(request, "bookings/teacher_settings.html", {
+        "wallet": wallet,
     })
 
 
@@ -17,43 +97,41 @@ def teacher_active_jobs(request):
 def job_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id)
 
-    if request.method == "POST":
-        rate = request.POST.get("rate", "").strip()
+    if request.user.role != "tutor":
+        return redirect("student_dashboard")
+
+    existing_proposal = Proposal.objects.filter(job=job, teacher=request.user).first()
+
+    if request.method == "POST" and job.status == "Open" and not existing_proposal:
+        hourly_rate = request.POST.get("rate", "").strip()
         proposal_text = request.POST.get("proposal", "").strip()
 
-        if rate and proposal_text:
-            proposal, created = Proposal.objects.get_or_create(
+        if hourly_rate and proposal_text:
+            Proposal.objects.create(
                 job=job,
                 teacher=request.user,
-                defaults={
-                    "hourly_rate": rate,
-                    "proposal_text": proposal_text,
-                    "rating": 4.9,
-                    "reviews": 23,
-                    "availability": "Available Immediately",
-                },
+                hourly_rate=hourly_rate,
+                proposal_text=proposal_text,
+                rating=4.9,
+                reviews=0,
+                availability="Available Immediately",
             )
-
-            if not created:
-                proposal.hourly_rate = rate
-                proposal.proposal_text = proposal_text
-                proposal.save()
 
             Notification.objects.create(
                 user=job.student,
                 type="proposal",
                 title="New proposal received",
-                body=f"{request.user.username} submitted a proposal on '{job.title}'.",
+                body=f"{request.user.get_full_name() or request.user.username} submitted a proposal for '{job.title}'.",
             )
 
             return redirect("job_detail", job_id=job.id)
 
-    proposals = job.proposals.all().order_by("-created_at")
+    proposals = job.proposals.select_related("teacher").order_by("-created_at")
 
     return render(request, "bookings/job_detail.html", {
         "job": job,
         "proposals": proposals,
-        "can_bid": request.user != job.student and job.status == "Open",
+        "existing_proposal": existing_proposal,
     })
 
 
@@ -178,15 +256,16 @@ def award_project(request, proposal_id):
         proposal.save()
 
         Proposal.objects.filter(job=job).exclude(id=proposal.id).update(status="Rejected")
+
         job.status = "Awarded"
         job.awarded_teacher = proposal.teacher
         job.save()
 
         Conversation.objects.get_or_create(
             job=job,
+            teacher=proposal.teacher,
             defaults={
                 "student": job.student,
-                "teacher": proposal.teacher,
             }
         )
 
@@ -194,10 +273,10 @@ def award_project(request, proposal_id):
             user=proposal.teacher,
             type="award",
             title="Project awarded",
-            body=f"You have been awarded the project '{job.title}'.",
+            body=f"You have been awarded with the project '{job.title}'.",
         )
 
-    return redirect("student_request_detail", job.id)
+    return redirect("student_request_detail", job_id=job.id)
 
 
 @login_required
@@ -205,16 +284,57 @@ def student_request_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id, student=request.user)
     proposals = job.proposals.select_related("teacher").order_by("-created_at")
 
+    proposal_rows = []
+    for proposal in proposals:
+        conversation = Conversation.objects.filter(
+            job=job,
+            teacher=proposal.teacher,
+            student=request.user
+        ).first()
+
+        proposal_rows.append({
+            "proposal": proposal,
+            "conversation": conversation,
+        })
+
     return render(request, "bookings/student_request_detail.html", {
         "job": job,
-        "proposals": proposals,
+        "proposal_rows": proposal_rows,
     })
+
+@login_required
+def start_chat(request, proposal_id):
+    proposal = get_object_or_404(Proposal, id=proposal_id)
+    job = proposal.job
+
+    if job.student != request.user:
+        return redirect("student_dashboard")
+
+    conversation, created = Conversation.objects.get_or_create(
+        job=job,
+        teacher=proposal.teacher,
+        defaults={
+            "student": request.user,
+        }
+    )
+
+    if created:
+        Notification.objects.create(
+            user=proposal.teacher,
+            type="message",
+            title="New chat started",
+            body=f"{request.user.username} started a chat with you for '{job.title}'.",
+        )
+
+    return redirect("chat_room", conversation_id=conversation.id)
 
 
 @login_required
-def chat_room(request, job_id):
-    job = get_object_or_404(Job, id=job_id)
-    conversation = get_object_or_404(Conversation, job=job)
+def chat_room(request, conversation_id):
+    conversation = get_object_or_404(
+        Conversation.objects.select_related("job", "student", "teacher"),
+        id=conversation_id
+    )
 
     if request.user != conversation.student and request.user != conversation.teacher:
         return redirect("student_dashboard")
@@ -234,15 +354,15 @@ def chat_room(request, job_id):
                 user=recipient,
                 type="message",
                 title="New message",
-                body=f"You received a new message in '{job.title}'.",
+                body=f"You received a new message in '{conversation.job.title}'.",
             )
 
-            return redirect("chat_room", job_id=job.id)
+            return redirect("chat_room", conversation_id=conversation.id)
 
     messages = conversation.messages.select_related("sender").order_by("created_at")
 
     return render(request, "bookings/chat_room.html", {
-        "job": job,
         "conversation": conversation,
+        "job": conversation.job,
         "messages": messages,
     })

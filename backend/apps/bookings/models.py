@@ -84,10 +84,10 @@ class Proposal(models.Model):
 
 
 class Conversation(models.Model):
-    job = models.OneToOneField(
+    job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
-        related_name="conversation"
+        related_name="conversations"
     )
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -101,8 +101,11 @@ class Conversation(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ("job", "teacher")
+
     def __str__(self):
-        return f"Chat for {self.job.title}"
+        return f"{self.job.title} - {self.teacher.username}"
 
 
 class Message(models.Model):

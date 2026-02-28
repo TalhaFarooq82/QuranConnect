@@ -13,6 +13,13 @@ urlpatterns = [
     path("student/request/<int:job_id>/", views.student_request_detail, name="student_request_detail"),
     path("proposal/<int:proposal_id>/award/", views.award_project, name="award_project"),
 
-    path("chat/<int:job_id>/", views.chat_room, name="chat_room"),
+    path("chat/conversation/<int:conversation_id>/", views.chat_room, name="chat_room"),
     path("wallet/add-funds/", views.add_funds, name="add_funds"),
+
+    path("proposal/<int:proposal_id>/chat/", views.start_chat, name="start_chat"),
+
+    path("teacher/profile/", views.teacher_profile, name="teacher_profile"),
+    path("teacher/withdraw-funds/", views.withdraw_funds, name="withdraw_funds"),
+    path("teacher/settings/", views.teacher_settings, name="teacher_settings"),
+
 ]

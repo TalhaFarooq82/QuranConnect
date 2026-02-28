@@ -12,10 +12,10 @@
         <div class="container nav">
             <div class="brand">QuranConnect</div>
             <nav class="menu">
-                <a href="/">Home</a>
-                <a href="#">About us</a>
-                <a href="#">AI Tutor</a>
-                <a href="#">Contact us</a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}#about">About us</a>
+                <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
+                <a href="{% url 'home' %}#contact">Contact us</a>
             </nav>
             <div class="profile">👤</div>
         </div>
@@ -35,7 +35,7 @@
                     </div>
                     <div class="meta-box">
                         <span>Total Bids</span>
-                        <strong>{{ job.total_bids }}</strong>
+                        <strong>{{ job.proposals.count }}</strong>
                     </div>
                 </div>
             </section>
@@ -52,27 +52,39 @@
                 </ul>
             </section>
 
-            {% if can_bid %}
-<section class="content-card">
-    <h2>Place a Bid on this Project</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="rate">Hourly Rate</label>
-            <input type="text" id="rate" name="rate" placeholder="Enter your bidding rate">
-        </div>
+            {% if job.status == "Open" %}
+                {% if existing_proposal %}
+                <section class="content-card">
+                    <h2>Your Proposal Has Already Been Submitted</h2>
+                    <p>You have already placed a bid on this project. You cannot submit a second proposal for the same job.</p>
+                </section>
+                {% else %}
+                <section class="content-card">
+                    <h2>Place a Bid on this Project</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="rate">Hourly Rate</label>
+                            <input type="text" id="rate" name="rate" placeholder="Enter your bidding rate" required>
+                        </div>
 
-        <div class="form-group">
-            <label for="proposal">Proposal</label>
-            <textarea id="proposal" name="proposal" rows="5" placeholder="Enter your proposal. Please describe your teaching approach here."></textarea>
-        </div>
+                        <div class="form-group">
+                            <label for="proposal">Proposal</label>
+                            <textarea id="proposal" name="proposal" rows="5" placeholder="Enter your proposal. Please describe your teaching approach here." required></textarea>
+                        </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Place Bid</button>
-        </div>
-    </form>
-</section>
-{% endif %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Place Bid</button>
+                        </div>
+                    </form>
+                </section>
+                {% endif %}
+            {% else %}
+            <section class="content-card">
+                <h2>Bidding Closed</h2>
+                <p>This job is no longer open for new bids.</p>
+            </section>
+            {% endif %}
 
             <section class="content-card">
                 <div class="proposal-header">
@@ -85,14 +97,10 @@
                     <div class="proposal-card">
                         <div class="teacher-info">
                             <div class="avatar">
-                                {% if proposal.image %}
-                                    <img src="{{ proposal.image }}" alt="{{ proposal.name }}">
-                                {% else %}
-                                    <span>{{ proposal.name|slice:":1" }}</span>
-                                {% endif %}
+                                {{ proposal.teacher.username|slice:":1"|upper }}
                             </div>
                             <div>
-                               <h3>{{ proposal.teacher.username }}</h3>
+                                <h3>{{ proposal.teacher.get_full_name|default:proposal.teacher.username }}</h3>
                                 <p class="rating">⭐ {{ proposal.rating }} ({{ proposal.reviews }} Reviews)</p>
                             </div>
                         </div>
@@ -103,9 +111,11 @@
                         </div>
 
                         <div class="proposal-time">
-<span>{{ proposal.created_at|date:"d M Y, h:i A" }}</span>
+                            <span>{{ proposal.created_at|date:"d M Y, h:i A" }}</span>
                         </div>
                     </div>
+                    {% empty %}
+                    <p>No proposals yet.</p>
                     {% endfor %}
                 </div>
             </section>
@@ -120,10 +130,10 @@
             </div>
             <div>
                 <h4>Quick Links</h4>
-                <a href="/">Home</a>
-                <a href="#">About Us</a>
-                <a href="#">AI Tutor</a>
-                <a href="#">Contact Us</a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'home' %}#about">About Us</a>
+                <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
+                <a href="{% url 'home' %}#contact">Contact Us</a>
             </div>
             <div>
                 <h4>Contact Info</h4>
