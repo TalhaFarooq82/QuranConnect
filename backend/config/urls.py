@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('apps.users.urls')),
     path("", include("apps.bookings.urls")),
+    path('ai_tutor/', include('apps.ai_tutor.urls')),
 ]
 
 if settings.DEBUG:

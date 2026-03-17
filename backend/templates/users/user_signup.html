@@ -11,17 +11,17 @@
 <div class="container">
 
        <!-- LEFT IMAGE / INFO SIDE -->
-<div class="left-section">
-    <div class="top-text">
-        <h2>Welcome to QuranConnect</h2>
-        <p>Your Gateway to Global Quranic Education.</p>
-    </div>
+    <div class="left-section">
+        <div class="top-text">
+            <h2>Welcome to QuranConnect</h2>
+            <p>Your Gateway to Global Quranic Education.</p>
+        </div>
 
-    <div class="bottom-text">
-        <h3>Seamless Connections</h3>
-        <p>Effortlessly hire expert tutors or find new students in real-time.</p>
+        <div class="bottom-text">
+            <h3>Seamless Connections</h3>
+            <p>Effortlessly hire expert tutors or find new students in real-time.</p>
+        </div>
     </div>
-</div>
 
     <!-- RIGHT SIDE FORM SECTION -->
     <div class="right-section">
@@ -33,8 +33,9 @@
         <form method="POST">
             {% csrf_token %}
             {% if form.errors %}
-        <div style="color:red; margin-bottom:15px;">
-            {{ form.errors }}
+            <div style="color:red; margin-bottom:15px;">
+                {{ form.errors }}
+            </div>    
             {% endif %}
             <div class="input-group">
                 <label>Username</label>

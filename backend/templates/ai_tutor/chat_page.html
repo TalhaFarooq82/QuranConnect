@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Tutor - QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/ai_tutor/chat_page.css' %}">
+</head>
+<body>
+
+<div class="chat-container">
+    
+    <!-- Header -->
+    <div class="chat-header">
+        <h2>🕌 QuranConnect AI Tutor</h2>
+        <!-- Check user role: -->
+        {% if request.user.role == 'student' %}
+        <a href="{% url 'student_dashboard' %}">← Back to Dashboard</a>
+        {% elif request.user.role == 'tutor' %}
+        <a href="{% url 'teacher_active_jobs' %}">← Back to Dashboard</a>
+        {% endif %}
+    </div>
+
+    <!-- Messages Area -->
+    <div class="chat-messages" id="chat-messages">
+        
+        <!-- Loop through previous messages -->
+        {% for msg in messages %}
+        
+            <!-- User question -->
+            <div class="message user-message">
+                <p>{{ msg.question }}</p>
+            </div>
+            
+            <!-- AI answer -->
+            <div class="message ai-message">
+                <p>{{ msg.answer }}</p>
+            </div>
+        
+        {% empty %}
+            <p class="empty-chat">Assalamu Alaikum! Ask me any Islamic question.</p>
+        {% endfor %}
+        
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-input">
+        <form id="chat-form">
+            {% csrf_token %}
+            <!-- Hidden session id -->
+            <input type="hidden" name="session_id" value="{{ session.id }}">
+            <!-- Question input -->
+            <input type="text" name="question" id="question-input" 
+                   placeholder="Type your question...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+</div>
+
+
+
+<script>
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();  // stop page reload
+    
+    const question = document.getElementById('question-input').value;
+    const formData = new FormData(this);
+    
+    fetch("{% url 'chat_page' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Add question to chat
+        const chatMessages = document.getElementById('chat-messages');
+        
+        chatMessages.innerHTML += `
+            <div class="message user-message">
+                <p>${question}</p>
+            </div>
+            <div class="message ai-message">
+                <p>${data.answer}</p>
+            </div>
+        `;
+        
+        // Clear input
+        document.getElementById('question-input').value = '';
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+});
+</script>
+</body>
+</html>
