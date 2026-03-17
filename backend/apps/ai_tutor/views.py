@@ -11,7 +11,7 @@ def chat_page(request):
         session, created = ChatSession.objects.get_or_create( user = request.user)
         messages = ChatMessage.objects.filter(session=session)
     
-        return render(request, 'ai_tutor/chat.html', {'session': session, 'messages': messages})
+        return render(request, 'ai_tutor/chat_page.html', {'session': session, 'messages': messages})
 
 
     if request.method == "POST":
