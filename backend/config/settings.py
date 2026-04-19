@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'apps.bookings.apps.BookingsConfig',
     'apps.payments.apps.PaymentsConfig',
     'apps.ai_tutor.apps.AiTutorConfig',
+    'apps.recitation.apps.RecitationConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
