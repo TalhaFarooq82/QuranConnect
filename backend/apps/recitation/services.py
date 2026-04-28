@@ -87,42 +87,57 @@ def compare_words(correct_text, user_text):
 
   return feedback
 
-
-def analyze_recitation(audio_file):
-    # transcribing the audio.....
-    result = model.transcribe(audio_file, language= 'ar')
-    # print(f"Voice text: {result['text']}")
-    user_text = result['text']
-     # text cleaning or preprocessing
-    clean_user_text = clean_whisper_output(user_text)
-
-    # get correct aya from chromadb OR Search ChromaDB
-    results = collection.query(
-        query_texts = [clean_user_text],    # Arabic whisper output
-        n_results   = 1,                    # top 1 match only
-        where       = {"source": "Quran"},  # ignore hadiths
-        include     = ["documents", "metadatas"]
+def find_ayah_by_arabic(clean_user_text):
+    # Get ALL Quran ayahs from ChromaDB
+    all_ayahs = collection.get(
+        where   = {"source": "Quran"},
+        include = ["metadatas"]
     )
 
-    # Step 4: Extract from metadata
-    raw_correct = results['metadatas'][0][0]['arabic_text']
-    surah = results['metadatas'][0][0]['surah_number']
-    ayah = results['metadatas'][0][0]['ayah_number'] 
+    best_score = 0
+    best_meta  = None
+    best_clean = None
 
+    for meta in all_ayahs['metadatas']:
+        arabic  = meta['arabic_text']
+        cleaned = clean_whisper_output(arabic)
+        score   = difflib.SequenceMatcher(None, cleaned, clean_user_text).ratio()
 
+        if score > best_score:
+            best_score = score
+            best_meta  = meta
+            best_clean = cleaned
 
-    # cleaning the correct text
-    clean_correct_text = clean_whisper_output(raw_correct)
+    return best_meta, best_clean, best_score
 
-    # Now Comparing both text
-    feedback = compare_words(clean_correct_text, clean_user_text)
+def analyze_recitation(audio_file):
+
+    # Step 1: Transcribe
+    result    = model.transcribe(audio_file, language='ar')
+    user_text = result['text']
+
+    # Step 2: Clean user text
+    clean_user = clean_whisper_output(user_text)
+
+    # Direct Arabic comparison across all ayahs
+    best_meta, best_clean, best_score = find_ayah_by_arabic(clean_user)
+
+    if best_meta is None:
+        return {"error": "No matching ayah found"}
+
+    raw_correct   = best_meta['arabic_text']
+    surah         = best_meta['surah_number']
+    ayah          = best_meta['ayah_number']
+    clean_correct = best_clean
+
+    # Step 6: Compare words
+    feedback = compare_words(clean_correct, clean_user)
 
     # Step 7: Calculate score
     total   = len(feedback)
     correct = sum(1 for f in feedback if f["status"] == "correct")
     score   = round((correct / total) * 100) if total > 0 else 0
 
-    # Step 8: Return everything
     return {
         "surah":        surah,
         "ayah":         ayah,

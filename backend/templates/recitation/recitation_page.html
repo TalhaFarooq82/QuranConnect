@@ -1,0 +1,313 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tajweed Feedback — QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/recitation/recitation_page.css' %}">
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar">
+    <div class="container nav">
+        <div class="brand">QuranConnect</div>
+        <nav class="menu">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}#about">About</a>
+            <a href="{% url 'chat_page' %}">AI Tutor</a>
+            <a href="{% url 'home' %}#contact">Contact us</a>
+        </nav>
+        <div class="auth-actions">
+            <a href="/users/logout/" class="btn-outline-sm">Logout</a>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="page-wrapper">
+    <div class="container">
+        <div class="narrow">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <p class="eyebrow">AI-Powered Tajweed Tool</p>
+                    <h1>Tajweed Feedback</h1>
+                    <p>Upload your recitation and get instant word-by-word feedback powered by AI.</p>
+                </div>
+                <div class="arabic-badge">🎙️</div>
+            </div>
+
+            <!-- Error -->
+            <div class="error-card" id="errorCard">
+                ⚠️ <span id="errorMsg"></span>
+            </div>
+
+            <!-- Upload Card -->
+            <div class="card" id="uploadCard">
+                <h2>Upload Your Recitation</h2>
+
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" id="audioFile" accept="audio/*">
+                    <span class="icon">🎵</span>
+                    <div class="drop-text">Click to choose an audio file</div>
+                    <div class="drop-hint">Supports MP3, WAV, M4A</div>
+                </div>
+
+                <div class="file-selected" id="fileSelected">
+                    <span class="file-icon">🎵</span>
+                    <span class="file-name" id="fileName"></span>
+                    <button class="remove-btn" id="removeFile">✕</button>
+                </div>
+
+                <button class="btn-primary" id="submitBtn" disabled>
+                    Analyze My Recitation
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="card loading-card" id="loadingCard">
+                <div class="spinner"></div>
+                <p>Analyzing your recitation...</p>
+                <div class="loading-hint">
+                    Transcribing audio → Matching ayah → Generating feedback
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-card" id="resultsCard">
+                <div class="card">
+
+                    <div class="score-section">
+                        <div>
+                            <div class="detected-label">Detected Ayah</div>
+                            <div class="detected-ayah" id="ayahDetected">—</div>
+                        </div>
+                        <div class="score-badge" id="scoreBadge">
+                            <div id="scoreValue">—</div>
+                            <span>Score</span>
+                        </div>
+                    </div>
+
+                    <div class="whisper-section">
+                        <label>What we heard</label>
+                        <p id="userText"></p>
+                    </div>
+
+                    <div class="feedback-title">Word by Word Feedback</div>
+                    <div class="word-list" id="wordList"></div>
+
+                </div>
+
+                <button class="btn-secondary" id="tryAgainBtn">
+                    ↩ Try Another Recitation
+                </button>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container footer-grid">
+        <div>
+            <h3>QuranConnect</h3>
+            <p>Making Quran learning accessible worldwide through trusted online education.</p>
+        </div>
+        <div>
+            <h4>Quick Links</h4>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}#about">About</a>
+            <a href="{% url 'chat_page' %}">AI Tutor</a>
+            <a href="{% url 'home' %}#contact">Contact us</a>
+        </div>
+        <div>
+            <h4>Contact Info</h4>
+            <p>Email: info@quranconnect.com</p>
+            <p>WhatsApp: +92 300 1234567</p>
+            <p>Phone: +92 300 1234567</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 QuranConnect. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    // Get all elements
+    const audioFile    = document.getElementById('audioFile');
+    const dropZone     = document.getElementById('dropZone');
+    const fileSelected = document.getElementById('fileSelected');
+    const fileName     = document.getElementById('fileName');
+    const removeFile   = document.getElementById('removeFile');
+    const submitBtn    = document.getElementById('submitBtn');
+    const uploadCard   = document.getElementById('uploadCard');
+    const loadingCard  = document.getElementById('loadingCard');
+    const resultsCard  = document.getElementById('resultsCard');
+    const errorCard    = document.getElementById('errorCard');
+    const tryAgainBtn  = document.getElementById('tryAgainBtn');
+
+    // STEP 1: File picked
+    // 'change' event fires when user selects a file
+    audioFile.addEventListener('change', function() {
+        if (audioFile.files.length > 0) {
+            fileName.textContent = audioFile.files[0].name;
+            fileSelected.classList.add('show');
+            dropZone.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    });
+
+    // STEP 2: Remove file
+    removeFile.addEventListener('click', function() {
+        audioFile.value = '';
+        fileSelected.classList.remove('show');
+        dropZone.style.display = 'block';
+        submitBtn.disabled = true;
+    });
+
+    // STEP 3: Drag and drop
+    // e.preventDefault() stops browser from opening the file
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function() {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            audioFile.files = dt.files;
+            audioFile.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // STEP 4: Submit
+    // FormData packages the file for sending
+    // fetch() sends it to Django without page reload
+    submitBtn.addEventListener('click', function() {
+
+        if (!audioFile.files[0]) {
+            showError('Please select an audio file first.');
+            return;
+        }
+
+        uploadCard.style.display = 'none';
+        loadingCard.classList.add('show');
+        errorCard.classList.remove('show');
+
+        // FormData = how we send files in JavaScript
+        const formData = new FormData();
+        formData.append('audio_file', audioFile.files[0]);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        // fetch() = send HTTP request
+        // .then() = handle the response
+        // .catch() = handle errors
+        fetch("{% url 'recitation_page' %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            return response.json();  // convert response to JSON
+        })
+        .then(function(data) {
+            loadingCard.classList.remove('show');
+            showResults(data);       // show the feedback
+        })
+        .catch(function(error) {
+            loadingCard.classList.remove('show');
+            uploadCard.style.display = 'block';
+            showError('Something went wrong. Please try again.');
+            console.error(error);
+        });
+    });
+
+    // STEP 5: Show results
+    // data = JSON object from Django
+    function showResults(data) {
+
+        // Show ayah info
+        document.getElementById('ayahDetected').textContent =
+            'Surah ' + data.surah + '  —  Ayah ' + data.ayah;
+
+        // Show whisper text
+        document.getElementById('userText').textContent = data.user_text;
+
+        // Show score with color coding
+        const score      = data.score;
+        const scoreBadge = document.getElementById('scoreBadge');
+        document.getElementById('scoreValue').textContent = score + '%';
+
+        if      (score >= 80) scoreBadge.className = 'score-badge high';
+        else if (score >= 50) scoreBadge.className = 'score-badge medium';
+        else                  scoreBadge.className = 'score-badge low';
+
+        // Build word list
+        // forEach = loop through every item in array
+        const wordList = document.getElementById('wordList');
+        wordList.innerHTML = '';
+
+        data.feedback.forEach(function(item, index) {
+            const div = document.createElement('div');
+            div.className = 'word-item ' + item.status;
+
+            let icon = '', detail = '';
+
+            if (item.status === 'correct') {
+                icon   = '✅';
+                detail = '<div class="word-detail">Correct</div>';
+            } else if (item.status === 'wrong') {
+                icon   = '❌';
+                detail = '<div class="word-detail">Should be this word</div>' +
+                         '<div class="you-said">You said: ' + item.you_said + '</div>';
+            } else if (item.status === 'missing') {
+                icon   = '⚠️';
+                detail = '<div class="word-detail">This word was missing</div>';
+            } else if (item.status === 'extra') {
+                icon   = '➕';
+                detail = '<div class="word-detail">Extra word added</div>';
+            }
+
+            div.innerHTML =
+                '<span class="status-icon">' + icon + '</span>' +
+                '<span class="word-number">Word ' + (index + 1) + '</span>' +
+                '<span class="word-arabic">' + item.word + '</span>' +
+                '<div>' + detail + '</div>';
+
+            wordList.appendChild(div);
+        });
+
+        resultsCard.classList.add('show');
+    }
+
+    // STEP 6: Try again
+    tryAgainBtn.addEventListener('click', function() {
+        audioFile.value = '';
+        fileSelected.classList.remove('show');
+        dropZone.style.display = 'block';
+        submitBtn.disabled = true;
+        uploadCard.style.display = 'block';
+        resultsCard.classList.remove('show');
+        errorCard.classList.remove('show');
+    });
+
+    // Helper: show error
+    function showError(msg) {
+        document.getElementById('errorMsg').textContent = msg;
+        errorCard.classList.add('show');
+    }
+</script>
+
+</body>
+</html>

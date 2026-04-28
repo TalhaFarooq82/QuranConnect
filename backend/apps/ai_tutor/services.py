@@ -53,7 +53,8 @@ def fetch_chapter(chapter_number):
         verse_key   = verse['verse_key']
         ayah_num    = verse_key.split(':')[1]
 
-        ayahs.append(translation)
+        # ayahs.append(translation)
+        ayahs.append(arabic + " " + translation)
         ids.append(verse_key)
         metadatas.append({
             "surah_number": chapter_number,
