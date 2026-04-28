@@ -306,6 +306,55 @@
             text-align: center; padding: 16px 0; color: #94a3b8; font-size: 13px;
         }
 
+/* ── History ── */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border: 1px solid #e9eef3;
+    border-radius: 10px;
+    background: #f8fcfe;
+    gap: 16px;
+}
+
+.history-surah {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.history-date {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.history-score {
+    font-size: 22px;
+    font-weight: 800;
+    padding: 10px 18px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.score-high   { background: #d4edda; color: #1b5e20; }
+.score-medium { background: #fff3cd; color: #7d5a00; }
+.score-low    { background: #fde8e8; color: #9b1c1c; }
+
+@media (max-width: 600px) {
+    .history-item { flex-wrap: wrap; }
+}
+
+
+
+
         /* ── Responsive ── */
         @media (max-width: 820px) {
             .menu { display: none; }

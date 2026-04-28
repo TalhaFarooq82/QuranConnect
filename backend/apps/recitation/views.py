@@ -9,7 +9,14 @@ import tempfile, os
 @login_required
 def recitation_page(request):
     if request.method == 'GET':
-        return render(request, 'recitation/recitation_page.html')
+        # Fetch user's previous recitation attempts
+        history = RecitationAttempt.objects.filter(
+            user=request.user
+        ).order_by('-created_at')[:10]  # last 10 attempts
+
+        return render(request, 'recitation/recitation_page.html', {
+            'history': history
+        })
     
     if request.method == 'POST':
         #Step 1: Get audio file from request 

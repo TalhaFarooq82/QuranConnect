@@ -108,6 +108,41 @@
 
         </div>
     </div>
+
+
+    <!-- History Section -->
+    {% if history %}
+    <div class="narrow">
+        <div class="card">
+            <h2>My Previous Attempts</h2>
+
+            <div class="history-list">
+                {% for attempt in history %}
+                <div class="history-item">
+
+                    <div class="history-left">
+                        <div class="history-surah">
+                            Surah {{ attempt.surah_number }} — Ayah {{ attempt.ayah_number }}
+                        </div>
+                        <div class="history-date">
+                            {{ attempt.created_at|date:"d M Y, h:i A" }}
+                        </div>
+                    </div>
+
+                    <div class="history-score
+                        {% if attempt.score >= 80 %}score-high
+                        {% elif attempt.score >= 50 %}score-medium
+                        {% else %}score-low{% endif %}">
+                        {{ attempt.score }}%
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
 </main>
 
 <!-- Footer -->
