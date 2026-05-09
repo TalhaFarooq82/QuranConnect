@@ -4,7 +4,8 @@ from .views import (
     user_signup,
     tutor_certification,
     upload_profile,
-    login_view
+    login_view,
+    logout_view
 )
 
 urlpatterns = [
@@ -21,5 +22,8 @@ urlpatterns = [
     path('register/tutor/certification/<int:user_id>/', tutor_certification, name='tutor_certification'),
     
     # login
-    path('login/', login_view, name = 'login')
+    path('login/', login_view, name = 'login'),
+
+    #logout
+    path('logout/', logout_view, name='logout')
 ]

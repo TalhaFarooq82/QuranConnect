@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from .forms import CustomUserCreationForm, TutorCertificationForm, ProfileImageForm, CustomLoginForm
 from .models import CustomUser, TutorProfile
 from django.contrib import messages
+from django.contrib.auth import logout
 
 def home(request):
     return render(request, 'home.html')
@@ -89,3 +90,8 @@ def login_view(request):
     else:
         form = CustomLoginForm(request)
     return render(request, 'users/login.html', {'form':form})
+
+#-----------------------------------------Logout View--------------------------------------------------
+def logout_view(request):
+    logout(request)
+    return redirect('login')
