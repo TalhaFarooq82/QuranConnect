@@ -10,11 +10,14 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'daphne',                                 # must be first
+    'channels',                               # must be seconf
     'apps.users.apps.UsersConfig',
     'apps.bookings.apps.BookingsConfig',
     'apps.payments.apps.PaymentsConfig',
     'apps.ai_tutor.apps.AiTutorConfig',
     'apps.recitation.apps.RecitationConfig',
+    'apps.messaging.apps.MessagingConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,7 +54,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASES = {
     'default': {
