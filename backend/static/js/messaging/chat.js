@@ -15,12 +15,12 @@ function scrollToBottom() {
 ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
 
-    if (data.message_id) {
-        appendMessage(data);
-    }
-
-    if (data.signal) {
+    if (data.type === 'file') {
+        appendFileMessage(data);
+    } else if (data.signal) {
         handleVideoSignal(data);
+    } else {
+        appendMessage(data);
     }
 };
 
@@ -99,7 +99,17 @@ function uploadFile() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            appendFileMessage(data);
+            // Send via WebSocket so BOTH users see it
+            ws.send(JSON.stringify({
+                type: 'file',
+                file_url: data.file_url,
+                file_type: data.file_type,
+                original_name: data.original_name,
+                timestamp: new Date().toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short',
+                    hour: '2-digit', minute: '2-digit'
+                }),
+            }));
             cancelFile();
         } else {
             alert('Upload failed: ' + (data.error || 'Unknown error'));
