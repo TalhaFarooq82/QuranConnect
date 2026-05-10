@@ -26,7 +26,8 @@ urlpatterns = [
     path('users/', include('apps.users.urls')),
     path("", include("apps.bookings.urls")),
     path('ai_tutor/', include('apps.ai_tutor.urls')),
-    path('recitation/', include('apps.recitation.urls'))
+    path('recitation/', include('apps.recitation.urls')),
+    path('messaging/', include('apps.messaging.urls')),
 ]
 
 if settings.DEBUG:

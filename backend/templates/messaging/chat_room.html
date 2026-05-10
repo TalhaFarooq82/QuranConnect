@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat — {{ conversation.job.title }}</title>
+    <link rel="stylesheet" href="{% static 'css/messaging/chat_room.css' %}">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Inbox</h2>
+            <a href="{% url 'inbox' %}" class="back-link">All chats</a>
+        </div>
+
+        <div class="conversation-list">
+            {% for item in conversation_list %}
+            <a href="{% url 'messaging_chat_room' item.conversation.id %}"
+                class="conv-item {% if item.conversation.id == conversation.id %}active{% endif %}">
+                <div class="conv-avatar">
+                    {{ item.other_user.username|slice:":1"|upper }}
+                </div>
+                <div class="conv-info">
+                    <div class="conv-top">
+                        <span class="conv-name">
+                            {{ item.other_user.get_full_name|default:item.other_user.username }}
+                        </span>
+                        {% if item.last_message %}
+                        <span class="conv-time">{{ item.last_message.created_at|timesince }} ago</span>
+                        {% endif %}
+                    </div>
+                    <span class="conv-job">{{ item.conversation.job.title|truncatechars:28 }}</span>
+                    <div class="conv-bottom">
+                        <span class="conv-preview">
+                            {% if item.last_message %}{{ item.last_message.body|truncatechars:32 }}{% else %}No messages yet{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-main">
+
+        <!-- Chat Header -->
+        <header class="chat-header">
+            <div class="chat-header-left">
+                <div class="header-avatar">
+                    {{ other_user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h3>{{ other_user.get_full_name|default:other_user.username }}</h3>
+                    <span class="job-title">{{ conversation.job.title }}</span>
+                </div>
+            </div>
+            <div class="chat-header-right">
+                <button class="btn-video" onclick="startVideoCall()">
+                    📹 Start Session
+                </button>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        <div class="messages-area" id="messages-area">
+            {% for msg in messages %}
+            <div class="message-row {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}"
+                 id="msg-{{ msg.id }}">
+                {% if msg.sender != request.user %}
+                <div class="msg-avatar">{{ msg.sender.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <div class="message-bubble">
+                    <p>{{ msg.body }}</p>
+                    <span class="msg-time">{{ msg.created_at|date:"d M, h:i A" }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-chat">
+                <p>No messages yet. Say Assalamu Alaikum! 👋</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- File upload preview -->
+        <div class="file-preview-bar" id="file-preview-bar" style="display:none;">
+            <span id="file-preview-name"></span>
+            <button onclick="cancelFile()">✕</button>
+        </div>
+
+        <!-- Input Area -->
+        <footer class="chat-footer">
+            <label class="attach-btn" title="Attach file">
+                📎
+                <input type="file" id="file-input"
+                       accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.mp3,.wav,.ogg,.m4a"
+                       style="display:none"
+                       onchange="handleFileSelect(this)">
+            </label>
+
+            <input type="text"
+                   id="message-input"
+                   class="message-input"
+                   placeholder="Type a message..."
+                   autocomplete="off"
+                   onkeydown="if(event.key==='Enter') sendMessage()">
+
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </footer>
+
+    </main>
+
+    <!-- VIDEO CALL PANEL (hidden by default) -->
+    <div class="video-panel" id="video-panel" style="display:none;">
+        <div class="video-header">
+            <span>Live Session</span>
+            <button onclick="endCall()" class="btn-end-call">End Call</button>
+        </div>
+        <div class="video-grid">
+            <div class="video-box">
+                <video id="remote-video" autoplay playsinline></video>
+                <span class="video-label">{{ other_user.get_full_name|default:other_user.username }}</span>
+            </div>
+            <div class="video-box local-box">
+                <video id="local-video" autoplay playsinline muted></video>
+                <span class="video-label">You</span>
+            </div>
+        </div>
+        <div class="video-controls">
+            <button id="btn-mic" onclick="toggleMic()">🎙 Mute</button>
+            <button id="btn-cam" onclick="toggleCam()">📷 Cam Off</button>
+            <button id="btn-screen" onclick="toggleScreen()">🖥 Share Screen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const conversationId = "{{ conversation.id }}";
+    const currentUserId = "{{ request.user.id }}";
+    const uploadUrl = "{% url 'upload_file' conversation.id %}";
+    const csrfToken = "{{ csrf_token }}";
+</script>
+<script src="{% static 'js/messaging/chat.js' %}"></script>
+<script src="{% static 'js/messaging/video.js' %}"></script>
+
+</body>
+</html>

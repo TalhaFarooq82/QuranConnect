@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox — QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/messaging/inbox.css' %}">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="container nav">
+        <div class="brand">QuranConnect</div>
+        <nav class="menu">
+            <a href="{% url 'home' %}">Home</a>
+            {% if request.user.role == 'student' %}
+            <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            {% else %}
+            <a href="{% url 'teacher_active_jobs' %}">Dashboard</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<main class="inbox-wrapper">
+    <div class="inbox-header">
+        <h1>Inbox</h1>
+        <p>Your active conversations</p>
+    </div>
+
+    <div class="inbox-list">
+        {% for item in conversation_list %}
+        <a href="{% url 'messaging_chat_room' item.conversation.id %}" class="inbox-card">
+            <div class="inbox-avatar">
+                {{ item.other_user.username|slice:":1"|upper }}
+            </div>
+            <div class="inbox-info">
+                <div class="inbox-top">
+                    <span class="inbox-name">
+                        {{ item.other_user.get_full_name|default:item.other_user.username }}
+                    </span>
+                    {% if item.last_message %}
+                    <span class="inbox-time">
+                        {{ item.last_message.created_at|date:"d M, h:i A" }}
+                    </span>
+                    {% endif %}
+                </div>
+                <span class="inbox-job">{{ item.conversation.job.title }}</span>
+                {% if item.last_message %}
+                <p class="inbox-preview">{{ item.last_message.body|truncatechars:60 }}</p>
+                {% else %}
+                <p class="inbox-preview">No messages yet.</p>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-inbox">
+            <p>No conversations yet. Award a project to start chatting.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+</body>
+</html>

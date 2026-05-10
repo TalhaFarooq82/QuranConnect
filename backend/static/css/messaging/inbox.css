@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f8;
+    color: #111827;
+    min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Topbar ── */
+.topbar {
+    background: #0b8fb3;
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.container { width: 90%; max-width: 1180px; margin: 0 auto; }
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand { font-size: 26px; font-weight: 700; color: #fff; }
+
+.menu { display: flex; gap: 24px; }
+.menu a { color: #fff; font-size: 15px; font-weight: 500; }
+
+/* ── Inbox wrapper ── */
+.inbox-wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+}
+
+.inbox-header { margin-bottom: 24px; }
+.inbox-header h1 { font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.inbox-header p { font-size: 15px; color: #6b7280; }
+
+/* ── Inbox cards ── */
+.inbox-list { display: flex; flex-direction: column; gap: 12px; }
+
+.inbox-card {
+    background: #fff;
+    border: 1px solid #e5eaf0;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.inbox-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-color: #0b8fb3;
+    transform: translateY(-1px);
+}
+
+.inbox-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b8fb3, #06b6d4);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.inbox-info { flex: 1; min-width: 0; }
+
+.inbox-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.inbox-name { font-size: 16px; font-weight: 700; color: #111827; }
+.inbox-time { font-size: 12px; color: #9ca3af; }
+.inbox-job  { font-size: 13px; color: #0b8fb3; font-weight: 500; margin-bottom: 3px; }
+.inbox-preview { font-size: 14px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.empty-inbox {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    font-size: 16px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5eaf0;
+}
