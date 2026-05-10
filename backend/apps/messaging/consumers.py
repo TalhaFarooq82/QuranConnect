@@ -37,26 +37,45 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message_body = data.get('message', '').strip()
+        msg_type = data.get('type', 'message')
 
-        if not message_body:
-            return
+        if msg_type == 'file':
+            # File was already saved via HTTP upload
+            # Just broadcast to the group so other person sees it
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_file',
+                    'file_url': data['file_url'],
+                    'file_type': data['file_type'],
+                    'original_name': data['original_name'],
+                    'sender_id': self.user.id,
+                    'sender_name': self.user.get_full_name() or self.user.username,
+                    'timestamp': data['timestamp'],
+                }
+            )
 
-        # Save to database
-        message = await self.save_message(message_body)
+        else:    
+            message_body = data.get('message', '').strip()
 
-        # Broadcast to everyone in the group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message_body,
-                'sender_id': self.user.id,
-                'sender_name': self.user.get_full_name() or self.user.username,
-                'timestamp': message.created_at.strftime('%d %b %Y, %I:%M %p'),
-                'message_id': message.id,
-            }
-        )
+            if not message_body:
+                return
+
+            # Save to database
+            message = await self.save_message(message_body)
+
+            # Broadcast to everyone in the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message_body,
+                    'sender_id': self.user.id,
+                    'sender_name': self.user.get_full_name() or self.user.username,
+                    'timestamp': message.created_at.strftime('%d %b %Y, %I:%M %p'),
+                    'message_id': message.id,
+                }
+            )
 
     # This is called when group_send fires
     async def chat_message(self, event):
@@ -68,6 +87,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message_id': event['message_id'],
         }))
 
+    async def chat_file(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'file',
+            'file_url': event['file_url'],
+            'file_type': event['file_type'],
+            'original_name': event['original_name'],
+            'sender_id': event['sender_id'],
+            'sender_name': event['sender_name'],
+            'timestamp': event['timestamp'],
+        }))
     # --- Database helpers (sync → async) ---
 
     @database_sync_to_async
