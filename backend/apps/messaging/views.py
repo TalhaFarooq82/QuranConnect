@@ -9,7 +9,7 @@ import os
 @login_required
 def inbox(request):
     user = request.user
-    
+
     # Get all conversations this user is part of
     if user.role == 'student':
         conversations = Conversation.objects.filter(
@@ -35,28 +35,50 @@ def inbox(request):
         'conversation_list': conversation_list,
     })
 
+from itertools import chain
+from operator import attrgetter
 
 @login_required
 def chat_room(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
     user = request.user
 
-    # Security check
     if user != conversation.student and user != conversation.teacher:
         return redirect('inbox')
 
     other_user = conversation.teacher if user == conversation.student else conversation.student
 
-    # Load all previous messages
-    messages = conversation.messages.select_related('sender').order_by('created_at')
+    # Load text messages
+    text_messages = conversation.messages.select_related('sender').order_by('created_at')
+
+    # Load shared files
+    shared_files = conversation.shared_files.select_related('uploaded_by').order_by('uploaded_at')
+
+    # Tag each item so template knows what type it is
+    tagged_messages = []
+    for msg in text_messages:
+        tagged_messages.append({
+            'type': 'text',
+            'sender': msg.sender,
+            'body': msg.body,
+            'timestamp': msg.created_at,
+        })
+    for f in shared_files:
+        tagged_messages.append({
+            'type': f.file_type,
+            'sender': f.uploaded_by,
+            'file_url': f.file.url,
+            'original_name': f.original_name,
+            'timestamp': f.uploaded_at,
+        })
+
+    # Sort everything by timestamp together
+    tagged_messages.sort(key=lambda x: x['timestamp'])
 
     # Mark notifications as read
     user.notifications.filter(type='message', is_read=False).update(is_read=True)
 
-    # Get shared files
-    shared_files = conversation.shared_files.select_related('uploaded_by').order_by('uploaded_at')
-
-    # Get all conversations for sidebar
+    # Sidebar conversations
     if user.role == 'student':
         conversations = Conversation.objects.filter(
             student=user
@@ -79,8 +101,7 @@ def chat_room(request, conversation_id):
     return render(request, 'messaging/chat_room.html', {
         'conversation': conversation,
         'other_user': other_user,
-        'messages': messages,
-        'shared_files': shared_files,
+        'tagged_messages': tagged_messages,
         'conversation_list': conversation_list,
     })
 

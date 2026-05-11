@@ -23,7 +23,7 @@
         </nav>
     </div>
 </header>
-   
+
 <div class="app-layout">
     
 
@@ -86,15 +86,30 @@
 
         <!-- Messages -->
         <div class="messages-area" id="messages-area">
-            {% for msg in messages %}
-            <div class="message-row {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}"
-                 id="msg-{{ msg.id }}">
-                {% if msg.sender != request.user %}
-                <div class="msg-avatar">{{ msg.sender.username|slice:":1"|upper }}</div>
+            {% for item in tagged_messages %}
+            <div class="message-row {% if item.sender == request.user %}mine{% else %}theirs{% endif %}">
+                {% if item.sender != request.user %}
+                <div class="msg-avatar">{{ item.sender.username|slice:":1"|upper }}</div>
                 {% endif %}
                 <div class="message-bubble">
-                    <p>{{ msg.body }}</p>
-                    <span class="msg-time">{{ msg.created_at|date:"d M, h:i A" }}</span>
+
+                    {% if item.type == 'text' %}
+                        <p>{{ item.body }}</p>
+
+                    {% elif item.type == 'image' %}
+                        <img src="{{ item.file_url }}" class="msg-image"
+                            onclick="window.open('{{ item.file_url }}')">
+
+                    {% elif item.type == 'audio' %}
+                        <audio controls src="{{ item.file_url }}" class="msg-audio"></audio>
+
+                    {% else %}
+                        <a href="{{ item.file_url }}" target="_blank" class="msg-file">
+                            📄 {{ item.original_name }}
+                        </a>
+                    {% endif %}
+
+                    <span class="msg-time">{{ item.timestamp|date:"d M, h:i A" }}</span>
                 </div>
             </div>
             {% empty %}
@@ -103,7 +118,7 @@
             </div>
             {% endfor %}
         </div>
-
+        
         <!-- File upload preview -->
         <div class="file-preview-bar" id="file-preview-bar" style="display:none;">
             <span id="file-preview-name"></span>

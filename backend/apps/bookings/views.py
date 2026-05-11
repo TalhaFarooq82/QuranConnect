@@ -326,7 +326,7 @@ def start_chat(request, proposal_id):
             body=f"{request.user.username} started a chat with you for '{job.title}'.",
         )
 
-    return redirect("chat_room", conversation_id=conversation.id)
+    return redirect("messaging_chat_room", conversation_id=conversation.id)
 
 
 @login_required
@@ -357,7 +357,7 @@ def chat_room(request, conversation_id):
                 body=f"You received a new message in '{conversation.job.title}'.",
             )
 
-            return redirect("chat_room", conversation_id=conversation.id)
+            return redirect("messaging_chat_room", conversation_id=conversation.id)
 
     messages = conversation.messages.select_related("sender").order_by("created_at")
 

@@ -119,8 +119,10 @@ function uploadFile() {
 
 function appendFileMessage(data) {
     const area = document.getElementById('messages-area');
+    const isMine = String(data.sender_id) === String(currentUserId);
+
     const row = document.createElement('div');
-    row.className = 'message-row mine';
+    row.className = `message-row ${isMine ? 'mine' : 'theirs'}`;
 
     let fileHtml = '';
     if (data.file_type === 'image') {
@@ -128,15 +130,14 @@ function appendFileMessage(data) {
     } else if (data.file_type === 'audio') {
         fileHtml = `<audio controls src="${data.file_url}" class="msg-audio"></audio>`;
     } else {
-        fileHtml = `<a href="${data.file_url}" target="_blank" class="msg-file">
-                        📄 ${data.original_name}
-                    </a>`;
+        fileHtml = `<a href="${data.file_url}" target="_blank" class="msg-file">📄 ${data.original_name}</a>`;
     }
 
     row.innerHTML = `
+        ${!isMine ? `<div class="msg-avatar">${data.sender_name[0].toUpperCase()}</div>` : ''}
         <div class="message-bubble">
             ${fileHtml}
-            <span class="msg-time">Just now</span>
+            <span class="msg-time">${data.timestamp}</span>
         </div>
     `;
 

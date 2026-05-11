@@ -103,9 +103,9 @@
 
                     <div class="proposal-actions">
                         {% if conversation %}
-                            <a href="{% url 'chat_room' conversation.id %}" class="btn-secondary full-btn">Chat</a>
+                            <a href="{% url 'messaging_chat_room' conversation.id %}" class="btn-secondary full-btn">Start Chat</a>
                         {% else %}
-                            <a href="{% url 'start_chat' proposal.id %}" class="btn-secondary full-btn">Chat</a>
+                            <a href="{% url 'start_chat' proposal.id %}" class="btn-secondary full-btn">Start Chat</a>
                         {% endif %}
 
                         {% if job.status == "Open" %}
