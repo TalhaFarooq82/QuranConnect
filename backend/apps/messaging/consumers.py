@@ -55,6 +55,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
+        elif data.get('signal'):
+            # video signal — just forward to group, no DB saving
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'video_signal',
+                    'signal_data': data,
+                    'sender_id': self.user.id,
+                }
+            )
+
         else:    
             message_body = data.get('message', '').strip()
 
@@ -129,3 +140,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         return message
+    
+
+
+    async def video_signal(self, event):
+        # Don't send signal back to the person who sent it
+        if event['sender_id'] == self.user.id:
+            return
+        
+        await self.send(text_data=json.dumps(event['signal_data']))
+
