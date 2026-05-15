@@ -23,7 +23,7 @@
             </nav>
 
             <div class="header-right">
-                <a href="{% url 'student_dashboard' %}" class="message-icon" title="Messages">
+                <a href="{{% url 'inbox' %}" class="message-icon" title="Messages">
                     💬
                     {% if unread_messages > 0 %}
                     <span class="message-badge">{{ unread_messages }}</span>
