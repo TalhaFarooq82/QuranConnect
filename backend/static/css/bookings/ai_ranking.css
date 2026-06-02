@@ -1,0 +1,171 @@
+/* ============================================================
+   static/css/bookings/ai_ranking.css
+   
+   Styles for the AI score panel inside each proposal card.
+   These are NEW styles — they don't replace anything in
+   your existing student_request_detail.css.
+   ============================================================ */
+
+
+/* ---- Label above the proposals list ---- */
+.ai-label {
+    font-size: 13px;
+    color: #7c6b9e;         /* soft purple — signals "AI feature" */
+    margin: 4px 0 0;
+    font-style: italic;
+}
+
+
+/* ---- "Best Match" banner on the top-ranked card ---- */
+.top-match-banner {
+    background: #5c4fce;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    display: inline-block;   /* ← ADD THIS */
+    margin-bottom: 12px;     /* ← ADD THIS */
+    width: fit-content;      /* ← ADD THIS */
+}
+
+/* Give the top card a subtle purple left border so it stands out */
+.proposal-card.top-match {
+    border-left: 3px solid #5c4fce;
+}
+
+/* ============================================================
+   AI Score Panel
+   The block that shows the match % + 3 progress bars
+   ============================================================ */
+
+.ai-score-panel {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: #f8f6ff;    /* very light purple tint */
+    border: 1px solid #e0d9f7;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    flex-wrap: wrap;
+}
+
+
+/* ---- Big circular match % badge ---- */
+.match-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1.1;
+}
+
+.match-badge span {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.85;
+}
+
+/* Colour based on score level */
+.match-high   { background: #e8f5e9; color: #2e7d32; border: 2px solid #66bb6a; }
+.match-medium { background: #fff8e1; color: #e65100; border: 2px solid #ffb74d; }
+.match-low    { background: #fce4ec; color: #b71c1c; border: 2px solid #ef9a9a; }
+
+
+/* ---- Score bars container ---- */
+.score-bars {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Each row: label | progress track | percentage */
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bar-label {
+    font-size: 12px;
+    color: #555;
+    width: 110px;           /* fixed width so bars all start at same X */
+    flex-shrink: 0;
+}
+
+/* The grey background track */
+.bar-track {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;       /* clips the fill to the track shape */
+}
+
+/* The coloured fill — width is set inline by the template */
+.bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;   /* animates on load */
+}
+
+/* Three different colours for the 3 signals */
+.bar-rating   { background: #5c4fce; }   /* purple = rating */
+.bar-response { background: #26a69a; }   /* teal   = responsiveness */
+.bar-align    { background: #ef6c00; }   /* orange = alignment */
+
+.bar-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+
+/* ---- "New Teacher" badge ---- */
+.new-tutor-badge {
+    display: inline-block;
+    font-size: 11px;
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+    border-radius: 12px;
+    padding: 3px 10px;
+    margin-top: 6px;
+    align-self: flex-start;
+}
+
+
+/* ---- One-sentence explanation below the bars ---- */
+.score-explanation {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    margin-top: 6px;
+    width: 100%;            /* full width so it wraps under the bars */
+}
+
+
+/* ---- Responsive: stack badge above bars on small screens ---- */
+@media (max-width: 480px) {
+    .ai-score-panel {
+        flex-direction: column;
+    }
+    .match-badge {
+        width: 60px;
+        height: 60px;
+        font-size: 17px;
+    }
+}

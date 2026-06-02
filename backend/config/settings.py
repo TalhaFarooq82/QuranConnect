@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'apps.ai_tutor.apps.AiTutorConfig',
     'apps.recitation.apps.RecitationConfig',
     'apps.messaging.apps.MessagingConfig',
+    'apps.recommendations.apps.RecommendationsConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
