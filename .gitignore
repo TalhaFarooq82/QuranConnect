@@ -8,3 +8,4 @@ media/
 backend/.venv/
 backend/requirements_backup.txt
 backend/apps/ai_tutor/chroma_db/
+*.sqlite3
