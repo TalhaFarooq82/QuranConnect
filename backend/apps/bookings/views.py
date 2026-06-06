@@ -5,6 +5,8 @@ from .models import Job, Proposal, Wallet, Notification, Conversation, Message
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Job, Proposal, Conversation, Message, Notification, Wallet
+from apps.recommendations.services import get_ranked_proposals
+
 
 @login_required
 def teacher_active_jobs(request):
@@ -282,24 +284,10 @@ def award_project(request, proposal_id):
 @login_required
 def student_request_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id, student=request.user)
-    proposals = job.proposals.select_related("teacher").order_by("-created_at")
-
-    proposal_rows = []
-    for proposal in proposals:
-        conversation = Conversation.objects.filter(
-            job=job,
-            teacher=proposal.teacher,
-            student=request.user
-        ).first()
-
-        proposal_rows.append({
-            "proposal": proposal,
-            "conversation": conversation,
-        })
-
+    ranked = get_ranked_proposals(job)
     return render(request, "bookings/student_request_detail.html", {
-        "job": job,
-        "proposal_rows": proposal_rows,
+        "job":    job,
+        "ranked": ranked,
     })
 
 @login_required

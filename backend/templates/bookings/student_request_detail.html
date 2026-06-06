@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Request</title>
+    <title>My Request — QuranConnect</title>
     <link rel="stylesheet" href="{% static 'css/bookings/student_request_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bookings/ai_ranking.css' %}">
 </head>
 <body>
     <header class="topbar">
@@ -21,6 +22,8 @@
 
     <main class="page-wrapper">
         <div class="container">
+
+            {# ---- Job Summary Section (unchanged from original) ---- #}
             <section class="job-box">
                 <div class="job-top">
                     <div>
@@ -55,78 +58,169 @@
                 </div>
             </section>
 
+            {# ---- Proposals Section — now AI-ranked ---- #}
             <section class="proposal-box">
                 <div class="section-head">
-                    <h2>Received Proposals ({{ proposal_rows|length }})</h2>
-                    <p>Chat with teachers before making your final decision, or award directly when you are ready.</p>
+                    <div>
+                        <h2>Received Proposals ({{ ranked|length }})</h2>
+                        <p class="ai-label">
+                            ✦ Sorted by AI match score — best fit for your request appears first
+                        </p>
+                    </div>
                 </div>
 
-                {% for row in proposal_rows %}
-                {% with proposal=row.proposal conversation=row.conversation %}
-                <div class="proposal-card">
-                    <div class="proposal-main">
+                {# Loop through ranked proposals — "item" has .proposal, .score, .conversation #}
+                {% for item in ranked %}
+                {% with p=item.proposal s=item.score conv=item.conversation %}
+                {% if forloop.first %}
+                    <div class="top-match-banner">✦ Best Match</div>
+                    {% endif %}
+
+                    <div class="proposal-card {% if forloop.first %}top-match{% endif %}">
+
+                        <div class="proposal-main">
+
+                        {# ----- Teacher Name + Status Row ----- #}
                         <div class="proposal-top">
-                            <div class="teacher-avatar">
-                                {{ proposal.teacher.username|slice:":1"|upper }}
+                            <div class="teacher-avatar"style="width:44px; height:44px; border-radius:50%; background:#7F77DD; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:500; flex-shrink:0;">
+                                {{ p.teacher.username|slice:":1"|upper }}
                             </div>
 
                             <div class="teacher-info">
-                                <h3>{{ proposal.teacher.username }}</h3>
-                                <p>⭐ {{ proposal.rating }} ({{ proposal.reviews }} Reviews)</p>
+                                <h3>{{ p.teacher.username }}</h3>
+                                <p>⭐ {{ p.rating }} ({{ p.reviews }} Reviews)</p>
                             </div>
 
-                            <span class="proposal-status status-{{ proposal.status|lower }}">
-                                {{ proposal.status }}
+                            <span class="proposal-status status-{{ p.status|lower }}">
+                                {{ p.status }}
                             </span>
                         </div>
 
+                        {# ----- AI SCORE PANEL ----- #}
+                        {# This entire block is NEW — it shows the AI recommendation scores #}
+                        {% if s %}
+                        <div class="ai-score-panel">
+
+                            {# Big match percentage badge #}
+                            <div class="match-badge
+                                {% if s.total_score >= 0.75 %}match-high
+                                {% elif s.total_score >= 0.50 %}match-medium
+                                {% else %}match-low{% endif %}">
+                                {{ s.score_as_percent }}%
+                                <span>Match</span>
+                            </div>
+
+                            {# Three progress bars — one per scoring signal #}
+                            <div class="score-bars">
+
+                                {# Rating bar #}
+                                <div class="bar-row">
+                                    <span class="bar-label">Rating</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill bar-rating"
+                                             style="width: {{ s.rating_as_percent }}%"></div>
+                                    </div>
+                                    <span class="bar-value">{{ s.rating_as_percent }}%</span>
+                                </div>
+
+                                {# Responsiveness bar #}
+                                <div class="bar-row">
+                                    <span class="bar-label">Responsiveness</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill bar-response"
+                                             style="width: {{ s.responsiveness_as_percent }}%"></div>
+                                    </div>
+                                    <span class="bar-value">{{ s.responsiveness_as_percent }}%</span>
+                                </div>
+
+                                {# Alignment bar #}
+                                <div class="bar-row">
+                                    <span class="bar-label">Subject Match</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill bar-align"
+                                             style="width: {{ s.alignment_as_percent }}%"></div>
+                                    </div>
+                                    <span class="bar-value">{{ s.alignment_as_percent }}%</span>
+                                </div>
+
+                            </div>{# end score-bars #}
+
+                            {# New tutor badge #}
+                            {% if s.is_new_tutor %}
+                            <span class="new-tutor-badge">New Teacher</span>
+                            {% endif %}
+
+                            {# One-sentence explanation #}
+                            {% if s.explanation %}
+                            <p class="score-explanation">{{ s.explanation }}</p>
+                            {% endif %}
+
+                        </div>{# end ai-score-panel #}
+                        {% endif %}
+                        {# ----- END AI SCORE PANEL ----- #}
+
+                        {# ----- Proposal Details (hourly rate, availability, date) ----- #}
                         <div class="proposal-details">
                             <div class="detail-box">
                                 <span>Hourly Rate</span>
-                                <strong>{{ proposal.hourly_rate }}</strong>
+                                <strong>{{ p.hourly_rate }}</strong>
                             </div>
                             <div class="detail-box">
                                 <span>Availability</span>
-                                <strong>{{ proposal.availability }}</strong>
+                                <strong>{{ p.availability }}</strong>
                             </div>
                             <div class="detail-box">
                                 <span>Submitted</span>
-                                <strong>{{ proposal.created_at|date:"d M Y, h:i A" }}</strong>
+                                <strong>{{ p.created_at|date:"d M Y, h:i A" }}</strong>
                             </div>
                         </div>
 
+                        {# ----- Cover letter text ----- #}
                         <div class="proposal-text-box">
                             <h4>Proposal</h4>
-                            <p>{{ proposal.proposal_text }}</p>
+                            <p>{{ p.proposal_text }}</p>
                         </div>
-                    </div>
 
+                    </div>{# end proposal-main #}
+
+                    {# ----- Action Buttons (same logic as before) ----- #}
                     <div class="proposal-actions">
-                        {% if conversation %}
-                            <a href="{% url 'messaging_chat_room' conversation.id %}" class="btn-secondary full-btn">Start Chat</a>
+                        {% if conv %}
+                            <a href="{% url 'messaging_chat_room' conv.id %}"
+                               class="btn-secondary full-btn">Start Chat</a>
                         {% else %}
-                            <a href="{% url 'start_chat' proposal.id %}" class="btn-secondary full-btn">Start Chat</a>
+                            <a href="{% url 'start_chat' p.id %}"
+                               class="btn-secondary full-btn">Start Chat</a>
                         {% endif %}
 
                         {% if job.status == "Open" %}
-                        <form method="post" action="{% url 'award_project' proposal.id %}">
+                        <form method="post" action="{% url 'award_project' p.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn-primary full-btn">Award Project</button>
+                            <button type="submit" class="btn-primary full-btn">
+                                Award Project
+                            </button>
                         </form>
-                        {% elif job.awarded_teacher == proposal.teacher %}
-                            <button type="button" class="btn-awarded full-btn" disabled>Awarded</button>
+                        {% elif job.awarded_teacher == p.teacher %}
+                            <button type="button" class="btn-awarded full-btn" disabled>
+                                Awarded
+                            </button>
                         {% else %}
-                            <button type="button" class="btn-disabled full-btn" disabled>Not Selected</button>
+                            <button type="button" class="btn-disabled full-btn" disabled>
+                                Not Selected
+                            </button>
                         {% endif %}
                     </div>
-                </div>
+
+                </div>{# end proposal-card #}
                 {% endwith %}
+
                 {% empty %}
                 <div class="empty-state">
                     <h3>No proposals received yet</h3>
                     <p>Once teachers start bidding on your request, their proposals will appear here.</p>
                 </div>
                 {% endfor %}
+
             </section>
         </div>
     </main>
@@ -137,7 +231,6 @@
                 <h3>QuranConnect</h3>
                 <p>Making Quran learning accessible worldwide through trusted online education.</p>
             </div>
-
             <div>
                 <h4>Quick Links</h4>
                 <a href="{% url 'home' %}">Home</a>
@@ -145,7 +238,6 @@
                 <a href="{% url 'home' %}#ai-tutor">AI Tutor</a>
                 <a href="{% url 'home' %}#contact">Contact us</a>
             </div>
-
             <div>
                 <h4>Contact Info</h4>
                 <p>Email: info@quranconnect.com</p>
@@ -153,7 +245,6 @@
                 <p>Phone: +92 300 1234567</p>
             </div>
         </div>
-
         <div class="footer-bottom">
             <p>© 2026 QuranConnect. All rights reserved.</p>
         </div>
