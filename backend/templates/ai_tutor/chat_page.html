@@ -1,98 +1,1028 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AI Tutor - QuranConnect</title>
-    <link rel="stylesheet" href="{% static 'css/ai_tutor/chat_page.css' %}">
-</head>
-<body>
 
-<div class="chat-container">
-    
-    <!-- Header -->
-    <div class="chat-header">
-        <h2>🕌 QuranConnect AI Tutor</h2>
-        <!-- Check user role: -->
-        {% if request.user.role == 'student' %}
-        <a href="{% url 'student_dashboard' %}">← Back to Dashboard</a>
-        {% elif request.user.role == 'tutor' %}
-        <a href="{% url 'teacher_active_jobs' %}">← Back to Dashboard</a>
-        {% endif %}
+{% block title %}AI Tutor — QuranConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Reset so the chat fills the viewport under the navbar ── */
+  body { overflow: hidden; }
+
+  /* ── Root layout ── */
+  #ai-root {
+    display: flex;
+    height: calc(100vh - 64px); /* adjust if your base.html header height differs */
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f4f8;
+  }
+
+  /* ════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════ */
+  #sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: #0c3547;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width 0.22s ease, min-width 0.22s ease;
+    overflow: hidden;
+  }
+  #sidebar.collapsed { width: 0; min-width: 0; }
+
+  .sb-header {
+    padding: 14px 14px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    white-space: nowrap;
+  }
+  .sb-logo {
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* New chat button */
+  .sb-new-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 11px 10px 6px;
+    padding: 9px 14px;
+    background: #0891b2;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    width: calc(100% - 20px);
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .sb-new-btn:hover { background: #0e7490; color: #fff; text-decoration: none; }
+
+  /* Search */
+  .sb-search {
+    margin: 8px 10px 0;
+    display: flex;
+    gap: 8px;
+  }
+  .sb-tabs{
+  display:flex;
+  gap:8px;
+  margin: 10px 10px 0;
+}
+
+.sb-tab{
+  flex:1;
+  text-align:center;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration:none;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.sb-tab.active{
+  background: rgba(8,145,178,0.35);
+  border-color: rgba(8,145,178,0.45);
+  color:#fff;
+}
+  .sb-search input {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    outline: none;
+    font-size: 13px;
+  }
+  .sb-search input::placeholder { color: rgba(255,255,255,0.5); }
+
+  /* Section label */
+  .sb-label {
+    padding: 8px 14px 3px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.32);
+    white-space: nowrap;
+  }
+
+  /* Conversation list */
+  #conv-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 6px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.12) transparent;
+  }
+  #conv-list::-webkit-scrollbar { width: 4px; }
+  #conv-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+
+  .conv-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    color: rgba(255,255,255,0.72);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.13s;
+    position: relative;
+    white-space: nowrap;
+  }
+  .conv-item:hover { background: rgba(255,255,255,0.08); color: #fff; text-decoration: none; }
+  .conv-item.active { background: rgba(8,145,178,0.35); color: #fff; }
+
+  .conv-title {
+    flex: 1;
+    text-overflow: ellipsis;
+  }
+
+  /* 3 dots */
+  .conv-dots {
+    display: none;
+    align-items:center;
+    justify-content:center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    cursor:pointer;
+    flex-shrink: 0;
+  }
+  .conv-item:hover .conv-dots { display: flex; }
+
+  .dots-menu{
+  display:none;
+  position:absolute;
+  right: 8px;
+  top: 36px;
+  width: 220px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 6px;               /* important */
+  z-index: 9999;              /* important */
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+
+.menu-btn{
+  width:100%;
+  background: transparent;     /* important */
+  border:none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-align:left;
+  cursor:pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color:#0f172a;
+  display:block;               /* important */
+}
+
+.menu-btn:hover{ background:#f1f5f9; }
+
+.menu-btn.danger{ color:#dc2626; }
+
+  .conv-empty {
+    text-align: center;
+    color: rgba(255,255,255,0.28);
+    font-size: 12.5px;
+    padding: 28px 16px;
+    line-height: 1.65;
+    white-space: normal;
+  }
+
+  /* Sidebar footer */
+  .sb-footer {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.55);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  /* ════════════════════════════════
+     MAIN AREA
+  ════════════════════════════════ */
+  #chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  /* Top bar */
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+  #toggle-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    transition: background 0.13s, color 0.13s;
+  }
+  #toggle-btn:hover { background: #f1f5f9; color: #0891b2; }
+
+  #topbar .session-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ai-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 11.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Messages scroll area */
+  #messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0 8px;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  #messages-area::-webkit-scrollbar { width: 6px; }
+  #messages-area::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 6px; }
+
+  /* Welcome */
+  #welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    gap: 14px;
+  }
+  .welcome-icon {
+    width: 62px;
+    height: 62px;
+    background: #0891b2;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 28px;
+  }
+  #welcome h2 { font-size: 21px; font-weight: 600; color: #1e293b; margin: 0; }
+  #welcome p  { font-size: 14px; color: #64748b; max-width: 360px; line-height: 1.6; margin: 0; }
+
+  .suggestions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 500px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .sug-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.45;
+  }
+  .sug-card:hover { border-color: #0891b2; box-shadow: 0 0 0 2px rgba(8,145,178,0.1); }
+  .sug-card .si { font-size: 18px; margin-bottom: 5px; display: block; }
+  .sug-card .st { font-weight: 500; color: #1e293b; font-size: 13px; }
+  .sug-card .ss { font-size: 12px; color: #64748b; }
+
+  /* Message rows */
+  .msg-row {
+    display: flex;
+    gap: 12px;
+    padding: 12px 24px;
+    animation: fadeUp 0.2s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .user-row { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .avatar.user-av { background: #0891b2; color: #fff; }
+  .avatar.ai-av   { background: #1e293b; color: #fff; font-size: 16px; }
+
+  .bubble-wrap { max-width: 74%; position: relative; }
+  .msg-meta { font-size: 11px; color: #94a3b8; margin-bottom: 4px; font-weight: 500; }
+  .user-row .msg-meta { text-align: right; }
+
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  .user-row .bubble {
+    background: #0891b2;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .ai-row .bubble {
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+  }
+  .ai-row .bubble code {
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Response action buttons */
+  .resp-actions{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .resp-actions button{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    color:#0e7490;
+    font-weight:600;
+    font-size:12.5px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    cursor:pointer;
+  }
+  .resp-actions button:hover{
+    background:#f1f5f9;
+  }
+
+  /* ── Input area ── */
+  #input-area {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 20px 14px;
+    flex-shrink: 0;
+  }
+
+  #upload-row{
+    max-width: 860px;
+    margin: 0 auto 10px;
+    display:flex;
+    gap: 10px;
+    align-items:center;
+  }
+  #upload-row input[type="file"]{
+    flex:1;
+    border: 1.5px dashed #cfe7ef;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background:#f8fafc;
+  }
+  #upload-btn{
+    background:#0891b2;
+    border:none;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight:600;
+    color:#fff;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #upload-btn:hover{ background:#0e7490; }
+
+  #input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 9px 12px;
+    max-width: 860px;
+    margin: 0 auto;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  #input-wrap:focus-within {
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.11);
+    background: #fff;
+  }
+  #user-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 14.5px;
+    color: #1e293b;
+    resize: none;
+    min-height: 24px;
+    max-height: 160px;
+    line-height: 1.55;
+    font-family: inherit;
+    padding: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  #user-input::placeholder { color: #94a3b8; }
+
+  #send-btn {
+    width: 36px; height: 36px;
+    background: #0891b2;
+    border: none;
+    border-radius: 9px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+  #send-btn:hover   { background: #0e7490; }
+  #send-btn:active  { transform: scale(0.93); }
+  #send-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  #input-hint {
+    text-align: center;
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 7px;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Error toast */
+  #error-toast {
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 100;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { position: absolute; z-index: 20; height: 100%; }
+    .suggestions { grid-template-columns: 1fr; }
+    .msg-row { padding: 10px 14px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="ai-root">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#0891b2"/>
+          <path d="M8 12l2.5 2.5L16 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        AI Tutor
+      </div>
     </div>
 
-    <!-- Messages Area -->
-    <div class="chat-messages" id="chat-messages">
-        
-        <!-- Loop through previous messages -->
-        {% for msg in messages %}
-        
-            <!-- User question -->
-            <div class="message user-message">
-                <p>{{ msg.question }}</p>
-            </div>
-            
-            <!-- AI answer -->
-            <div class="message ai-message">
-                <p>{{ msg.answer }}</p>
-            </div>
-        
-        {% empty %}
-            <p class="empty-chat">Assalamu Alaikum! Ask me any Islamic question.</p>
-        {% endfor %}
-        
-    </div>
+    <a href="{% url 'ai_tutor_new' %}" class="sb-new-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New conversation
+    </a>
 
-    <!-- Input Area -->
-    <div class="chat-input">
-        <form id="chat-form">
-            {% csrf_token %}
-            <!-- Hidden session id -->
-            <input type="hidden" name="session_id" value="{{ session.id }}">
-            <!-- Question input -->
-            <input type="text" name="question" id="question-input" 
-                   placeholder="Type your question...">
-            <button type="submit">Send</button>
-        </form>
-    </div>
+    <form class="sb-search" method="get" action="{% url 'ai_tutor_chat' active_chat.id %}">
+      <input name="q" value="{{ search_q }}" placeholder="Search chats..." />
+      {% if show_archived %}<input type="hidden" name="archived" value="1">{% endif %}
+    </form>
 
+<div class="sb-tabs">
+  <a class="sb-tab {% if not show_archived %}active{% endif %}"
+     href="{% url 'ai_tutor_chat' active_chat.id %}{% if search_q %}?q={{ search_q }}{% endif %}">
+     Active
+  </a>
+
+  <a class="sb-tab {% if show_archived %}active{% endif %}"
+     href="{% url 'ai_tutor_chat' active_chat.id %}?archived=1{% if search_q %}&q={{ search_q }}{% endif %}">
+     Archived
+  </a>
 </div>
 
+    {% if chats %}
+      <div class="sb-label">{% if show_archived %}Archived{% else %}Recent{% endif %}</div>
+    {% endif %}
 
+    <div id="conv-list">
+      {% if chats %}
+        {% for c in chats %}
+          <a href="{% url 'ai_tutor_chat' c.id %}{% if search_q %}?q={{ search_q }}{% endif %}{% if show_archived %}{% if not search_q %}?{% else %}&{% endif %}archived=1{% endif %}"
+             class="conv-item {% if c.id == active_chat.id %}active{% endif %}"
+             data-chat="{{ c.id }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0;opacity:.55">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
 
+            <span class="conv-title">{{ c.title|default:"New conversation" }}</span>
+
+            <button type="button" class="conv-dots" data-dots="{{ c.id }}">⋯</button>
+
+            <div class="dots-menu" id="menu-{{ c.id }}">
+              <button type="button" class="menu-btn" data-rename="{{ c.id }}">Rename</button>
+              <button type="button" class="menu-btn" data-share="{{ c.id }}">Share (copy link)</button>
+              <button type="button" class="menu-btn" data-archive="{{ c.id }}">Archive</button>
+              <button type="button" class="menu-btn danger" data-delete="{{ c.id }}">Delete</button>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="conv-empty">No conversations yet.<br>Start one above!</div>
+      {% endif %}
+    </div>
+
+    <div class="sb-footer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.8">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>
+      </svg>
+      {{ request.user.get_full_name|default:request.user.username }}
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN CHAT ══════════ -->
+  <main id="chat-main">
+    <div id="topbar">
+      <button id="toggle-btn" onclick="toggleSidebar()" title="Toggle sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="9" y1="3" x2="9" y2="21"/>
+        </svg>
+      </button>
+      <span class="session-name" id="session-title">{{ active_chat.title|default:"New conversation" }}</span>
+      <span class="ai-badge">✦ AI Tutor</span>
+    </div>
+
+    <div id="messages-area">
+      {% if messages %}
+        {% for m in messages %}
+          {% if m.role == "user" %}
+            <div class="msg-row user-row">
+              <div class="avatar user-av">{{ request.user.get_full_name|default:request.user.username|first|upper }}</div>
+              <div class="bubble-wrap">
+                <div class="msg-meta">You</div>
+                <div class="bubble">{{ m.content }}</div>
+              </div>
+            </div>
+          {% else %}
+            <div class="msg-row ai-row">
+              <div class="avatar ai-av">☪</div>
+              <div class="bubble-wrap">
+                <div class="msg-meta">AI Tutor</div>
+                <div class="bubble ai-formatted" id="msg-{{ m.id }}">{{ m.content }}</div>
+
+                <div class="resp-actions">
+                  <button type="button" data-copy="{{ m.id }}">Copy</button>
+                  <button type="button" data-action="regenerate" data-id="{{ m.id }}">Regenerate</button>
+                  <button type="button" data-action="shorter" data-id="{{ m.id }}">Make shorter</button>
+                  <button type="button" data-action="easier" data-id="{{ m.id }}">Make easier</button>
+                  <button type="button" data-action="save" data-id="{{ m.id }}">Save answer</button>
+                  <button type="button" data-action="quiz" data-id="{{ m.id }}">Generate Quiz</button>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <div id="welcome">
+          <div class="welcome-icon">☪</div>
+          <h2>Assalamu Alaikum 👋</h2>
+          <p>Ask me anything about the Quran, Islamic studies, Tajweed rules, or your Quran learning journey.</p>
+          <div class="suggestions">
+            <div class="sug-card" onclick="fillInput('Explain the importance of Tajweed in Quran recitation')">
+              <span class="si">📖</span>
+              <div class="st">Tajweed rules</div>
+              <div class="ss">Learn proper recitation</div>
+            </div>
+            <div class="sug-card" onclick="fillInput('What are the five pillars of Islam?')">
+              <span class="si">🕌</span>
+              <div class="st">Islamic basics</div>
+              <div class="ss">Core principles of Islam</div>
+            </div>
+            <div class="sug-card" onclick="fillInput('Help me memorize Surah Al-Fatiha with meaning')">
+              <span class="si">📝</span>
+              <div class="st">Quran memorization</div>
+              <div class="ss">Start with short surahs</div>
+            </div>
+            <div class="sug-card" onclick="fillInput('What is the meaning of Surah Al-Ikhlas?')">
+              <span class="si">💡</span>
+              <div class="st">Surah meanings</div>
+              <div class="ss">Understand Quranic verses</div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div id="input-area">
+
+      <!-- Upload row -->
+      <div id="upload-row">
+        <input type="file" id="fileInput" accept=".pdf,.txt,.docx" />
+        <button type="button" id="upload-btn">Upload</button>
+      </div>
+
+      <!-- Input -->
+      <form id="sendForm" method="post" action="{% url 'ai_tutor_chat' active_chat.id %}">
+        {% csrf_token %}
+        <div id="input-wrap">
+          <textarea id="user-input" name="message" placeholder="Ask about the Quran, Islam, Tajweed…" rows="1" autocomplete="off"></textarea>
+          <button id="send-btn" disabled title="Send" type="submit">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"/>
+              <polyline points="5 12 12 5 19 12"/>
+            </svg>
+          </button>
+        </div>
+        <div id="input-hint">QuranConnect AI Tutor — Always verify with a qualified scholar.</div>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div id="error-toast"></div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-document.getElementById('chat-form').addEventListener('submit', function(e) {
-    e.preventDefault();  // stop page reload
-    
-    const question = document.getElementById('question-input').value;
-    const formData = new FormData(this);
-    
-    fetch("{% url 'chat_page' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {'X-CSRFToken': '{{ csrf_token }}'}
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Add question to chat
-        const chatMessages = document.getElementById('chat-messages');
-        
-        chatMessages.innerHTML += `
-            <div class="message user-message">
-                <p>${question}</p>
-            </div>
-            <div class="message ai-message">
-                <p>${data.answer}</p>
-            </div>
-        `;
-        
-        // Clear input
-        document.getElementById('question-input').value = '';
-        
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
+  const msgArea = document.getElementById('messages-area');
+  const welcome = document.getElementById('welcome');
+  const inputEl = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const sidebar = document.getElementById('sidebar');
+  const toast = document.getElementById('error-toast');
+
+  function toggleSidebar(){ sidebar.classList.toggle('collapsed'); }
+
+  function fillInput(text){
+    inputEl.value = text;
+    inputEl.dispatchEvent(new Event('input'));
+    inputEl.focus();
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(()=> toast.style.display='none', 3500);
+  }
+
+  function scrollBottom(){
+    msgArea.scrollTop = msgArea.scrollHeight;
+  }
+
+  // Scroll on load
+  scrollBottom();
+
+  // Auto-resize textarea + enable send
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+    sendBtn.disabled = !inputEl.value.trim();
+  });
+
+  // Enter = send, Shift+Enter newline
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('sendForm').requestSubmit();
+    }
+  });
+
+  // ---------- Sidebar dots menu ----------
+  document.addEventListener('click', (e) => {
+    const dotsBtn = e.target.closest('[data-dots]');
+    const renameBtn = e.target.closest('[data-rename]');
+    const shareBtn = e.target.closest('[data-share]');
+    const archiveBtn = e.target.closest('[data-archive]');
+    const deleteBtn = e.target.closest('[data-delete]');
+
+if (shareBtn) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const id = shareBtn.getAttribute('data-share');
+  shareChat(id);
+}
+
+document.addEventListener('click', (e) => {
+  const dotsBtn = e.target.closest('[data-dots]');
+  const renameBtn = e.target.closest('[data-rename]');
+  const shareBtn = e.target.closest('[data-share]');
+  const archiveBtn = e.target.closest('[data-archive]');
+  const unarchiveBtn = e.target.closest('[data-unarchive]');
+  const deleteBtn = e.target.closest('[data-delete]');
+
+  if (!dotsBtn && !e.target.closest('.dots-menu')) {
+    document.querySelectorAll('.dots-menu').forEach(m => m.style.display = 'none');
+  }
+
+  if (dotsBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = dotsBtn.getAttribute('data-dots');
+    const menu = document.getElementById('menu-' + id);
+    const open = menu.style.display === 'block';
+
+    document.querySelectorAll('.dots-menu').forEach(m => m.style.display = 'none');
+    menu.style.display = open ? 'none' : 'block';
+  }
+
+  if (shareBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = shareBtn.getAttribute('data-share');
+    shareChat(id);
+  }
+
+  if (renameBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = renameBtn.getAttribute('data-rename');
+    const newTitle = prompt("Rename chat:");
+
+    if (newTitle && newTitle.trim()) {
+      postForm("{% url 'ai_tutor_rename' 0 %}".replace('/0/', '/' + id + '/'), {
+        title: newTitle.trim()
+      });
+    }
+  }
+
+  if (archiveBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = archiveBtn.getAttribute('data-archive');
+    postForm("{% url 'ai_tutor_archive' 0 %}".replace('/0/', '/' + id + '/'), {});
+  }
+
+  if (unarchiveBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = unarchiveBtn.getAttribute('data-unarchive');
+    postForm("{% url 'ai_tutor_unarchive' 0 %}".replace('/0/', '/' + id + '/'), {});
+  }
+
+  if (deleteBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = deleteBtn.getAttribute('data-delete');
+
+    if (confirm("Delete this chat?")) {
+      const url = "{% url 'ai_tutor_delete' 0 %}".replace('/0/', '/' + id + '/');
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else {
+          window.location.href = "{% url 'ai_tutor_home' %}";
+        }
+      });
+    }
+  }
 });
+
+    // Close menus if click outside
+    if (!dotsBtn && !e.target.closest('.dots-menu')) {
+      document.querySelectorAll('.dots-menu').forEach(m => m.style.display = 'none');
+    }
+
+    if (dotsBtn) {
+      e.preventDefault();
+      const id = dotsBtn.getAttribute('data-dots');
+      const menu = document.getElementById('menu-' + id);
+      const open = menu.style.display === 'block';
+      document.querySelectorAll('.dots-menu').forEach(m => m.style.display = 'none');
+      menu.style.display = open ? 'none' : 'block';
+    }
+
+    if (renameBtn) {
+      const id = renameBtn.getAttribute('data-rename');
+      const newTitle = prompt("Rename chat:");
+      if (newTitle && newTitle.trim()) {
+        postForm("{% url 'ai_tutor_rename' 0 %}".replace('/0/', '/' + id + '/'), { title: newTitle.trim() });
+      }
+    }
+
+    if (shareBtn) {
+      const id = shareBtn.getAttribute('data-share');
+      shareChat(id);
+    }
+
+    if (archiveBtn) {
+      const id = archiveBtn.getAttribute('data-archive');
+      postForm("{% url 'ai_tutor_archive' 0 %}".replace('/0/', '/' + id + '/'), {});
+    }
+
+    if (deleteBtn) {
+  const id = deleteBtn.getAttribute('data-delete');
+
+  if (confirm("Delete this chat?")) {
+    const url = "{% url 'ai_tutor_delete' 0 %}".replace('/0/', '/' + id + '/');
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken")
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        window.location.href = "{% url 'ai_tutor_home' %}";
+      }
+    });
+  }
+}
+  });
+
+  async function shareChat(chatId) {
+  const url = "{% url 'ai_tutor_share' 0 %}".replace('/0/', '/' + chatId + '/');
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    const data = await res.json();
+
+    if (!data.ok || !data.url) {
+      showToast("Could not create share link.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(data.url);
+      showToast("Share link copied!");
+    } catch (clipboardError) {
+      prompt("Copy this share link:", data.url);
+    }
+
+  } catch (error) {
+    showToast("Share failed. Please try again.");
+  }
+}
+
+  function postForm(url, data){
+    const fd = new FormData();
+    Object.keys(data).forEach(k => fd.append(k, data[k]));
+    fetch(url, {
+      method:"POST",
+      headers:{ "X-CSRFToken": getCookie("csrftoken") },
+      body: fd
+    }).then(()=> location.reload());
+  }
+
+  // ---------- Response actions ----------
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-copy');
+      const text = document.getElementById('msg-' + id).innerText;
+      await navigator.clipboard.writeText(text);
+      showToast("Copied!");
+    });
+  });
+
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const action = btn.getAttribute('data-action');
+      const id = btn.getAttribute('data-id');
+      const map = {
+        regenerate: "{% url 'ai_tutor_regenerate' 0 %}",
+        shorter: "{% url 'ai_tutor_shorter' 0 %}",
+        easier: "{% url 'ai_tutor_easier' 0 %}",
+        save: "{% url 'ai_tutor_save' 0 %}",
+        quiz: "{% url 'ai_tutor_quiz' 0 %}",
+      };
+      const url = map[action].replace('/0/', '/' + id + '/');
+      await fetch(url, { method:"POST", headers:{ "X-CSRFToken": getCookie("csrftoken") }});
+      location.reload();
+    });
+  });
+
+  // ---------- Upload ----------
+  document.getElementById('upload-btn').addEventListener('click', async () => {
+    const f = document.getElementById('fileInput').files[0];
+    if (!f) return showToast("Choose a file first.");
+
+    const url = "{% url 'ai_tutor_upload' active_chat.id %}";
+    const fd = new FormData();
+    fd.append("file", f);
+
+    const res = await fetch(url, {
+      method:"POST",
+      headers:{ "X-CSRFToken": getCookie("csrftoken") },
+      body: fd
+    });
+
+    const data = await res.json();
+    if (data.ok) showToast("File attached. Ask questions from it.");
+    else showToast(data.error || "Upload failed.");
+  });
+
+  // CSRF helper
+  function getCookie(name){
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 </script>
-</body>
-</html>
+{% endblock %}
