@@ -1,10 +1,10 @@
 from decimal import Decimal, InvalidOperation
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Job, Proposal, Wallet, Notification, Conversation, Message
+from .models import Job, Proposal, Notification, Conversation, Message
+from apps.payments.models import Wallet
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Job, Proposal, Conversation, Message, Notification, Wallet
 from apps.recommendations.services import get_ranked_proposals
 
 
