@@ -52,10 +52,16 @@
                     </div>
                 </div>
 
-                <div class="description-box">
+               <div class="description-box">
                     <h3>Request Description</h3>
                     <p>{{ job.description }}</p>
                 </div>
+
+                {% if job.status == "Awarded" %}
+                <div style="margin-top: 16px;">
+                    <a href="{% url 'dispute_job' job.id %}" class="btn-danger">⚠ File a Dispute</a>
+                </div>
+                {% endif %}
             </section>
 
             {# ---- Proposals Section — now AI-ranked ---- #}

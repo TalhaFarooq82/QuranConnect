@@ -257,24 +257,6 @@ a {
     font-size: 13px;
 }
 
-.btn-danger {
-    display: inline-block;
-    background: #e24b4a;
-    color: #fff;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 12px;
-    text-decoration: none;
-}
-
-.btn-danger:hover {
-    background: #c0392b;
-}
-
-
 @media (max-width: 900px) {
     .job-summary-card,
     .proposal-header,
@@ -297,4 +279,45 @@ a {
     .content-card h2 {
         font-size: 26px;
     }
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #0b8fb3;
+    border: 2px solid #0b8fb3;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 12px;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: #0b8fb3;
+    color: #fff;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background: #dff7df;
+    color: #1f9d47;
+    border: 1px solid #a3e6a3;
+}
+
+.subtitle {
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.required {
+    color: #e24b4a;
+}
+
+.optional {
+    color: #9ca3af;
+    font-weight: 400;
+    font-size: 13px;
 }

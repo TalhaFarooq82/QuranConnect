@@ -84,6 +84,9 @@
             <section class="content-card">
                 <h2>Bidding Closed</h2>
                 <p>This job is no longer open for new bids.</p>
+                {% if request.user == job.student or request.user == job.awarded_teacher %}
+                    <a href="{% url 'dispute_job' job.id %}" class="btn-danger">File a Dispute</a>
+                {% endif %}
             </section>
             {% endif %}
 
@@ -99,7 +102,7 @@
                         <div class="teacher-info">
                             <div class="avatar">
                                 {{ proposal.teacher.username|slice:":1"|upper }}
-                            </div>
+                            </div>  
                             <div>
                                 <h3>{{ proposal.teacher.get_full_name|default:proposal.teacher.username }}</h3>
                                 <p class="rating">⭐ {{ proposal.rating }} ({{ proposal.reviews }} Reviews)</p>

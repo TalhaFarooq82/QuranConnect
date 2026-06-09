@@ -28,6 +28,7 @@ urlpatterns = [
     path('ai_tutor/', include('apps.ai_tutor.urls')),
     path('recitation/', include('apps.recitation.urls')),
     path('messaging/', include('apps.messaging.urls')),
+    path('disputes/', include('apps.disputes.urls')),
 ]
 
 if settings.DEBUG:

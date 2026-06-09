@@ -354,6 +354,24 @@ a {
     font-size: 13px;
 }
 
+.btn-danger {
+    display: inline-block;
+    background: #e24b4a;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    text-decoration: none;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+
 @media (max-width: 1000px) {
     .job-meta-grid,
     .proposal-details {
