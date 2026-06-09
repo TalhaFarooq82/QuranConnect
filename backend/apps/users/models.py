@@ -16,6 +16,8 @@ class CustomUser(AbstractUser):
     )
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    is_warned = models.BooleanField(default=False)
+    is_banned = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'users_table'
