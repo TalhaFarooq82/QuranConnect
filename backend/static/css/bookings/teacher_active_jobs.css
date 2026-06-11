@@ -15,6 +15,7 @@ a {
     text-decoration: none;
 }
 
+
 .container {
     width: 90%;
     max-width: 1180px;
@@ -186,6 +187,9 @@ a {
 }
 
 /* Main */
+
+
+
 .dashboard-wrapper {
     padding: 42px 0 80px;
 }

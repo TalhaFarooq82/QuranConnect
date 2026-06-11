@@ -24,7 +24,15 @@ def dispute_job(request, job_id):
     if reported_user is None:
         messages.error(request, "Cannot file a dispute — no tutor has been awarded this job yet.")
         return redirect('job_detail', job_id=job_id)
-    
+        # guard against duplicate dispute
+    existing = Dispute.objects.filter(filed_user=request.user, job=job).first()
+    if existing:
+        messages.error(request, "You have already filed a dispute for this job.")
+        if request.user.role == 'student':
+            return redirect('student_dashboard')
+        else:
+            return redirect('teacher_active_jobs')
+        
     if request.method == 'POST':
         form = DisputeForm(request.POST, request.FILES)
         if form.is_valid():
