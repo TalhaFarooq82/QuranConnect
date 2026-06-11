@@ -23,7 +23,18 @@
     <main class="page-wrapper">
         <div class="container">
 
-            {# ---- Job Summary Section (unchanged from original) ---- #}
+           {% if messages %}
+            {% for message in messages %}
+            <div class="alert-message" style="
+                background: {% if message.tags == 'error' %}#fdecea{% else %}#dff7df{% endif %};
+                color: {% if message.tags == 'error' %}#a32d2d{% else %}#1f9d47{% endif %};
+                border: 1px solid {% if message.tags == 'error' %}#f5c6c6{% else %}#a3e6a3{% endif %};
+                padding: 12px 16px; border-radius: 8px; font-weight: 600; margin-bottom: 16px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                {% if message.tags == 'error' %}❌{% else %}✅{% endif %} {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+                        {# ---- Job Summary Section (unchanged from original) ---- #}
             <section class="job-box">
                 <div class="job-top">
                     <div>
@@ -256,5 +267,17 @@
             <p>© 2026 QuranConnect. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-message');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+
 </body>
 </html>

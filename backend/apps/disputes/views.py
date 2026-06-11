@@ -23,16 +23,18 @@ def dispute_job(request, job_id):
         # guard against unawarderd job
     if reported_user is None:
         messages.error(request, "Cannot file a dispute — no tutor has been awarded this job yet.")
-        return redirect('job_detail', job_id=job_id)
+        if request.user.role == 'student':
+            return redirect('student_request_detail', job_id=job.id)
+        else:
+            return redirect('job_detail', job_id=job.id)
         # guard against duplicate dispute
     existing = Dispute.objects.filter(filed_user=request.user, job=job).first()
     if existing:
         messages.error(request, "You have already filed a dispute for this job.")
         if request.user.role == 'student':
-            return redirect('student_dashboard')
+            return redirect('student_request_detail', job_id=job.id)
         else:
-            return redirect('teacher_active_jobs')
-        
+            return redirect('job_detail', job_id=job.id)        
     if request.method == 'POST':
         form = DisputeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -45,9 +47,9 @@ def dispute_job(request, job_id):
             messages.success(request, "Your dispute has been filed successfully.")
             # redirect based on role
             if request.user.role == 'student':
-                return redirect('student_dashboard')
+                return redirect('student_request_detail', job_id=job.id)
             else:
-                return redirect('teacher_active_jobs')
+                return redirect('job_detail', job_id=job.id)
 
     else:
         form = DisputeForm()
@@ -63,6 +65,17 @@ def dispute_job(request, job_id):
 def dispute_user(request, user_id):
     reported_user = get_object_or_404(CustomUser, id=user_id)
 
+    # guard against filing dispute against yourself
+    if request.user == reported_user:
+        messages.error(request, "You cannot file a dispute against yourself.")
+        return redirect('teacher_profile')
+
+    # guard against duplicate dispute against same user
+    existing = Dispute.objects.filter(filed_user=request.user, reported_user=reported_user, job=None).first()
+    if existing:
+        messages.error(request, "You have already filed a dispute against this user.")
+        return redirect('teacher_profile')
+
     if request.method == 'POST':
         form = DisputeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -72,12 +85,7 @@ def dispute_user(request, user_id):
             dispute.status = 'open'
             dispute.save()
             messages.success(request, "Your dispute has been filed successfully.")
-            # redirect based on role
-            if request.user.role == 'student':
-                return redirect('student_dashboard')
-            else:
-                return redirect('teacher_active_jobs')
-
+            return redirect('teacher_profile')
     else:
         form = DisputeForm()
 
