@@ -14,11 +14,10 @@ def teacher_active_jobs(request):
     jobs = Job.objects.filter(status="Open").order_by("-created_at")
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
     notifications = request.user.notifications.order_by("-created_at")[:5]
+    unread_notifications = Notification.objects.filter(user=request.user, is_read=False).count()  
 
     unread_messages = Notification.objects.filter(
-        user=request.user,
-        type="message",
-        is_read=False
+        user=request.user, type="message", is_read=False
     ).count()
 
     return render(request, "bookings/teacher_active_jobs.html", {
@@ -27,7 +26,7 @@ def teacher_active_jobs(request):
         "unread_messages": unread_messages,
         "wallet": wallet,
         "notifications": notifications,
-
+        "unread_notifications": unread_notifications,  
     })
 
 @login_required
@@ -214,9 +213,9 @@ def post_job_success(request):
 @login_required
 def student_dashboard(request):
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
-
     jobs = Job.objects.filter(student=request.user).order_by("-created_at")
     notifications = request.user.notifications.order_by("-created_at")[:5]
+    unread_notifications = Notification.objects.filter(user=request.user, is_read=False).count()  # ADD THIS
 
     total_requests = jobs.count()
     open_requests = jobs.filter(status="Open").count()
@@ -233,8 +232,8 @@ def student_dashboard(request):
         "total_proposals": total_proposals,
         "recent_jobs": jobs[:5],
         "unread_messages": Notification.objects.filter(user=request.user, type="message", is_read=False).count(),
+        "unread_notifications": unread_notifications,  # ADD THIS
     })
-
 
 @login_required
 def add_funds(request):

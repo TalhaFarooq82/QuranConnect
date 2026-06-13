@@ -17,6 +17,12 @@
                 <a href="{% url 'ai_tutor_home' %}">AI Tutor</a>
                 <a href="{% url 'recitation_page' %}">Tajweed</a>
                 <a href="{% url 'home' %}#contact">Contact us</a>
+                <a href="{% url 'notifications' %}" class="message-icon" title="Notifications">
+                    🔔
+                    {% if unread_notifications > 0 %}
+                    <span class="message-badge">{{ unread_notifications }}</span>
+                    {% endif %}
+                </a>
             </nav>
             <div class="profile">👤</div>
         </div>
