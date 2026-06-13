@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Job, Proposal, Conversation, Message, Notification
+from .models import Job, Proposal, Conversation, Message
+from apps.notifications.models import Notification
 
 admin.site.register(Job)
 admin.site.register(Proposal)

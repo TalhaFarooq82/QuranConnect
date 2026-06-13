@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'apps.messaging.apps.MessagingConfig',
     'apps.recommendations.apps.RecommendationsConfig',
     'apps.disputes.apps.DisputesConfig',
+    'apps.notifications.apps.NotificationsConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',

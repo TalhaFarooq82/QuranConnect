@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
 from apps.payments.models import Wallet
-from apps.bookings.models import Notification
+from apps.notifications.models import Notification
 from .models import Dispute, DisputeMessage
 
 
