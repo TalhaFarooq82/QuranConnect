@@ -119,6 +119,8 @@ class Notification(models.Model):
         ("proposal", "proposal"),
         ("award", "award"),
         ("message", "message"),
+        ("dispute", "dispute"),  # add this
+
     ]
 
     user = models.ForeignKey(

@@ -151,6 +151,35 @@
                 </div>
             </section>
 
+            {% if notifications %}
+            <section class="dashboard-section">
+                <div class="section-head-row">
+                    <div>
+                        <h2>🔔 Notifications</h2>
+                        <p>Recent updates and alerts.</p>
+                    </div>
+                </div>
+                <div class="notification-list">
+                    {% for notification in notifications %}
+                    <div class="notification-card {% if not notification.is_read %}unread{% endif %}">
+                        <div class="notification-icon">
+                            {% if notification.type == 'dispute' %}⚖️
+                            {% elif notification.type == 'award' %}🏆
+                            {% elif notification.type == 'proposal' %}📝
+                            {% elif notification.type == 'message' %}💬
+                            {% endif %}
+                        </div>
+                        <div class="notification-body">
+                            <strong>{{ notification.title }}</strong>
+                            <p>{{ notification.body }}</p>
+                            <span class="notification-time">{{ notification.created_at|date:"d M Y, h:i A" }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+            
             <section class="quick-actions-grid">
                 <div class="quick-card">
                     <h3>Browse New Jobs</h3>

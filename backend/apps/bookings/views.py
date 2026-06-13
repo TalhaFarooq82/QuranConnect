@@ -12,6 +12,7 @@ from apps.recommendations.services import get_ranked_proposals
 def teacher_active_jobs(request):
     jobs = Job.objects.filter(status="Open").order_by("-created_at")
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    notifications = request.user.notifications.order_by("-created_at")[:5]
 
     unread_messages = Notification.objects.filter(
         user=request.user,
@@ -24,6 +25,8 @@ def teacher_active_jobs(request):
         "total_results": jobs.count(),
         "unread_messages": unread_messages,
         "wallet": wallet,
+        "notifications": notifications,
+
     })
 
 @login_required

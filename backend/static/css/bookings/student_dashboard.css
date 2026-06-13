@@ -459,6 +459,51 @@ a {
     color: #6b7280;
     margin-bottom: 16px;
 }
+
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #dcdfe4;
+    border-radius: 10px;
+    padding: 14px 18px;
+}
+
+.notification-card.unread {
+    border-left: 4px solid #0b8fb3;
+    background: #f0faff;
+}
+
+.notification-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.notification-body strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.notification-body p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
 /* Footer */
 .footer {
     background: #071a2f;
