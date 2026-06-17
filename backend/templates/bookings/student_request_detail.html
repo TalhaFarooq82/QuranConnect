@@ -217,6 +217,9 @@
                                class="btn-secondary full-btn">Start Chat</a>
                         {% endif %}
 
+
+                        <a href="{% url 'tutor_public_profile' p.teacher.id %}"class="btn-secondary full-btn">👤 View Profile</a>
+
                         {% if job.status == "Open" %}
                         <form method="post" action="{% url 'award_project' p.id %}">
                             {% csrf_token %}

@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tutor.get_full_name|default:tutor.username }} — QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/tutor_public_profile.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav">
+            <a href="{% url 'home' %}" class="brand">QuranConnect</a>
+            <nav class="menu">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert-message" style="
+                background: {% if message.tags == 'error' %}#fdecea{% else %}#dff7df{% endif %};
+                color: {% if message.tags == 'error' %}#a32d2d{% else %}#1f9d47{% endif %};
+                border: 1px solid {% if message.tags == 'error' %}#f5c6c6{% else %}#a3e6a3{% endif %};
+                padding: 12px 16px; border-radius: 8px; font-weight: 600;
+                margin-bottom: 16px;">
+                {% if message.tags == 'error' %}❌{% else %}✅{% endif %} {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Tutor Info Card -->
+            <section class="profile-card">
+                <div class="profile-top">
+                    <div class="avatar">
+                        {% if tutor.profile_image %}
+                            <img src="{{ tutor.profile_image.url }}" alt="{{ tutor.username }}">
+                        {% else %}
+                            {{ tutor.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <h1>{{ tutor.get_full_name|default:tutor.username }}</h1>
+                        <p class="role">Quran Tutor / Scholar</p>
+                        <div class="rating-summary">
+                            <span class="stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg_rating %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="rating-text">{{ avg_rating }} / 5 ({{ total_reviews }} review{{ total_reviews|pluralize }})</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leave a Review -->
+            {% if request.user.role == 'student' %}
+            <section class="content-card">
+                {% if already_reviewed %}
+                <p class="already-reviewed">✅ You have already reviewed this tutor.</p>
+                {% else %}
+                <h2>Leave a Review</h2>
+                <form method="post" action="{% url 'submit_review' tutor.id %}">
+                    {% csrf_token %}
+                    <div class="star-rating">
+                        <label>Select Rating:</label>
+                        <div class="stars-input">
+                            {% for i in "54321" %}
+                            <input type="radio" name="rating" id="star{{ forloop.counter }}" value="{{ forloop.revcounter }}">
+                            <label for="star{{ forloop.counter }}" title="{{ forloop.revcounter }} stars">⭐</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Review</button>
+                </form>
+                {% endif %}
+            </section>
+            {% endif %}
+
+            <!-- Reviews List -->
+            <section class="content-card">
+                <h2>Reviews ({{ total_reviews }})</h2>
+                {% if reviews %}
+                <div class="reviews-list">
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-top">
+                            <div class="reviewer-avatar">
+                                {{ review.reviewer.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</strong>
+                                <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                            </div>
+                            <div class="review-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-reviews">No reviews yet. Be the first to review!</p>
+                {% endif %}
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>QuranConnect</h3>
+                <p>Making Quran learning accessible worldwide.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <p>Email: info@quranconnect.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 QuranConnect. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-message');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

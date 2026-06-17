@@ -9,6 +9,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from apps.recommendations.services import get_ranked_proposals
 from decimal import Decimal, InvalidOperation
 from apps.payments.models import Wallet, EscrowRecord
+from apps.reviews.models import Review
+from django.db.models import Avg
+from apps.users.models import CustomUser
+
 
 @login_required
 def teacher_active_jobs(request):
@@ -389,3 +393,29 @@ def chat_room(request, conversation_id):
 
 
 
+
+
+@login_required
+def tutor_public_profile(request, tutor_id):
+    tutor = get_object_or_404(CustomUser, id=tutor_id)
+    
+    # get all reviews for this tutor
+    reviews = Review.objects.filter(tutor=tutor).order_by('-created_at')
+    
+    # calculate average rating
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    avg_rating = round(avg_rating, 1) if avg_rating else 0
+    
+    # check if current user already reviewed
+    already_reviewed = Review.objects.filter(
+        reviewer=request.user,
+        tutor=tutor
+    ).exists()
+
+    return render(request, 'bookings/tutor_public_profile.html', {
+        'tutor': tutor,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'already_reviewed': already_reviewed,
+        'total_reviews': reviews.count(),
+    })
