@@ -31,6 +31,7 @@ urlpatterns = [
     path('disputes/', include('apps.disputes.urls')),
     path('notifications/', include('apps.notifications.urls')),
     path('payments/', include('apps.payments.urls')),
+    path('reviews/', include('apps.reviews.urls')),
 ]
 
 if settings.DEBUG:
