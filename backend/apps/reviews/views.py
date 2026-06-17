@@ -9,28 +9,25 @@ from .models import Review
 def submit_review(request, tutor_id):
     tutor = get_object_or_404(CustomUser, id=tutor_id)
 
-    # only students can review
     if request.user.role != 'student':
         messages.error(request, "Only students can leave reviews.")
-        return redirect('teacher_profile')
+        return redirect('tutor_public_profile', tutor_id=tutor.id)
 
-    # can't review yourself
     if request.user == tutor:
         messages.error(request, "You cannot review yourself.")
-        return redirect('teacher_profile')
+        return redirect('tutor_public_profile', tutor_id=tutor.id)
 
-    # duplicate check — one review per tutor
     existing = Review.objects.filter(reviewer=request.user, tutor=tutor).first()
     if existing:
         messages.error(request, "You have already reviewed this tutor.")
-        return redirect('teacher_profile')
+        return redirect('tutor_public_profile', tutor_id=tutor.id)
 
     if request.method == 'POST':
         rating = request.POST.get('rating')
 
         if not rating:
             messages.error(request, "Please select a rating.")
-            return redirect('teacher_profile')
+            return redirect('tutor_public_profile', tutor_id=tutor.id)
 
         try:
             rating = int(rating)
@@ -38,7 +35,7 @@ def submit_review(request, tutor_id):
                 raise ValueError
         except ValueError:
             messages.error(request, "Invalid rating value.")
-            return redirect('teacher_profile')
+            return redirect('tutor_public_profile', tutor_id=tutor.id)
 
         Review.objects.create(
             reviewer=request.user,
@@ -47,5 +44,6 @@ def submit_review(request, tutor_id):
         )
 
         messages.success(request, f"Your {rating}★ review has been submitted successfully.")
+        return redirect('tutor_public_profile', tutor_id=tutor.id)
 
-    return redirect('teacher_profile')
+    return redirect('tutor_public_profile', tutor_id=tutor.id)

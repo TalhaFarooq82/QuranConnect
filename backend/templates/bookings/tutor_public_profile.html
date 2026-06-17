@@ -50,7 +50,7 @@
                         <div class="rating-summary">
                             <span class="stars">
                                 {% for i in "12345" %}
-                                    {% if forloop.counter <= avg_rating %}⭐{% else %}☆{% endif %}
+                                    <span style="color: {% if forloop.counter <= avg_rating %}#f59e0b{% else %}#d1d5db{% endif %}; font-size: 22px;">★</span>
                                 {% endfor %}
                             </span>
                             <span class="rating-text">{{ avg_rating }} / 5 ({{ total_reviews }} review{{ total_reviews|pluralize }})</span>
@@ -70,12 +70,15 @@
                     {% csrf_token %}
                     <div class="star-rating">
                         <label>Select Rating:</label>
-                        <div class="stars-input">
-                            {% for i in "54321" %}
-                            <input type="radio" name="rating" id="star{{ forloop.counter }}" value="{{ forloop.revcounter }}">
-                            <label for="star{{ forloop.counter }}" title="{{ forloop.revcounter }} stars">⭐</label>
-                            {% endfor %}
+                        <div class="stars-input" id="star-container">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
                         </div>
+                        <input type="hidden" name="rating" id="rating-input" value="">
+                        <p id="rating-error" style="color:#e24b4a; font-size:13px; display:none;">Please select a rating.</p>
                     </div>
                     <button type="submit" class="btn-primary">Submit Review</button>
                 </form>
@@ -98,9 +101,9 @@
                                 <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</strong>
                                 <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
                             </div>
-                            <div class="review-stars">
+                           <div class="review-stars">
                                 {% for i in "12345" %}
-                                    {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                    <span style="color: {% if forloop.counter <= review.rating %}#f59e0b{% else %}#d1d5db{% endif %}; font-size: 18px;">★</span>
                                 {% endfor %}
                             </div>
                         </div>
@@ -137,6 +140,49 @@
     </footer>
 
     <script>
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('rating-input');
+        const ratingError = document.getElementById('rating-error');
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+
+            // hover — highlight up to hovered star
+            star.addEventListener('mouseover', function() {
+                const val = parseInt(this.dataset.value);
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= val ? '#f59e0b' : '#d1d5db';
+                });
+            });
+
+            // mouse leave — go back to selected rating
+            star.addEventListener('mouseleave', function() {
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= selectedRating ? '#f59e0b' : '#d1d5db';
+                });
+            });
+
+            // click — lock selection
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.value);
+                ratingInput.value = selectedRating;
+                ratingError.style.display = 'none';
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= selectedRating ? '#f59e0b' : '#d1d5db';
+                });
+            });
+
+        });
+
+        // validate before submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!ratingInput.value) {
+                e.preventDefault();
+                ratingError.style.display = 'block';
+            }
+        });
+
+        // auto dismiss alert messages
         setTimeout(function() {
             const alerts = document.querySelectorAll('.alert-message');
             alerts.forEach(function(alert) {

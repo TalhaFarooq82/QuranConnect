@@ -40,13 +40,29 @@ a { text-decoration: none; }
 
 .content-card h2 { font-size: 20px; margin-bottom: 16px; }
 
-.star-rating label { display: block; margin-bottom: 8px; font-weight: 600; }
-.stars-input { display: flex; flex-direction: row-reverse; gap: 4px; margin-bottom: 16px; }
-.stars-input input { display: none; }
-.stars-input label { font-size: 28px; cursor: pointer; color: #d1d5db; }
-.stars-input input:checked ~ label { color: #f59e0b; }
-.stars-input label:hover,
-.stars-input label:hover ~ label { color: #f59e0b; }
+.stars-input {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    margin-bottom: 16px;
+    margin-top: 8px;
+}
+
+.star {
+    font-size: 32px;
+    cursor: pointer;
+    color: #d1d5db;
+    transition: color 0.15s;
+    user-select: none;
+}
+
+.star.active {
+    color: #f59e0b;
+}
+
+.star:hover {
+    color: #f59e0b;
+}
 
 .btn-primary {
     background: #0b8fb3; color: #fff; border: none;
