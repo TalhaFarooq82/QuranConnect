@@ -6,7 +6,7 @@ from apps.bookings.models import Job
 from apps.users.models import CustomUser
 from .models import Dispute
 from .forms import DisputeForm
-
+from apps.payments.models import EscrowRecord
 
 @login_required
 def dispute_job(request, job_id):
@@ -45,7 +45,7 @@ def dispute_job(request, job_id):
             dispute.status = 'open'
             dispute.save()
             # freeze escrow if it exists for this job
-            from apps.payments.models import EscrowRecord
+           
             escrow = EscrowRecord.objects.filter(job=job, current_state='held').first()
             if escrow:
                 escrow.current_state = 'frozen'
