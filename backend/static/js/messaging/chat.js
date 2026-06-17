@@ -150,3 +150,113 @@ function escapeHtml(text) {
     div.appendChild(document.createTextNode(text));
     return div.innerHTML;
 }
+
+
+
+// Voice recording
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+async function toggleRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = async () => {
+            // convert recorded chunks to a blob
+            const audioBlob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+
+            // create a file from the blob
+            const audioFile = new File([audioBlob], `voice_${Date.now()}.ogg`, {
+                type: 'audio/ogg'
+            });
+
+            // upload using existing uploadFile logic
+            await uploadVoiceMessage(audioFile);
+
+            // stop all tracks to release microphone
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+
+        // update button UI
+        const btn = document.getElementById('mic-btn');
+        btn.textContent = '⏹';
+        btn.style.color = '#e24b4a';
+        btn.title = 'Stop recording';
+
+        // show recording indicator
+        document.getElementById('file-preview-name').textContent = '🔴 Recording...';
+        document.getElementById('file-preview-bar').style.display = 'flex';
+
+    } catch (err) {
+        alert('Microphone access denied. Please allow microphone access to send voice messages.');
+        console.error('Microphone error:', err);
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+    isRecording = false;
+
+    // reset button UI
+    const btn = document.getElementById('mic-btn');
+    btn.textContent = '🎤';
+    btn.style.color = '';
+    btn.title = 'Record voice message';
+
+    // hide preview bar
+    document.getElementById('file-preview-bar').style.display = 'none';
+}
+
+async function uploadVoiceMessage(audioFile) {
+    const formData = new FormData();
+    formData.append('file', audioFile);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    try {
+        const res = await fetch(uploadUrl, {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            ws.send(JSON.stringify({
+                type: 'file',
+                file_url: data.file_url,
+                file_type: 'audio',
+                original_name: data.original_name,
+                timestamp: new Date().toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short',
+                    hour: '2-digit', minute: '2-digit'
+                }),
+            }));
+        } else {
+            alert('Voice upload failed: ' + (data.error || 'Unknown error'));
+        }
+    } catch (err) {
+        alert('Upload failed. Please try again.');
+        console.error('Upload error:', err);
+    }
+}

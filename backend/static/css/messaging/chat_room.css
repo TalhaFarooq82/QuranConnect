@@ -776,3 +776,34 @@ a { text-decoration: none; color: inherit; }
 }
 
 .btn-reject:hover { background: #dc2626; }
+
+
+.mic-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.mic-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.mic-btn.recording {
+    background: #fdecea;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
