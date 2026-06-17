@@ -7,7 +7,8 @@ from apps.payments.models import Wallet
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.recommendations.services import get_ranked_proposals
-
+from decimal import Decimal, InvalidOperation
+from apps.payments.models import Wallet, EscrowRecord
 
 @login_required
 def teacher_active_jobs(request):
@@ -257,6 +258,34 @@ def award_project(request, proposal_id):
         return redirect("student_dashboard")
 
     if request.method == "POST" and job.status == "Open":
+
+        # Step 1 — parse hourly rate
+        try:
+            amount = Decimal(str(proposal.hourly_rate))
+        except (InvalidOperation, TypeError):
+            messages.error(request, "Invalid hourly rate on this proposal.")
+            return redirect("student_request_detail", job_id=job.id)
+
+        # Step 2 — check student wallet balance
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        if wallet.balance < amount:
+            messages.error(request, f"Insufficient funds. You need ${amount} to award this project. Please add funds first.")
+            return redirect("student_request_detail", job_id=job.id)
+
+        # Step 3 — deduct from student wallet
+        wallet.balance -= amount
+        wallet.save()
+
+        # Step 4 — create escrow record
+        EscrowRecord.objects.create(
+            job=job,
+            student=request.user,
+            tutor=proposal.teacher,
+            locked_amount=amount,
+            current_state='held',
+        )
+
+        # Step 5 — award the proposal
         proposal.status = "Awarded"
         proposal.save()
 
@@ -269,17 +298,17 @@ def award_project(request, proposal_id):
         Conversation.objects.get_or_create(
             job=job,
             teacher=proposal.teacher,
-            defaults={
-                "student": job.student,
-            }
+            defaults={"student": job.student}
         )
 
         Notification.objects.create(
             user=proposal.teacher,
             type="award",
             title="Project awarded",
-            body=f"You have been awarded with the project '{job.title}'.",
+            body=f"You have been awarded the project '{job.title}'. Payment of ${amount} is held in escrow.",
         )
+
+        messages.success(request, f"Project awarded! ${amount} has been locked in escrow.")
 
     return redirect("student_request_detail", job_id=job.id)
 
@@ -357,3 +386,6 @@ def chat_room(request, conversation_id):
         "job": conversation.job,
         "messages": messages,
     })
+
+
+

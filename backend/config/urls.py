@@ -29,7 +29,8 @@ urlpatterns = [
     path('recitation/', include('apps.recitation.urls')),
     path('messaging/', include('apps.messaging.urls')),
     path('disputes/', include('apps.disputes.urls')),
-    path('notifications/', include('apps.notifications.urls'))
+    path('notifications/', include('apps.notifications.urls')),
+    path('payments/', include('apps.payments.urls')),
 ]
 
 if settings.DEBUG:

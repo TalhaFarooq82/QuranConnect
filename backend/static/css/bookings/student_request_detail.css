@@ -371,6 +371,20 @@ a {
     background: #c0392b;
 }
 
+.btn-complete {
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-complete:hover {
+    background: #178a63;
+}
 
 @media (max-width: 1000px) {
     .job-meta-grid,
