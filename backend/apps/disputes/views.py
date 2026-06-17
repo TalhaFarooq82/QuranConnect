@@ -44,6 +44,12 @@ def dispute_job(request, job_id):
             dispute.job = job
             dispute.status = 'open'
             dispute.save()
+            # freeze escrow if it exists for this job
+            from apps.payments.models import EscrowRecord
+            escrow = EscrowRecord.objects.filter(job=job, current_state='held').first()
+            if escrow:
+                escrow.current_state = 'frozen'
+                escrow.save()
             messages.success(request, "Your dispute has been filed successfully.")
             # redirect based on role
             if request.user.role == 'student':

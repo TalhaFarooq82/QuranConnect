@@ -19,7 +19,7 @@ class DisputeAdmin(admin.ModelAdmin):
                        'description', 'evidence_file', 'created_at', 'updated_at']
 
     actions = ['mark_under_review', 'mark_resolved', 'mark_rejected',
-               'warn_reported_user', 'ban_reported_user', 'refund_filed_user']
+               'warn_reported_user', 'ban_reported_user', 'refund_filed_user', 'release_escrow_to_tutor']
 
     def mark_under_review(self, request, queryset):
         queryset.update(status='under_review')
@@ -111,19 +111,79 @@ class DisputeAdmin(admin.ModelAdmin):
     ban_reported_user.short_description = "Ban reported user"
 
     def refund_filed_user(self, request, queryset):
+        from apps.payments.models import EscrowRecord, WalletTransaction
         for dispute in queryset:
-            wallet, _ = Wallet.objects.get_or_create(user=dispute.filed_user)
-            wallet.balance += 100
-            wallet.save()
-            Notification.objects.create(
-                user=dispute.filed_user,
-                type='dispute',
-                title='Refund Issued',
-                body=f'A refund of $100 has been added to your wallet for dispute #{dispute.id}.',
-            )
-        self.message_user(request, "Refund of $100 issued to filed user(s).")
-    refund_filed_user.short_description = "Refund $100 to filed user"
+            # find frozen escrow for this job
+            escrow = None
+            if dispute.job:
+                escrow = EscrowRecord.objects.filter(
+                    job=dispute.job,
+                    current_state='frozen'
+                ).first()
 
+                if escrow:
+                    # refund exact escrow amount to student
+                    student_wallet, _ = Wallet.objects.get_or_create(user=dispute.filed_user)
+                    student_wallet.balance += escrow.locked_amount
+                    student_wallet.save()
 
+                    # log transaction
+                    WalletTransaction.objects.create(
+                        wallet=student_wallet,
+                        transaction_type='credit',
+                        amount=escrow.locked_amount,
+                        note=f"Refund from dispute #{dispute.id} for job: {dispute.job.title}",
+                    )
+
+                    # update escrow state
+                    escrow.current_state = 'refunded'
+                    escrow.save()
+
+                    # notify student
+                    Notification.objects.create(
+                        user=dispute.filed_user,
+                        type='dispute',
+                        title='Refund Issued',
+                        body=f"${escrow.locked_amount} has been refunded to your wallet for dispute #{dispute.id}.",
+                    )
+                else:
+                    self.message_user(request, f"No frozen escrow found for dispute #{dispute.id}.", level='warning')
+        self.message_user(request, "Refund issued to filed user(s).")
+    refund_filed_user.short_description = "Refund to filed user"
+
+    def release_escrow_to_tutor(self, request, queryset):
+        from apps.payments.models import EscrowRecord, WalletTransaction
+        for dispute in queryset:
+            if dispute.job:
+                escrow = EscrowRecord.objects.filter(
+                    job=dispute.job,
+                    current_state='frozen'
+                ).first()
+
+                if escrow:
+                    # release to tutor
+                    tutor_wallet, _ = Wallet.objects.get_or_create(user=dispute.reported_user)
+                    tutor_wallet.balance += escrow.locked_amount
+                    tutor_wallet.save()
+
+                    WalletTransaction.objects.create(
+                        wallet=tutor_wallet,
+                        transaction_type='credit',
+                        amount=escrow.locked_amount,
+                        note=f"Payment released after dispute #{dispute.id} resolved in tutor's favor.",
+                    )
+
+                    escrow.current_state = 'released'
+                    escrow.save()
+
+                    Notification.objects.create(
+                        user=dispute.reported_user,
+                        type='dispute',
+                        title='Payment Released',
+                        body=f"${escrow.locked_amount} has been released to your wallet. Dispute #{dispute.id} resolved in your favor.",
+                    )
+
+        self.message_user(request, "Escrow released to tutor(s).")
+    release_escrow_to_tutor.short_description = "Release escrow to tutor"
 admin.site.register(Dispute, DisputeAdmin)
 admin.site.register(DisputeMessage)
