@@ -23,6 +23,13 @@ class CustomUser(AbstractUser):
         db_table = 'users_table'
 
 class TutorProfile(models.Model):
+    VERIFICATION_STATUS = [
+        ('unverified', 'Unverified'),
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ]
+    
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     higher_qualification = models.CharField(max_length=255, null=True)
@@ -30,7 +37,13 @@ class TutorProfile(models.Model):
     teaching_experience = models.PositiveIntegerField(help_text="Experience in years", null=True)
 
     certification = models.FileField(upload_to='certifications/')
+    cnic_image = models.ImageField(upload_to='cnic_images/', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
+    verification_status = models.CharField(
+        max_length=20,
+        choices=VERIFICATION_STATUS,
+        default='unverified'
+    )
 
     class Meta:
         db_table = 'tutor_certifications'

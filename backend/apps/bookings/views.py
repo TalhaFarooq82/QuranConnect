@@ -11,7 +11,7 @@ from decimal import Decimal, InvalidOperation
 from apps.payments.models import Wallet, EscrowRecord
 from apps.reviews.models import Review
 from django.db.models import Avg
-from apps.users.models import CustomUser
+from apps.users.models import CustomUser,TutorProfile
 
 
 @login_required
@@ -40,9 +40,11 @@ def teacher_profile(request):
         return redirect("student_dashboard")
 
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    tutor_profile, _ = TutorProfile.objects.get_or_create(user=request.user)
 
     return render(request, "bookings/teacher_profile.html", {
         "wallet": wallet,
+        "tutor_profile": tutor_profile,
     })
 
 
@@ -84,24 +86,40 @@ def teacher_settings(request):
     if request.user.role != "tutor":
         return redirect("student_dashboard")
 
+    # get or create tutor profile
+    tutor_profile, _ = TutorProfile.objects.get_or_create(user=request.user)
+
     if request.method == "POST":
-        request.user.first_name = request.POST.get("first_name", "").strip()
-        request.user.last_name = request.POST.get("last_name", "").strip()
-        request.user.email = request.POST.get("email", "").strip()
+        form_type = request.POST.get("form_type")
 
-        if "profile_image" in request.FILES:
-            request.user.profile_image = request.FILES["profile_image"]
+        if form_type == "settings":
+            request.user.first_name = request.POST.get("first_name", "").strip()
+            request.user.last_name = request.POST.get("last_name", "").strip()
+            request.user.email = request.POST.get("email", "").strip()
 
-        request.user.save()
-        messages.success(request, "Your settings have been updated.")
+            if "profile_image" in request.FILES:
+                request.user.profile_image = request.FILES["profile_image"]
+
+            request.user.save()
+            messages.success(request, "Your settings have been updated.")
+
+        elif form_type == "cnic":
+            if "cnic_image" in request.FILES:
+                tutor_profile.cnic_image = request.FILES["cnic_image"]
+                tutor_profile.verification_status = "pending"
+                tutor_profile.save()
+                messages.success(request, "CNIC uploaded successfully. Your profile is under review.")
+            else:
+                messages.error(request, "Please select a CNIC image to upload.")
+
         return redirect("teacher_settings")
 
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
     return render(request, "bookings/teacher_settings.html", {
         "wallet": wallet,
+        "tutor_profile": tutor_profile,
     })
-
 
 @login_required
 def job_detail(request, job_id):

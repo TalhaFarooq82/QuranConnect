@@ -180,6 +180,63 @@ a {
     font-weight: 700;
 }
 
+
+
+.verified-badge {
+    display: inline-block;
+    background: #dff7df;
+    color: #1f9d47;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.pending-badge {
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.rejected-badge {
+    display: inline-block;
+    background: #fdecea;
+    color: #a32d2d;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.unverified-badge {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.btn-verify {
+    background: #0b8fb3;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
 @media (max-width: 700px) {
     .nav,
     .profile-top {
