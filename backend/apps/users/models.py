@@ -35,7 +35,7 @@ class TutorProfile(models.Model):
     higher_qualification = models.CharField(max_length=255, null=True)
     institute_name = models.CharField(max_length=255, null=True)
     teaching_experience = models.PositiveIntegerField(help_text="Experience in years", null=True)
-
+    
     certification = models.FileField(upload_to='certifications/')
     cnic_image = models.ImageField(upload_to='cnic_images/', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
@@ -44,6 +44,7 @@ class TutorProfile(models.Model):
         choices=VERIFICATION_STATUS,
         default='unverified'
     )
+    subjects = models.CharField(max_length=255, blank=True, default='')
 
     class Meta:
         db_table = 'tutor_certifications'

@@ -22,6 +22,6 @@ urlpatterns = [
     path("teacher/withdraw-funds/", views.withdraw_funds, name="withdraw_funds"),
     path("teacher/settings/", views.teacher_settings, name="teacher_settings"),
     path("tutor/<int:tutor_id>/", views.tutor_public_profile, name="tutor_public_profile"),
-    
 
+    path("tutors/", views.tutor_directory, name="tutor_directory"),
 ]

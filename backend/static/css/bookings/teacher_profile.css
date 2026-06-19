@@ -237,6 +237,31 @@ a {
     margin-top: 10px;
 }
 
+
+.subjects-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    margin-top: 8px;
+}
+
+.subject-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f3f9fb;
+    border: 1px solid #d0e8f0;
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.subject-checkbox input {
+    width: auto;
+    cursor: pointer;
+}
 @media (max-width: 700px) {
     .nav,
     .profile-top {

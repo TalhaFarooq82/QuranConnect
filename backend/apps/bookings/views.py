@@ -101,6 +101,12 @@ def teacher_settings(request):
                 request.user.profile_image = request.FILES["profile_image"]
 
             request.user.save()
+
+            # save subjects
+            selected_subjects = request.POST.getlist("subjects")
+            tutor_profile.subjects = ",".join(selected_subjects)
+            tutor_profile.save()
+
             messages.success(request, "Your settings have been updated.")
 
         elif form_type == "cnic":
@@ -116,9 +122,22 @@ def teacher_settings(request):
 
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
+    SUBJECT_CHOICES = [
+        ('nazra', 'Nazra'),
+        ('hifz', 'Hifz'),
+        ('tajweed', 'Tajweed'),
+        ('quran', 'Quran Translation'),
+        ('arabic', 'Arabic Language'),
+        ('islamic_studies', 'Islamic Studies'),
+        ('duas', 'Duas & Prayers'),
+        ('tafseer', 'Tafseer'),
+    ]
+
     return render(request, "bookings/teacher_settings.html", {
         "wallet": wallet,
         "tutor_profile": tutor_profile,
+        "subjects_choices": SUBJECT_CHOICES,
+        "tutor_subjects": tutor_profile.subjects.split(",") if tutor_profile.subjects else [],
     })
 
 @login_required
@@ -443,4 +462,50 @@ def tutor_public_profile(request, tutor_id):
         'avg_rating': avg_rating,
         'already_reviewed': already_reviewed,
         'total_reviews': reviews.count(),
+    })
+
+
+
+
+@login_required
+def tutor_directory(request):
+    from apps.reviews.models import Review
+    from django.db.models import Avg
+
+    subject_filter = request.GET.get('subject', '')
+
+    # get all tutor profiles
+    tutors = TutorProfile.objects.select_related('user').all()
+
+    # filter by subject if selected
+    if subject_filter:
+        tutors = tutors.filter(subjects__icontains=subject_filter)
+
+    # build tutor list with avg rating
+    tutor_list = []
+    for profile in tutors:
+        avg_rating = Review.objects.filter(
+            tutor=profile.user
+        ).aggregate(Avg('rating'))['rating__avg']
+
+        tutor_list.append({
+            'profile': profile,
+            'avg_rating': round(avg_rating, 1) if avg_rating else 0,
+        })
+
+    SUBJECT_CHOICES = [
+        ('nazra', 'Nazra'),
+        ('hifz', 'Hifz'),
+        ('tajweed', 'Tajweed'),
+        ('quran', 'Quran Translation'),
+        ('arabic', 'Arabic Language'),
+        ('islamic_studies', 'Islamic Studies'),
+        ('duas', 'Duas & Prayers'),
+        ('tafseer', 'Tafseer'),
+    ]
+
+    return render(request, 'bookings/tutor_directory.html', {
+        'tutor_list': tutor_list,
+        'subject_choices': SUBJECT_CHOICES,
+        'subject_filter': subject_filter,
     })

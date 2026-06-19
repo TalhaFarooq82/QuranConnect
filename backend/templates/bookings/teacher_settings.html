@@ -44,6 +44,16 @@
 
                     <label for="profile_image">Profile Image</label>
                     <input type="file" name="profile_image" id="profile_image">
+                    <label>Subjects You Teach</label>
+                    <div class="subjects-grid">
+                        {% for value, label in subjects_choices %}
+                        <label class="subject-checkbox">
+                            <input type="checkbox" name="subjects" value="{{ value }}"
+                                {% if value in tutor_subjects %}checked{% endif %}>
+                            {{ label }}
+                        </label>
+                        {% endfor %}
+                    </div>
 
                     <button type="submit">Save Settings</button>
                 </form>
