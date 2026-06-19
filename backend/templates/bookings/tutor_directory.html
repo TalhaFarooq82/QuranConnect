@@ -79,7 +79,7 @@
 
                     {% if item.profile.subjects %}
                     <div class="subject-tags">
-                        {% for subject in item.profile.subjects.split %}
+                        {% for subject in item.subjects_list %}
                         <span class="subject-tag">{{ subject }}</span>
                         {% endfor %}
                     </div>

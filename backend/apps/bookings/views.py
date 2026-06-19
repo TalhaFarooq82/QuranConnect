@@ -491,6 +491,7 @@ def tutor_directory(request):
         tutor_list.append({
             'profile': profile,
             'avg_rating': round(avg_rating, 1) if avg_rating else 0,
+            'subjects_list': [s.strip() for s in profile.subjects.split(',') if s.strip()] if profile.subjects else [],
         })
 
     SUBJECT_CHOICES = [
