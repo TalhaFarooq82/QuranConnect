@@ -62,10 +62,9 @@ def tutor_certification(request, user_id):
     if request.method == 'POST':
         form = TutorCertificationForm(request.POST, request.FILES)
         if form.is_valid():
-            TutorProfile.objects.create(
-                user=user,
-                certification=form.cleaned_data['certification']
-            )
+            profile = form.save(commit=False)
+            profile.user = user
+            profile.save()
             login(request, user)
             messages.success(request, "Signup Successful! Your tutor profile has been created.")
             return redirect('login')
@@ -73,7 +72,6 @@ def tutor_certification(request, user_id):
         form = TutorCertificationForm()
 
     return render(request, 'users/tutor_certification.html', {'form': form})
-
 
 #--------------------------------------------Login view-----------------------------------------------
 def login_view(request):

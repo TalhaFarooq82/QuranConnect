@@ -35,6 +35,22 @@ class TutorProfileAdmin(admin.ModelAdmin):
                         title='Verification Rejected ❌',
                         body='Your CNIC verification was rejected. Please upload a clearer image in Settings.',
                     )
+                elif obj.verification_status == 'unverified':
+                    obj.is_verified = False
+                    obj.save()
+                    Notification.objects.create(
+                        user=obj.user,
+                        type='dispute',
+                        title='Verification Removed ⚠',
+                        body='Your verified status has been removed by admin. Please contact support for more information.',
+                    )
+                elif obj.verification_status == 'pending':
+                    Notification.objects.create(
+                        user=obj.user,
+                        type='award',
+                        title='Verification Under Review ⏳',
+                        body='Your CNIC is under review. You will be notified once admin approves your profile.',
+                    )
         else:
             super().save_model(request, obj, form, change)
 
