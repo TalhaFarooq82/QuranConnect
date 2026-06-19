@@ -27,7 +27,7 @@
             {% endif %}
 
             <section class="profile-card">
-                < class="profile-top">
+                <div class="profile-top">
                     <div class="avatar">
                         {% if request.user.profile_image %}
                             <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.username }}">
@@ -35,23 +35,18 @@
                             {{ request.user.username|slice:":1"|upper }}
                         {% endif %}
                     </div>
-                            <div>
-                                <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
-                                <p>Tutor / Scholar</p>
-                                {% if tutor_profile.verification_status == 'approved' %}
-                                    <span class="verified-badge">✅ Verified Scholar</span>
-                                {% elif tutor_profile.verification_status == 'pending' %}
-                                    <span class="pending-badge">⏳ Verification Pending</span>
-                                {% elif tutor_profile.verification_status == 'rejected' %}
-                                    <span class="rejected-badge">❌ Verification Rejected</span>
-                                {% else %}
-                                    <span class="unverified-badge">⚠ Not Verified</span>
-                                {% endif %}
-                            </div>
-                        
                     <div>
                         <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
                         <p>Tutor / Scholar</p>
+                        {% if tutor_profile.verification_status == 'approved' %}
+                            <span class="verified-badge">✅ Verified Scholar</span>
+                        {% elif tutor_profile.verification_status == 'pending' %}
+                            <span class="pending-badge">⏳ Verification Pending</span>
+                        {% elif tutor_profile.verification_status == 'rejected' %}
+                            <span class="rejected-badge">❌ Verification Rejected</span>
+                        {% else %}
+                            <span class="unverified-badge">⚠ Not Verified</span>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -74,5 +69,16 @@
             </section>
         </div>
     </main>
+
+    <script>
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
 </body>
 </html>

@@ -128,6 +128,13 @@ def job_detail(request, job_id):
     if request.user.role != "tutor":
         return redirect("student_dashboard")
 
+     # block unverified tutors from bidding
+    tutor_profile = TutorProfile.objects.filter(user=request.user).first()
+    if not tutor_profile or tutor_profile.verification_status != 'approved':
+        messages.error(request, "You must be a verified scholar to bid on jobs. Please upload your CNIC in Settings.")
+        return redirect("teacher_settings")
+
+
     existing_proposal = Proposal.objects.filter(job=job, teacher=request.user).first()
 
     if request.method == "POST" and job.status == "Open" and not existing_proposal:
