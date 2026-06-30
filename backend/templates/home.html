@@ -6,26 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuranConnect</title>
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 </head>
 <body>
-    <header class="topbar">
-        <div class="container nav">
-            <div class="brand">QuranConnect</div>
-
-            <nav class="menu">
-                <a href="/">Home</a>
-                <a href="#about">About</a>
-                <a href="{% url 'ai_tutor_home' %}">AI Tutor</a>
-                <a href="{% url 'recitation_page' %}">Tajweed</a>
-                <a href="#contact">Contact us</a>
-            </nav>
-
-            <div class="auth-actions">
-                <a href="/users/login/" class="btn-outline-sm">Login</a>
-                <a href="{% url 'register_choice' %}" class="btn-primary-sm">Sign Up</a>
-            </div>
-        </div>
-    </header>
+    {% include 'partials/navbar.html' %}
 
     <section class="hero">
         <div class="container hero-grid">

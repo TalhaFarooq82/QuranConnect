@@ -9,19 +9,7 @@
 </head>
 <body>
 
-<header class="topbar">
-    <div class="container nav">
-        <div class="brand">QuranConnect</div>
-        <nav class="menu">
-            <a href="{% url 'home' %}">Home</a>
-            {% if request.user.role == 'student' %}
-            <a href="{% url 'student_dashboard' %}">Dashboard</a>
-            {% else %}
-            <a href="{% url 'teacher_active_jobs' %}">Dashboard</a>
-            {% endif %}
-        </nav>
-    </div>
-</header>
+{% include 'partials/navbar.html' %}
 
 <main class="inbox-wrapper">
     <div class="inbox-header">

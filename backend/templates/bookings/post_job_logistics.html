@@ -8,25 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/bookings/post_job_logistics.css' %}">
 </head>
 <body>
-    <header class="topbar">
-        <div class="container nav">
-            <div class="brand">QuranConnect</div>
-            <nav class="menu">
-                <a href="/">Home</a>
-                <a href="#">About us</a>
-                <a href="{% url 'ai_tutor_home' %}">AI Tutor</a>
-                <a href="{% url 'recitation_page' %}">Tajweed</a>
-                <a href="#">Contact us</a>
-                <a href="{% url 'notifications' %}" class="message-icon" title="Notifications">
-                    🔔
-                    {% if unread_notifications > 0 %}
-                    <span class="message-badge">{{ unread_notifications }}</span>
-                    {% endif %}
-                </a>
-            </nav>
-            <div class="profile">👤</div>
-        </div>
-    </header>
+{% include 'partials/navbar.html' %}
 
     <main class="page-wrapper">
         <div class="form-container">

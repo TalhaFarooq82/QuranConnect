@@ -10,33 +10,13 @@
   <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
   {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 </head>
 <body>
   <!-- Simple global header -->
-  <header style="background:#0b8fb3;color:#fff;padding:18px 0;">
-    <div style="width:90%;max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;">
-      <a href="{% url 'home' %}" style="color:#fff;font-weight:800;font-size:32px;text-decoration:none;">QuranConnect</a>
+  {% include 'partials/navbar.html' %}
 
-      <nav style="display:flex;gap:26px;align-items:center;">
-        <a href="{% url 'home' %}" style="color:#fff;text-decoration:none;font-weight:600;">Home</a>
-        <a href="{% url 'home' %}#about" style="color:#fff;text-decoration:none;font-weight:600;">About</a>
-        <a href="{% url 'ai_tutor_home' %}" style="color:#fff;text-decoration:none;font-weight:600;">AI Tutor</a>
-        <a href="{% url 'recitation_page' %}"style="color:#fff;text-decoration:none;font-weight:600;">Tajweed</a>
-        <a href="{% url 'home' %}#contact" style="color:#fff;text-decoration:none;font-weight:600;">Contact us</a>
-      </nav>
-
-      <div style="display:flex;gap:10px;align-items:center;">
-        {% if request.user.is_authenticated %}
-          <a href="/users/logout/" style="background:#fff;color:#0b8fb3;padding:10px 14px;border-radius:12px;font-weight:800;text-decoration:none;">Logout</a>
-        {% else %}
-          <a href="/users/login/" style="background:transparent;color:#fff;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.7);font-weight:800;text-decoration:none;">Login</a>
-          <a href="{% url 'register_choice' %}" style="background:#fff;color:#0b8fb3;padding:10px 14px;border-radius:12px;font-weight:800;text-decoration:none;">Sign Up</a>
-        {% endif %}
-      </div>
-    </div>
-  </header>
-
-  {% block content %}{% endblock %}
+{% block content %}{% endblock %}
 
   {% block extra_js %}{% endblock %}
 </body>

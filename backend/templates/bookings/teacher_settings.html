@@ -8,16 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/bookings/teacher_profile.css' %}">
 </head>
 <body>
-    <header class="topbar">
-        <div class="container nav">
-            <a href="{% url 'home' %}" class="brand">QuranConnect</a>
-            <nav class="menu">
-                <a href="{% url 'teacher_active_jobs' %}">Dashboard</a>
-                <a href="{% url 'teacher_profile' %}">My Profile</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            </nav>
-        </div>
-    </header>
+    {% include 'partials/navbar.html' %}
 
     <main class="page-wrapper">
         <div class="container">

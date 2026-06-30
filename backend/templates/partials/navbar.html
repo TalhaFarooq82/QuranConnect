@@ -1,0 +1,139 @@
+{% load static %}
+   <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+
+
+<header class="qc-main-navbar">
+    <div class="qc-main-nav-container">
+        <div class="qc-main-nav">
+
+            <div class="qc-main-brand-wrap">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.role == 'tutor' %}
+                        <a href="{% url 'teacher_active_jobs' %}" class="qc-main-brand">QuranConnect</a>
+                    {% else %}
+                        <a href="{% url 'student_dashboard' %}" class="qc-main-brand">QuranConnect</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'home' %}" class="qc-main-brand">QuranConnect</a>
+                {% endif %}
+            </div>
+
+            <nav class="qc-main-menu">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.role == 'tutor' %}
+                        <a href="{% url 'teacher_active_jobs' %}"
+                           class="{% if request.resolver_match.url_name == 'teacher_active_jobs' %}qc-active{% endif %}">
+                            Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'student_dashboard' %}"
+                           class="{% if request.resolver_match.url_name == 'student_dashboard' %}qc-active{% endif %}">
+                            Dashboard
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'home' %}"
+                       class="{% if request.resolver_match.url_name == 'home' %}qc-active{% endif %}">
+                        Home
+                    </a>
+                    <a href="{% url 'home' %}#about">About</a>
+                {% endif %}
+
+                <a href="{% url 'ai_tutor_home' %}"
+                   class="{% if 'ai_tutor' in request.resolver_match.url_name %}qc-active{% endif %}">
+                    AI Tutor
+                </a>
+
+                <a href="{% url 'recitation_page' %}"
+                   class="{% if request.resolver_match.url_name == 'recitation_page' %}qc-active{% endif %}">
+                    Tajweed
+                </a>
+
+                {% if request.user.is_authenticated and request.user.role != 'tutor' %}
+                    <a href="{% url 'tutor_directory' %}"
+                       class="{% if request.resolver_match.url_name == 'tutor_directory' %}qc-active{% endif %}">
+                        Find a Tutor
+                    </a>
+                {% endif %}
+
+                {% if not request.user.is_authenticated %}
+                    <a href="{% url 'home' %}#contact">Contact us</a>
+                {% endif %}
+            </nav>
+
+            <div class="qc-main-actions">
+                {% if request.user.is_authenticated %}
+
+                    <a href="{% url 'notifications' %}" class="qc-main-icon" title="Notifications">
+                        🔔
+                        {% if unread_notifications > 0 %}
+                            <span class="qc-main-badge">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+
+                    <a href="{% url 'inbox' %}" class="qc-main-icon" title="Messages">
+                        💬
+                        {% if unread_messages > 0 %}
+                            <span class="qc-main-badge">{{ unread_messages }}</span>
+                        {% endif %}
+                    </a>
+
+                    <details class="qc-main-profile">
+                        <summary class="qc-main-profile-summary">
+                            <div class="qc-main-avatar">
+                                {% if request.user.role == 'tutor' %}
+                                    {% if request.user.profile_image %}
+                                        <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.username }}">
+                                    {% else %}
+                                        {{ request.user.username|slice:":1"|upper }}
+                                    {% endif %}
+                                {% else %}
+                                    {% if request.user.student_profile.avatar %}
+                                        <img src="{{ request.user.student_profile.avatar.url }}" alt="{{ request.user.username }}">
+                                    {% else %}
+                                        {{ request.user.username|slice:":1"|upper }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+
+                            <div class="qc-main-profile-meta">
+                                <strong>
+                                    {% if request.user.role != 'tutor' and request.user.student_profile.display_name %}
+                                        {{ request.user.student_profile.display_name }}
+                                    {% else %}
+                                        {{ request.user.get_full_name|default:request.user.username }}
+                                    {% endif %}
+                                </strong>
+                                <span>${{ wallet.balance|default:"0.00" }} USD</span>
+                            </div>
+                        </summary>
+
+                        <div class="qc-main-dropdown">
+                            {% if request.user.role == 'tutor' %}
+                                <a href="{% url 'teacher_profile' %}">My Profile</a>
+                                <a href="{% url 'teacher_settings' %}">Settings</a>
+                            {% else %}
+                                <a href="{% url 'student_dashboard' %}">My Profile</a>
+
+                                <form method="post" action="{% url 'add_funds' %}" class="qc-main-fund-form">
+                                    {% csrf_token %}
+                                    <input type="number" step="0.01" name="amount" placeholder="Add funds amount" required>
+                                    <button type="submit">Add Funds</button>
+                                </form>
+
+                                <a href="#">Settings</a>
+                            {% endif %}
+
+                            <a href="/users/logout/">Logout</a>
+                        </div>
+                    </details>
+
+                {% else %}
+                    <a href="/users/login/" class="qc-main-btn qc-main-btn-ghost">Login</a>
+                    <a href="{% url 'register_choice' %}" class="qc-main-btn qc-main-btn-solid">Sign Up</a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</header>

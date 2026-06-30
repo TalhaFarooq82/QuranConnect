@@ -10,20 +10,7 @@
 <body>
 
 <!-- Topbar -->
-<header class="topbar">
-    <div class="container nav">
-        <div class="brand">QuranConnect</div>
-        <nav class="menu">
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'home' %}#about">About</a>
-            <a href="{% url 'ai_tutor_home' %}">AI Tutor</a>
-            <a href="{% url 'home' %}#contact">Contact us</a>
-        </nav>
-        <div class="auth-actions">
-            <a href="/users/logout/" class="btn-outline-sm">Logout</a>
-        </div>
-    </div>
-</header>
+{% include 'partials/navbar.html' %}
 
 <!-- Main -->
 <main class="page-wrapper">
