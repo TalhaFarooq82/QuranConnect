@@ -72,6 +72,12 @@
                                 </div>
 
                                 <p class="request-meta">
+                                    <strong>Posted by:</strong> 
+                                    {% if job.student.student_profile.display_name %}
+                                        {{ job.student.student_profile.display_name }}
+                                    {% else %}
+                                        {{ job.student.get_full_name|default:job.student.username }}
+                                    {% endif %} |
                                     <strong>Course:</strong> {{ job.course }} |
                                     <strong>Budget:</strong> {{ job.budget }} |
                                     <strong>Schedule:</strong> {{ job.schedule }}
