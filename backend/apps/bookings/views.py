@@ -11,7 +11,7 @@ from decimal import Decimal, InvalidOperation
 from apps.payments.models import Wallet, EscrowRecord
 from apps.reviews.models import Review
 from django.db.models import Avg
-from apps.users.models import CustomUser,TutorProfile
+from apps.users.models import CustomUser,TutorProfile, StudentProfile
 
 
 @login_required
@@ -509,4 +509,75 @@ def tutor_directory(request):
         'tutor_list': tutor_list,
         'subject_choices': SUBJECT_CHOICES,
         'subject_filter': subject_filter,
+    })
+
+
+@login_required
+def student_settings(request):
+    if request.user.role != 'student':
+        return redirect('teacher_active_jobs')
+
+    student_profile, _ = StudentProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+
+        if form_type == "settings":
+            request.user.first_name = request.POST.get("first_name", "").strip()
+            request.user.last_name = request.POST.get("last_name", "").strip()
+            request.user.email = request.POST.get("email", "").strip()
+
+            if "avatar" in request.FILES:
+                student_profile.avatar = request.FILES["avatar"]
+
+            student_profile.display_name = request.POST.get("display_name", "").strip()
+            student_profile.save()
+            request.user.save()
+
+            messages.success(request, "Your settings have been updated.")
+            return redirect("student_settings")
+
+        elif form_type == "password":
+            old_password = request.POST.get("old_password", "")
+            new_password = request.POST.get("new_password", "")
+            confirm_password = request.POST.get("confirm_password", "")
+
+            if not request.user.check_password(old_password):
+                messages.error(request, "Current password is incorrect.")
+            elif new_password != confirm_password:
+                messages.error(request, "New passwords do not match.")
+            elif len(new_password) < 8:
+                messages.error(request, "Password must be at least 8 characters.")
+            else:
+                request.user.set_password(new_password)
+                request.user.save()
+                messages.success(request, "Password updated successfully. Please log in again.")
+                return redirect("login")
+
+        return redirect("student_settings")
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    return render(request, "bookings/student_settings.html", {
+        "student_profile": student_profile,
+        "wallet": wallet,
+    })
+
+@login_required
+def student_profile(request):
+    if request.user.role != 'student':
+        return redirect('teacher_active_jobs')
+
+    student_profile, _ = StudentProfile.objects.get_or_create(user=request.user)
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    from apps.bookings.models import Job
+    total_jobs = Job.objects.filter(student=request.user).count()
+    completed_jobs = Job.objects.filter(student=request.user, status='Closed').count()
+
+    return render(request, "bookings/student_profile.html", {
+        "student_profile": student_profile,
+        "wallet": wallet,
+        "total_jobs": total_jobs,
+        "completed_jobs": completed_jobs,
     })

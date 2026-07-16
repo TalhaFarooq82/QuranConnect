@@ -113,7 +113,8 @@
                                 <a href="{% url 'teacher_profile' %}">My Profile</a>
                                 <a href="{% url 'teacher_settings' %}">Settings</a>
                             {% else %}
-                                <a href="{% url 'student_dashboard' %}">My Profile</a>
+                                <a href="{% url 'student_profile' %}">My Profile</a>
+                                <a href="{% url 'student_settings' %}">Settings</a>
 
                                 <form method="post" action="{% url 'add_funds' %}" class="qc-main-fund-form">
                                     {% csrf_token %}
