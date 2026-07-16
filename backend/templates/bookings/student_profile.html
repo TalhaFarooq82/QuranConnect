@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/teacher_profile.css' %}">
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <main class="page-wrapper">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <section class="profile-card">
+                <div class="profile-top">
+                    <div class="avatar">
+                        {% if request.user.student_profile.avatar %}
+                            <img src="{{ request.user.student_profile.avatar.url }}" alt="{{ request.user.username }}">
+                        {% else %}
+                            {{ request.user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h1>
+                            {% if student_profile.display_name %}
+                                {{ student_profile.display_name }}
+                            {% else %}
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            {% endif %}
+                        </h1>
+                        <p>Student / Learner</p>
+                        <span style="color:#6b7280; font-size:13px;">@{{ request.user.username }}</span>
+                    </div>
+                </div>
+
+                <div class="wallet-box">
+                    <span>Available Balance</span>
+                    <strong>${{ wallet.balance }} USD</strong>
+                </div>
+
+                <div class="stats-row" style="display:flex; gap:24px; margin-top:16px;">
+                    <div class="stat-item">
+                        <span style="color:#6b7280; font-size:13px;">Total Jobs</span>
+                        <strong style="display:block; font-size:22px;">{{ total_jobs }}</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span style="color:#6b7280; font-size:13px;">Completed</span>
+                        <strong style="display:block; font-size:22px;">{{ completed_jobs }}</strong>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <a href="{% url 'student_settings' %}" class="secondary-btn">Go to Settings</a>
+                    <a href="{% url 'logout' %}" class="secondary-btn">Logout</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

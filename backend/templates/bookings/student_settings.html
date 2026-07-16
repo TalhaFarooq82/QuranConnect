@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Settings — QuranConnect</title>
+    <link rel="stylesheet" href="{% static 'css/bookings/teacher_profile.css' %}">
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <main class="page-wrapper">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Profile Settings -->
+            <section class="profile-card">
+                <h1>Profile Settings</h1>
+                <form method="post" enctype="multipart/form-data" class="withdraw-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="settings">
+
+                    <label for="display_name">Display Name</label>
+                    <input type="text" name="display_name" id="display_name"
+                           value="{{ student_profile.display_name|default:'' }}"
+                           placeholder="How your name appears to tutors">
+
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" id="first_name"
+                           value="{{ request.user.first_name }}">
+
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" id="last_name"
+                           value="{{ request.user.last_name }}">
+
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email"
+                           value="{{ request.user.email }}">
+
+                    <label for="avatar">Profile Picture</label>
+                    {% if student_profile.avatar %}
+                        <p style="font-size:13px; color:#6b7280; margin-bottom:8px;">
+                            Current: <a href="{{ student_profile.avatar.url }}" target="_blank">View</a>
+                        </p>
+                    {% endif %}
+                    <input type="file" name="avatar" id="avatar" accept="image/*">
+
+                    <button type="submit">Save Settings</button>
+                </form>
+            </section>
+
+            <!-- Password Change -->
+            <section class="profile-card" style="margin-top: 20px;">
+                <h2>Change Password</h2>
+                <form method="post" class="withdraw-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="password">
+
+                    <label for="old_password">Current Password</label>
+                    <input type="password" name="old_password" id="old_password" required>
+
+                    <label for="new_password">New Password</label>
+                    <input type="password" name="new_password" id="new_password" required>
+
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required>
+
+                    <button type="submit">Update Password</button>
+                </form>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
