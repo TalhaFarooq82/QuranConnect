@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = 'django-insecure-=n3@=+k8qc9x673ofdmp)%w=4@9@!@$tq*1xde%dk%c-0l-(bo'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'daphne',                                 # must be first
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -133,3 +134,16 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+
+import dj_database_url
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Production database
+if os.getenv('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
