@@ -11,6 +11,8 @@
     top: 0;
     z-index: 1000;
     box-shadow: 0 14px 35px rgba(8, 89, 115, 0.18);
+
+    flex-shrink: 0;
 }
 
 .qc-main-nav-container {

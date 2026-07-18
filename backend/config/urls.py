@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.users.views import home
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('', home, name='home'),
@@ -32,6 +34,36 @@ urlpatterns = [
     path('notifications/', include('apps.notifications.urls')),
     path('payments/', include('apps.payments.urls')),
     path('reviews/', include('apps.reviews.urls')),
+
+
+    # Password reset URLs
+    path('users/password-reset/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='users/password_reset.html',
+             email_template_name='users/password_reset_email.html',
+             subject_template_name='users/password_reset_subject.txt',
+             success_url='/users/password-reset/done/'
+         ), 
+         name='password_reset'),
+    
+    path('users/password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='users/password_reset_done.html'
+         ),
+         name='password_reset_done'),
+    
+    path('users/reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='users/password_reset_confirm.html',
+             success_url='/users/reset/done/'
+         ),
+         name='password_reset_confirm'),
+    
+    path('users/reset/done/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='users/password_reset_complete.html'
+         ),
+         name='password_reset_complete'),
 ]
 
 if settings.DEBUG:
