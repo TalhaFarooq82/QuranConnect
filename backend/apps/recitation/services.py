@@ -13,7 +13,7 @@ from apps.recitation.models import RecitationAttempt
 
 #---------------------------- Whisper Model -----------------------
 
-model = whisper.load_model("base")
+model = whisper.load_model("tiny")
 
 CHROMA_DB_PATH = os.path.join(
     os.path.dirname(__file__),   # current folder (recitation/)
@@ -109,44 +109,51 @@ def find_ayah_by_arabic(clean_user_text):
             best_clean = cleaned
 
     return best_meta, best_clean, best_score
-
 def analyze_recitation(audio_file):
 
-    # Step 1: Transcribe
-    result    = model.transcribe(audio_file, language='ar')
-    user_text = result['text']
+    print("=== analyze_recitation started ===")
 
-    # Step 2: Clean user text
-    clean_user = clean_whisper_output(user_text)
+    try:
+        print("Step 1: Starting Whisper transcription...")
+        result = model.transcribe(audio_file, language="ar")
+        print("✅ Whisper transcription finished")
 
-    # Direct Arabic comparison across all ayahs
-    best_meta, best_clean, best_score = find_ayah_by_arabic(clean_user)
+        user_text = result["text"]
+        print(f"User text: {user_text}")
 
-    if best_meta is None:
-        return {"error": "No matching ayah found"}
+        print("Step 2: Cleaning text...")
+        clean_user = clean_whisper_output(user_text)
+        print(f"Cleaned: {clean_user}")
 
-    raw_correct   = best_meta['arabic_text']
-    surah         = best_meta['surah_number']
-    ayah          = best_meta['ayah_number']
-    clean_correct = best_clean
+        print("Step 3: Searching matching ayah...")
+        best_meta, best_clean, best_score = find_ayah_by_arabic(clean_user)
+        print(f"Best score: {best_score}")
 
-    # Step 6: Compare words
-    feedback = compare_words(clean_correct, clean_user)
+        if best_meta is None:
+            print("❌ No matching ayah found")
+            return {"error": "No matching ayah found"}
 
-    # Step 7: Calculate score
-    total   = len(feedback)
-    correct = sum(1 for f in feedback if f["status"] == "correct")
-    score   = round((correct / total) * 100) if total > 0 else 0
+        print("Step 4: Comparing words...")
+        feedback = compare_words(best_clean, clean_user)
 
-    return {
-        "surah":        surah,
-        "ayah":         ayah,
-        "correct_text": raw_correct,
-        "user_text":    user_text,
-        "feedback":     feedback,
-        "score":        score
-    }
+        total = len(feedback)
+        correct = sum(1 for f in feedback if f["status"] == "correct")
+        score = round((correct / total) * 100) if total > 0 else 0
 
+        print(f"Final score: {score}")
+
+        return {
+            "surah": best_meta["surah_number"],
+            "ayah": best_meta["ayah_number"],
+            "correct_text": best_meta["arabic_text"],
+            "user_text": user_text,
+            "feedback": feedback,
+            "score": score,
+        }
+
+    except Exception as e:
+        print("❌ ERROR inside analyze_recitation:", e)
+        raise
  
 
 def save_recitation(user, audio_file_path, result):
