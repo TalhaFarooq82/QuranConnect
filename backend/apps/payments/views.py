@@ -15,15 +15,23 @@ def release_escrow(request, job_id):
     print("=== release_escrow view called ===")
     print("Method:", request.method)
     print("Job ID:", job_id)
-    
+
     job = get_object_or_404(Job, id=job_id)
 
     if job.student != request.user:
         return redirect("student_dashboard")
 
-    escrow = get_object_or_404(EscrowRecord, job=job, current_state='held')
+    from django.db.models import Q
+
+    escrow = get_object_or_404(
+        EscrowRecord.objects.filter(
+            Q(current_state="held") | Q(current_state="frozen")
+        ),
+        job=job
+    )
 
     if request.method == "POST":
+        print("POST received, releasing escrow...")
         tutor_wallet, _ = Wallet.objects.get_or_create(user=escrow.tutor)
         tutor_wallet.balance += escrow.locked_amount
         tutor_wallet.save()
