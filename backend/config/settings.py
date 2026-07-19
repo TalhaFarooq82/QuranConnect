@@ -150,3 +150,10 @@ if os.getenv('DATABASE_URL'):
         conn_max_age=600,
         ssl_require=True,
     )
+
+
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://*.up.railway.app"
+).split(",")
