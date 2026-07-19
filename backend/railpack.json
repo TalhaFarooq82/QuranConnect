@@ -1,7 +1,0 @@
-{
-  "packages": {
-    "apt": [
-      "ffmpeg"
-    ]
-  }
-}
