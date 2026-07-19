@@ -9,7 +9,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-=n3@=+k8qc9x673ofdmp)%w=4@
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    ".up.railway.app,localhost,127.0.0.1"
+).split(",")
 
 INSTALLED_APPS = [
     'daphne',                                 # must be first
