@@ -13,7 +13,7 @@ from apps.recitation.models import RecitationAttempt
 
 #---------------------------- Whisper Model -----------------------
 
-model = whisper.load_model("tiny")
+model = whisper.load_model("base")
 
 CHROMA_DB_PATH = os.path.join(
     os.path.dirname(__file__),   # current folder (recitation/)
