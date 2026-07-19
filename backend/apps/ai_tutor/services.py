@@ -23,6 +23,7 @@ CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
 # ===== INITIALIZE CLIENTS =====
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 collection = chroma_client.get_or_create_collection(name="islamic_knowledge")   #embedding_function=sentence_transformer_ef
+print(f"ChromaDB document count: {collection.count()}")
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 groq_client = Groq(api_key=GROQ_API_KEY)
 
@@ -227,3 +228,9 @@ RULES:
     })
 
     return answer, chat_history     
+
+
+# Auto-populate database if empty
+if collection.count() == 0:
+    print("ChromaDB is empty. Populating database...")
+    populate_database()
