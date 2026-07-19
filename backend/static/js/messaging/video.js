@@ -27,7 +27,7 @@ async function startVideoCall() {
     document.getElementById('video-panel').style.display = 'flex'
 
     // Step 4 — notify the other person via WebSocket
-    ws.send(JSON.stringify({
+    window.ws.send(JSON.stringify({
         signal: 'call_started',
         sender_id: currentUserId
     }))
@@ -163,7 +163,7 @@ async function joinCall() {
     if (popup) popup.remove()
 
      // Step 5 — tell caller I joined
-    ws.send(JSON.stringify({
+    window.ws.send(JSON.stringify({
         signal: 'call_joined'
     }))    
 }
@@ -185,7 +185,7 @@ async function startWebRTC() {
     // Step 4 — when ICE candidate is generated, send it to other person
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-            ws.send(JSON.stringify({
+            window.ws.send(JSON.stringify({
                 signal: 'ice_candidate',
                 candidate: event.candidate
             }))
@@ -196,7 +196,7 @@ async function startWebRTC() {
     const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
 
-    ws.send(JSON.stringify({
+    window.ws.send(JSON.stringify({
         signal: 'offer',
         offer: offer
     }))
@@ -220,7 +220,7 @@ async function handleOffer(offer) {
     // Step 4 — when ICE candidate generated, send to caller
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-            ws.send(JSON.stringify({
+            window.ws.send(JSON.stringify({
                 signal: 'ice_candidate',
                 candidate: event.candidate
             }))
@@ -235,7 +235,7 @@ async function handleOffer(offer) {
     await peerConnection.setLocalDescription(answer)
 
     // Step 7 — send answer back to caller
-    ws.send(JSON.stringify({
+    window.ws.send(JSON.stringify({
         signal: 'answer',
         answer: answer
     }))
@@ -278,7 +278,7 @@ function endCall() {
 
 // Step 5 — tell other person call ended (safely)
     try {
-        ws.send(JSON.stringify({
+       window.ws.send(JSON.stringify({
             signal: 'call_ended'
         }))
     } catch(e) {

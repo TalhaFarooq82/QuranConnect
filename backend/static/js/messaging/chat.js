@@ -1,5 +1,10 @@
 // WebSocket connection
-const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${conversationId}/`);
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+window.ws = new WebSocket(
+    `${protocol}://${window.location.host}/ws/chat/${conversationId}/`
+);
+
 
 let selectedFile = null;
 
@@ -12,7 +17,7 @@ function scrollToBottom() {
 }
 
 // Receive message from server
-ws.onmessage = function(event) {
+window.ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
 
     if (data.type === 'file') {
@@ -24,7 +29,7 @@ ws.onmessage = function(event) {
     }
 };
 
-ws.onclose = function() {
+window.ws.onclose = function() {
     console.log('WebSocket closed');
 };
 
@@ -41,7 +46,7 @@ function sendMessage() {
 
     if (!text) return;
 
-    ws.send(JSON.stringify({ message: text }));
+    window.ws.send(JSON.stringify({ message: text }));
     input.value = '';
 }
 
@@ -100,7 +105,7 @@ function uploadFile() {
     .then(data => {
         if (data.success) {
             // Send via WebSocket so BOTH users see it
-            ws.send(JSON.stringify({
+            window.ws.send(JSON.stringify({
                 type: 'file',
                 file_url: data.file_url,
                 file_type: data.file_type,
@@ -242,7 +247,7 @@ async function uploadVoiceMessage(audioFile) {
         const data = await res.json();
 
         if (data.success) {
-            ws.send(JSON.stringify({
+            window.ws.send(JSON.stringify({
                 type: 'file',
                 file_url: data.file_url,
                 file_type: 'audio',
