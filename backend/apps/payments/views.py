@@ -12,6 +12,10 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
 def release_escrow(request, job_id):
+    print("=== release_escrow view called ===")
+    print("Method:", request.method)
+    print("Job ID:", job_id)
+    
     job = get_object_or_404(Job, id=job_id)
 
     if job.student != request.user:
