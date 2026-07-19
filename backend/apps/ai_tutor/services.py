@@ -230,7 +230,3 @@ RULES:
     return answer, chat_history     
 
 
-# Auto-populate database if empty
-if collection.count() == 0:
-    print("ChromaDB is empty. Populating database...")
-    populate_database()
