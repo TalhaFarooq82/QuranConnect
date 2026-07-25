@@ -3,6 +3,57 @@
 
 
 <header class="qc-main-navbar">
+
+    <!-- Mobile Header -->
+    <div class="qc-mobile-header">
+
+        <button class="qc-hamburger" id="qcHamburger">
+            ☰
+        </button>
+
+        <div class="qc-main-brand-wrap">
+            {% if request.user.is_authenticated %}
+                {% if request.user.role == 'tutor' %}
+                    <a href="{% url 'teacher_active_jobs' %}" class="qc-main-brand">QuranConnect</a>
+                {% else %}
+                    <a href="{% url 'student_dashboard' %}" class="qc-main-brand">QuranConnect</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'home' %}" class="qc-main-brand">QuranConnect</a>
+            {% endif %}
+        </div>
+
+        <div class="qc-mobile-profile">
+
+            {% if request.user.is_authenticated %}
+
+                {% if request.user.role == 'tutor' %}
+
+                    {% if request.user.profile_image %}
+                        <img src="{{ request.user.profile_image.url }}">
+                    {% else %}
+                        {{ request.user.username|slice:":1"|upper }}
+                    {% endif %}
+
+                {% else %}
+
+                    {% if request.user.student_profile.avatar %}
+                        <img src="{{ request.user.student_profile.avatar.url }}">
+                    {% else %}
+                        {{ request.user.username|slice:":1"|upper }}
+                    {% endif %}
+
+                {% endif %}
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Desktop Header-->
     <div class="qc-main-nav-container">
         <div class="qc-main-nav">
 
@@ -136,4 +187,86 @@
 
         </div>
     </div>
+
+
+        <div class="qc-mobile-overlay"></div>
+
+            <div class="qc-mobile-drawer">
+
+                    <button class="qc-close-menu" id="qcCloseMenu">
+                        ✕
+                    </button>
+
+
+                        <div class="qc-mobile-menu-content">
+
+                            {% if request.user.is_authenticated %}
+
+                                {% if request.user.role == 'tutor' %}
+                                    <a href="{% url 'teacher_active_jobs' %}">🏠 Dashboard</a>
+                                {% else %}
+                                    <a href="{% url 'student_dashboard' %}">🏠 Dashboard</a>
+                                {% endif %}
+
+                            {% else %}
+
+                            <a href="{% url 'home' %}">🏠 Home</a>
+                            <a href="{% url 'home' %}#about">ℹ️ About</a>
+
+                            {% endif %}
+
+                            <a href="{% url 'ai_tutor_home' %}">🤖 AI Tutor</a>
+
+                            <a href="{% url 'recitation_page' %}">📖 Tajweed</a>
+
+                            {% if request.user.is_authenticated and request.user.role != 'tutor' %}
+                                <a href="{% url 'tutor_directory' %}">👨‍🏫 Find a Tutor</a>
+                            {% endif %}
+
+                            {% if request.user.is_authenticated %}
+
+                            <a href="{% url 'notifications' %}">
+                                🔔 Notifications
+                                {% if unread_notifications > 0 %}
+                                    ({{ unread_notifications }})
+                                {% endif %}
+                            </a>
+
+                            <a href="{% url 'inbox' %}">
+                                💬 Messages
+                                {% if unread_messages > 0 %}
+                                    ({{ unread_messages }})
+                                {% endif %}
+                            </a>
+
+                            <hr>
+
+                            {% if request.user.role == 'tutor' %}
+                                <a href="{% url 'teacher_profile' %}">👤 My Profile</a>
+                                <a href="{% url 'teacher_settings' %}">⚙ Settings</a>
+                            {% else %}
+                                <a href="{% url 'student_profile' %}">👤 My Profile</a>
+                                <a href="{% url 'student_settings' %}">⚙ Settings</a>
+                            {% endif %}
+
+                            <a href="/users/logout/">🚪 Logout</a>
+
+                            {% else %}
+
+                            <hr>
+
+                            <a href="/users/login/">Login</a>
+
+                            <a href="{% url 'register_choice' %}">Sign Up</a>
+
+                            {% endif %}
+
+                        </div>
+
+            </div>
+
+        </div>
+
 </header>
+
+<script src="{% static 'js/navbar.js' %}"></script>

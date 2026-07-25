@@ -307,3 +307,143 @@
         justify-content: center;
     }
 }
+
+
+
+/* ==========================================================
+   MOBILE NAVBAR
+========================================================== */
+
+.qc-mobile-header{
+    display:none;
+}
+
+.qc-hamburger{
+    border:none;
+    background:none;
+    color:#fff;
+    font-size:30px;
+    cursor:pointer;
+}
+
+.qc-mobile-profile{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    overflow:hidden;
+    background:#fff;
+    color:#078fb0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:800;
+    font-size:18px;
+    flex-shrink:0;
+}
+
+.qc-mobile-profile img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.qc-mobile-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    opacity:0;
+    visibility:hidden;
+    transition:.3s;
+    z-index:9998;
+}
+
+.qc-mobile-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.qc-mobile-drawer{
+    position:fixed;
+    top:0;
+    left:-300px;
+    width:280px;
+    height:100vh;
+    background:#fff;
+    transition:.3s;
+    z-index:9999;
+    box-shadow:8px 0 30px rgba(0,0,0,.18);
+    overflow-y:auto;
+}
+
+.qc-mobile-drawer.open{
+    left:0;
+}
+
+.qc-close-menu{
+    border:none;
+    background:none;
+    font-size:30px;
+    cursor:pointer;
+    padding:20px;
+}
+
+.qc-mobile-menu-content{
+    padding:10px 20px 30px;
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width:900px){
+
+    /* Hide desktop navbar */
+
+    .qc-main-nav{
+        display:none;
+    }
+
+    /* Show mobile navbar */
+
+    .qc-mobile-header{
+
+        display:flex;
+
+        justify-content:space-between;
+
+        align-items:center;
+
+        padding:12px 0;
+
+    }
+
+    .qc-mobile-header .qc-main-brand{
+
+        font-size:28px;
+
+    }
+
+}
+
+
+.qc-mobile-menu-content a{
+    display:block;
+    padding:14px 16px;
+    margin-bottom:8px;
+    border-radius:12px;
+    text-decoration:none;
+    color:#1f2937;
+    font-weight:700;
+    transition:.2s;
+}
+
+.qc-mobile-menu-content a:hover{
+    background:#eef8fb;
+    color:#078fb0;
+}
+
+.qc-mobile-menu-content hr{
+    margin:18px 0;
+    border:none;
+    border-top:1px solid #ddd;
+}
