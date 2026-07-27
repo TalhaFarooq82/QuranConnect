@@ -109,19 +109,21 @@ h1 {
     gap: 20px;
 }
 
-select {
+select,
+input[type="time"],
+input[type="number"] {
     width: 100%;
     padding: 18px 16px;
     border: 1px solid #a1a1aa;
     border-radius: 12px;
     font-size: 16px;
     background: white;
+    font-family: inherit;
 }
 
-.helper-text {
-    margin-top: 10px;
-    color: #71717a;
-    font-size: 15px;
+input[type="time"],
+input[type="number"] {
+    cursor: pointer;
 }
 
 .budget-type-group {

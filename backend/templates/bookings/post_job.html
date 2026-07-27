@@ -27,7 +27,7 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label for="title">Project Title</label>
+                    <label for="title">Learning Goal</label>
                     <input
                         type="text"
                         id="title"
@@ -40,16 +40,21 @@
                 <div class="form-group">
                     <label for="course">What do you want to learn?</label>
                     <select id="course" name="course" required>
-                        <option value="Hifz">Hifz</option>
-                        <option value="Nazra">Nazra</option>
+                        <option value="" selected disabled>Select a learning category</option>
+                        <option value="Hifz">Hifz (Memorization)</option>
+                        <option value="Nazra">Nazra (Reading)</option>
                         <option value="Tajweed">Tajweed</option>
                         <option value="Qirat">Qirat</option>
                         <option value="Tafsir">Tafsir</option>
+                        <option value="Arabic">Quranic Arabic</option>
+                        <option value="Islamic Studies">Islamic Studies</option>
+                        <option value="Duas">Duas & Daily Supplications</option>
+                        <option value="Basic Quran">Basic Quran for Beginners</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Describe your problem</label>
+                    <label for="description">Description</label>
                     <textarea
                         id="description"
                         name="description"

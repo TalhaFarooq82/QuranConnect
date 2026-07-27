@@ -220,12 +220,11 @@ def post_job_logistics(request):
     if request.method == "POST":
         start_time = request.POST.get("start_time", "").strip()
         end_time = request.POST.get("end_time", "").strip()
-        budget_type = request.POST.get("budget_type", "").strip()
         budget_min = request.POST.get("budget_min", "").strip()
         budget_max = request.POST.get("budget_max", "").strip()
 
-        if start_time and end_time and budget_type and budget_min and budget_max:
-            budget = f"${budget_min} - ${budget_max} / hr" if budget_type == "hourly" else f"${budget_min} - ${budget_max} fixed"
+        if start_time and end_time and budget_min and budget_max:
+            budget = f"${budget_min} - ${budget_max}"
             schedule = f"{start_time} - {end_time} (PKT)"
 
             job = Job.objects.create(
