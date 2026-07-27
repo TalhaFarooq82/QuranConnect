@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat — {{ conversation.job.title }}</title>
     <link rel="stylesheet" href="{% static 'css/messaging/chat_room.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
 
@@ -143,22 +144,33 @@
             <span>Live Session</span>
             <button onclick="endCall()" class="btn-end-call">End Call</button>
         </div>
-        <div class="video-grid">
-            <div class="video-box">
-                <video id="remote-video" autoplay playsinline></video>
-                <span class="video-label">{{ other_user.get_full_name|default:other_user.username }}</span>
-            </div>
-            <div class="video-box local-box">
-                <video id="local-video" autoplay playsinline muted></video>
-                <span class="video-label">You</span>
-            </div>
-        </div>
-        <div class="video-controls">
-            <button id="btn-mic" onclick="toggleMic()">🎙 Mute</button>
-            <button id="btn-cam" onclick="toggleCam()">📷 Cam Off</button>
-            <button id="btn-screen" onclick="toggleScreen()">🖥 Share Screen</button>
-        </div>
+        <div class="video-grid"> <div class="video-box remote-box"> 
+            <video id="remote-video" autoplay playsinline></video> 
+            <span class="video-label"> {{ other_user.get_full_name|default:other_user.username }} 
+
+            </span> 
+        </div> 
+        <div class="video-box local-box"> 
+            <video id="local-video" autoplay playsinline muted></video> 
+            <span class="video-label">You</span> 
+        </div> 
     </div>
+
+        <div class="video-controls">
+
+            <button id="btn-mic" onclick="toggleMic()" title="Mute / Unmute">
+                <i class="fas fa-microphone"></i>
+            </button>
+
+            <button id="btn-cam" onclick="toggleCam()" title="Camera On / Off">
+                <i class="fas fa-video"></i>
+            </button>
+
+            <button id="btn-screen" onclick="toggleScreen()" title="Share Screen">
+                <i class="fas fa-desktop"></i>
+            </button>
+
+        </div>
 
 </div>
 

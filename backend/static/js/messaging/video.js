@@ -39,11 +39,17 @@ function toggleMic() {
     if (audioTrack.enabled) {
         // currently on → turn off
         audioTrack.enabled = false
-        document.getElementById('btn-mic').textContent = '🎙 Unmute'
+        document.getElementById('btn-mic').innerHTML =
+            '<i class="fas fa-microphone-slash"></i>';
+
+        document.getElementById('btn-mic').classList.add('danger');
     } else {
         // currently off → turn on
         audioTrack.enabled = true
-        document.getElementById('btn-mic').textContent = '🎙 Mute'
+        document.getElementById('btn-mic').innerHTML =
+            '<i class="fas fa-microphone"></i>';
+
+        document.getElementById('btn-mic').classList.remove('danger');
     
     }
 }
@@ -54,12 +60,18 @@ function toggleCam() {
     if (videoTrack.enabled) {
         // currently on → turn off
         videoTrack.enabled = false
-        document.getElementById('btn-cam').textContent = '📷 Cam On'
+        document.getElementById('btn-cam').innerHTML =
+            '<i class="fas fa-video-slash"></i>';
+
+        document.getElementById('btn-cam').classList.add('danger');
     } else {
         // currently off → turn on
         videoTrack.enabled = true
-        document.getElementById('btn-cam').textContent = '📷 Cam Off'
-    }
+        document.getElementById('btn-cam').innerHTML =
+            '<i class="fas fa-video"></i>';
+
+        document.getElementById('btn-cam').classList.remove('danger');
+            }
 }
 
 async function toggleScreen() {
@@ -74,7 +86,10 @@ async function toggleScreen() {
 
         // show screen in local video
         document.getElementById('local-video').srcObject = screenStream
-        document.getElementById('btn-screen').textContent = '🖥 Stop Share'
+        document.getElementById('btn-screen').innerHTML =
+            '<i class="fas fa-display"></i>';
+
+        document.getElementById('btn-screen').classList.add('active');
         screenSharing = true
 
         // when user stops sharing from browser UI
@@ -87,7 +102,10 @@ async function toggleScreen() {
         sender.replaceTrack(cameraTrack)
 
         document.getElementById('local-video').srcObject = localStream
-        document.getElementById('btn-screen').textContent = '🖥 Share Screen'
+        document.getElementById('btn-screen').innerHTML =
+            '<i class="fas fa-desktop"></i>';
+
+        document.getElementById('btn-screen').classList.remove('active');
         screenSharing = false
     }
 }
