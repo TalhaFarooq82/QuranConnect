@@ -75,7 +75,6 @@ def release_escrow(request, job_id):
 
     return redirect("student_request_detail", job_id=job.id)
 
-
 @login_required
 def stripe_checkout(request):
     if request.user.role != 'student':
