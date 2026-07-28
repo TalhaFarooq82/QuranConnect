@@ -10,6 +10,8 @@ from .services import (
     build_context,
     extract_groq_answer,
     AITutorResponseError,
+    ask_islamic_tutor,
+    MAX_QUESTION_LENGTH,
 )
 
 
@@ -151,3 +153,15 @@ class ExtractGroqAnswerTests(SimpleTestCase):
 
         with self.assertRaises(AITutorResponseError):
             extract_groq_answer(response)
+
+
+class TutorQuestionValidationTests(SimpleTestCase):
+    def test_rejects_blank_question(self):
+        with self.assertRaises(ValueError):
+            ask_islamic_tutor("   ")
+
+    def test_rejects_question_over_length_limit(self):
+        question = "x" * (MAX_QUESTION_LENGTH + 1)
+
+        with self.assertRaises(ValueError):
+            ask_islamic_tutor(question)
