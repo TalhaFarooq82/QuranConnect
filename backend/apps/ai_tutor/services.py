@@ -215,6 +215,28 @@ def rerank_results(query, documents, metadatas, top_k=3):
     return top_docs, top_metas
 
 
+def extract_query_results(results):
+    """Return the first document and metadata batches safely."""
+    if not isinstance(results, dict):
+        return [], []
+
+    document_batches = results.get("documents") or []
+    metadata_batches = results.get("metadatas") or []
+
+    documents = (
+        document_batches[0]
+        if document_batches and isinstance(document_batches[0], list)
+        else []
+    )
+    metadatas = (
+        metadata_batches[0]
+        if metadata_batches and isinstance(metadata_batches[0], list)
+        else []
+    )
+
+    return documents, metadatas
+
+
 def ask_islamic_tutor(user_question, chat_history=None):
     user_question = str(user_question or "").strip()
 
@@ -236,10 +258,12 @@ def ask_islamic_tutor(user_question, chat_history=None):
     )
 
     # Step 2: Rerank
+    documents, metadatas = extract_query_results(results)
+
     top_docs, top_metas = rerank_results(
         user_question,
-        results["documents"][0],
-        results["metadatas"][0],
+        documents,
+        metadatas,
         top_k=RERANK_RESULT_COUNT,
     )
 
