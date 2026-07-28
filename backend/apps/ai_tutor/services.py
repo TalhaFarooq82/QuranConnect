@@ -49,7 +49,18 @@ HADITH_API_URL = HADITH_API_URL
 # ===== INITIALIZE CLIENTS =====
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 collection = chroma_client.get_or_create_collection(name="islamic_knowledge")   #embedding_function=sentence_transformer_ef
-reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+_reranker = None
+
+
+def get_reranker():
+    """Load the cross-encoder only when reranking is required."""
+    global _reranker
+
+    if _reranker is None:
+        _reranker = CrossEncoder(RERANKER_MODEL_NAME)
+
+    return _reranker
 _groq_client = None
 
 
@@ -233,7 +244,7 @@ def rerank_results(query, documents, metadatas, top_k=3):
     top_k = max(1, min(top_k, result_count))
 
     pairs = [[query, doc] for doc in documents]
-    scores = reranker.predict(pairs)
+    scores = get_reranker().predict(pairs)
     ranked = sorted(
         zip(scores, documents, metadatas),
         key=lambda x: x[0],
