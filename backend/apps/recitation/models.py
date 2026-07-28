@@ -12,7 +12,7 @@ class RecitationAttempt(models.Model):
     ayah_number = models.IntegerField() # Ayah number that was recited
     surah_number = models.IntegerField()   # Surah number of the recited Ayah
 
-    audio_file = models.FileField(upload_to='recitation/')
+    audio_file = models.FileField(upload_to='recitation/')  # Uploaded audio file of the user's recitation
     user_text = models.TextField()
     correct_text = models.TextField()
 
