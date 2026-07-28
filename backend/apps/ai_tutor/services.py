@@ -50,7 +50,20 @@ HADITH_API_URL = HADITH_API_URL
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 collection = chroma_client.get_or_create_collection(name="islamic_knowledge")   #embedding_function=sentence_transformer_ef
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-groq_client = Groq(api_key=GROQ_API_KEY)
+_groq_client = None
+
+
+def get_groq_client():
+    """Create the Groq client only when an AI request is made."""
+    global _groq_client
+
+    if _groq_client is None:
+        if not GROQ_API_KEY:
+            raise RuntimeError("GROQ_API_KEY is not configured.")
+
+        _groq_client = Groq(api_key=GROQ_API_KEY)
+
+    return _groq_client
 
 # ===========================
 # PART 1 — DATA COLLECTION
@@ -347,7 +360,7 @@ def ask_islamic_tutor(user_question, chat_history=None):
     })
 
     # Step 5: Send to Groq
-    response = groq_client.chat.completions.create(
+    response = get_groq_client().chat.completions.create(
         model=GROQ_MODEL,
         temperature=GROQ_TEMPERATURE,
         max_tokens=GROQ_MAX_TOKENS,
