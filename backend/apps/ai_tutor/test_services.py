@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from django.test import SimpleTestCase
 
 from .services import (
@@ -6,6 +8,8 @@ from .services import (
     fetch_hadiths,
     extract_query_results,
     build_context,
+    extract_groq_answer,
+    AITutorResponseError,
 )
 
 
@@ -112,3 +116,38 @@ class BuildContextTests(SimpleTestCase):
 
         self.assertIn("Knowledge text", context)
         self.assertIn("Unknown", context)
+
+
+class ExtractGroqAnswerTests(SimpleTestCase):
+    def test_extracts_and_strips_answer_content(self):
+        response = SimpleNamespace(
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(
+                        content="  The answer text  "
+                    )
+                )
+            ]
+        )
+
+        answer = extract_groq_answer(response)
+
+        self.assertEqual(answer, "The answer text")
+
+    def test_rejects_response_without_choices(self):
+        response = SimpleNamespace(choices=[])
+
+        with self.assertRaises(AITutorResponseError):
+            extract_groq_answer(response)
+
+    def test_rejects_empty_completion_content(self):
+        response = SimpleNamespace(
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(content="   ")
+                )
+            ]
+        )
+
+        with self.assertRaises(AITutorResponseError):
+            extract_groq_answer(response)
