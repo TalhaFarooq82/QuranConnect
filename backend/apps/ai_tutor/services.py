@@ -39,6 +39,14 @@ def clean_text(text):
     return cleaned
 
 def fetch_chapter(chapter_number):
+    try:
+        chapter_number = int(chapter_number)
+    except (TypeError, ValueError) as error:
+        raise ValueError("Chapter number must be an integer.") from error
+
+    if not 1 <= chapter_number <= 114:
+        raise ValueError("Chapter number must be between 1 and 114.")
+
     response = requests.get(
         QURAN_CHAPTER_API_URL.format(chapter_number=chapter_number),
         params={
