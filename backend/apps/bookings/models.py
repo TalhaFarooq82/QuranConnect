@@ -20,7 +20,8 @@ class Job(models.Model):
         ("Closed", "Closed"),
     ]
 
-    student = models.ForeignKey(
+    student = models.ForeignKey 
+(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="posted_jobs",
