@@ -56,7 +56,7 @@ MAX_QUESTION_LENGTH = 2000
 RETRIEVAL_RESULT_COUNT = 20
 RERANK_RESULT_COUNT = 3
 QURAN_CHAPTER_API_URL = "https://api.qurancdn.com/api/qdc/verses/by_chapter/{chapter_number}"
-HADITH_API_URL = HADITH_API_URL
+HADITH_API_URL = "https://hadithapi.com/api/hadiths/"
 
 # ===== INITIALIZE CLIENTS =====
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
