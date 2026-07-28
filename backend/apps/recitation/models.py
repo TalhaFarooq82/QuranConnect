@@ -21,6 +21,6 @@ class RecitationAttempt(models.Model):
 
     class Meta:
         db_table = 'recitation_feedback_table'  # Custom database table name
-        ordering = ['created_at']
+        ordering = ['created_at'] # Display latest records based on creation time
         verbose_name = "Recitation Attempt"
         verbose_name_plural = "Recitation Attempts"
