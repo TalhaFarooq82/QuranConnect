@@ -4,6 +4,8 @@ from apps.users.models import CustomUser
 """
     Stores a user's Quran recitation attempt and feedback.
     """
+# Model to store each user's Quran recitation attempt and feedback
+
 class RecitationAttempt(models.Model):
     user = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
     score = models.IntegerField(default=0)
