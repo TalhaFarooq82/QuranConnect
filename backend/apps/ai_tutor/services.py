@@ -19,7 +19,23 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+def _env_int(name, default):
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_float(name, default):
+    try:
+        return float(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_TEMPERATURE = _env_float("GROQ_TEMPERATURE", 0.2)
+GROQ_MAX_TOKENS = _env_int("GROQ_MAX_TOKENS", 1200)
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 HADITH_API_KEY = os.getenv("HADITH_API_KEY")
 CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
@@ -333,6 +349,8 @@ def ask_islamic_tutor(user_question, chat_history=None):
     # Step 5: Send to Groq
     response = groq_client.chat.completions.create(
         model=GROQ_MODEL,
+        temperature=GROQ_TEMPERATURE,
+        max_tokens=GROQ_MAX_TOKENS,
         messages=[
             {
                 "role": "system",
