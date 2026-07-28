@@ -145,7 +145,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return message
     
 
-
     async def video_signal(self, event):
         # Don't send signal back to the person who sent it
         if event['sender_id'] == self.user.id:
