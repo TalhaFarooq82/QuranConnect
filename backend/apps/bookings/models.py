@@ -55,7 +55,8 @@ class Proposal(models.Model):
         ("Rejected", "Rejected"),
     ]
 
-    job = models.ForeignKey(
+    job = models.ForeignKey
+(
         Job,
         on_delete=models.CASCADE,
         related_name="proposals"
