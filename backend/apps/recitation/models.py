@@ -1,7 +1,9 @@
 from django.db import models
 from apps.users.models import CustomUser
 # Create your models here.
-
+"""
+    Stores a user's Quran recitation attempt and feedback.
+    """
 class RecitationAttempt(models.Model):
     user = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
     score = models.IntegerField(default=0)
