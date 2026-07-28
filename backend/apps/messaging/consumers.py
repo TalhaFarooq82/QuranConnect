@@ -143,7 +143,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         return message
-    
 
     async def video_signal(self, event):
         # Don't send signal back to the person who sent it
