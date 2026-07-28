@@ -238,28 +238,32 @@ def extract_query_results(results):
 
 
 def build_context(documents, metadatas):
-    """Format retrieved Quran and Hadith documents for the AI prompt."""
+    """Format retrieved documents while tolerating missing metadata."""
     context_parts = []
 
     for index, (document, metadata) in enumerate(
         zip(documents, metadatas),
         start=1,
     ):
-        if metadata["source"] == "Quran":
+        metadata = metadata or {}
+        source = metadata.get("source", "Unknown")
+
+        if source == "Quran":
             context_parts.append(
                 f"Source {index}: Quran\n"
-                f"Location: Surah {metadata['surah_number']}, "
-                f"Ayah {metadata['ayah_number']}\n"
-                f"Arabic: {metadata['arabic_text']}\n"
+                f"Location: Surah {metadata.get('surah_number', 'Unknown')}, "
+                f"Ayah {metadata.get('ayah_number', 'Unknown')}\n"
+                f"Arabic: {metadata.get('arabic_text', '')}\n"
                 f"English: {document}"
             )
         else:
             context_parts.append(
-                f"Source {index}: {metadata['collection']}\n"
-                f"Hadith #{metadata['hadith_number']} | "
-                f"{metadata['chapter']}\n"
-                f"Narrator: {metadata['narrator']}\n"
-                f"Status: {metadata['status']}\n"
+                f"Source {index}: "
+                f"{metadata.get('collection', source)}\n"
+                f"Hadith #{metadata.get('hadith_number', 'Unknown')} | "
+                f"{metadata.get('chapter', 'Unknown')}\n"
+                f"Narrator: {metadata.get('narrator', 'Unknown')}\n"
+                f"Status: {metadata.get('status', 'Unknown')}\n"
                 f"Text: {document}"
             )
 
