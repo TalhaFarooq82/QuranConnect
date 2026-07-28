@@ -154,7 +154,6 @@ def analyze_recitation(audio_file):
         print("❌ ERROR inside analyze_recitation:", e)
         raise
  
-
 def save_recitation(user, audio_file_path, result):
     RecitationAttempt.objects.create(
         user         = user,
