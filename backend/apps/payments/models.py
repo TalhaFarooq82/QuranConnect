@@ -35,7 +35,6 @@ class WalletTransaction(models.Model):
         return f"{self.wallet.user.username} - {self.transaction_type} - {self.amount}"
 
 
-
 class EscrowRecord(models.Model):
     STATE_CHOICES = [
         ('held', 'Held'),
