@@ -13,8 +13,7 @@ def recitation_page(request):
         
         # Fetch user's previous recitation attempts
         history = RecitationAttempt.objects.filter(
-            user=request.user
-        ).order_by('-created_at')[:10]  # last 10 attempts
+            user=request.user).order_by('-created_at')[:10]  # last 10 attempts
 
         return render(request, 'recitation/recitation_page.html', {
             'history': history
