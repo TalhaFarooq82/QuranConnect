@@ -107,10 +107,16 @@ def generate_chat_title(user_text):
 
     text = user_text.lower().strip()
 
-    for phrase in remove_phrases:
-        if text.startswith(phrase):
-            text = text[len(phrase):].strip(" ?.,!;:")
-            break
+    prefix_removed = True
+
+    while prefix_removed:
+        prefix_removed = False
+
+        for phrase in remove_phrases:
+            if text.startswith(phrase):
+                text = text[len(phrase):].strip(" ?.,!;:")
+                prefix_removed = True
+                break
 
     for character in ["?", ".", ",", "!", ":", ";", '"', "'"]:
         text = text.replace(character, "")
