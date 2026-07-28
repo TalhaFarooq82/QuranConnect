@@ -46,7 +46,6 @@ class Job(models.Model):
     def __str__(self):
         return self.title
 
-
 class Proposal(models.Model):
     STATUS_CHOICES = [
         ("Pending", "Pending"),
