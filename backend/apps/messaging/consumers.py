@@ -88,6 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message_id': message.id,
                 }
             )
+            
 
     # This is called when group_send fires
     async def chat_message(self, event):
