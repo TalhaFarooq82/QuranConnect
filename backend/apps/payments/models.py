@@ -47,6 +47,7 @@ class EscrowRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    
     def __str__(self):
         return f"Escrow #{self.id} - {self.job.title} - {self.current_state}"
     
