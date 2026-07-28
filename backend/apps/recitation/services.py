@@ -59,7 +59,7 @@ def compare_words(correct_text, user_text):
                 'status' : 'correct'
             }
         )
-
+          
     elif tag == "replace":
       for k in range(max(c2-c1, u2-u1)):
         correct_word = correct_words[c1+k] if c1+k < c2 else "—"
