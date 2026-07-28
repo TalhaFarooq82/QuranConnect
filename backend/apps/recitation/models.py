@@ -20,3 +20,4 @@ class RecitationAttempt(models.Model):
         db_table = 'recitation_feedback_table'
         ordering = ['created_at']
         verbose_name = "Recitation Attempt"
+        verbose_name_plural = "Recitation Attempts"
