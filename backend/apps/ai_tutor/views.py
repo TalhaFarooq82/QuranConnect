@@ -1,11 +1,20 @@
+from pathlib import Path
+
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseForbidden
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .models import TutorChat, TutorMessage, TutorShareLink, TutorUpload
 from .services import ask_islamic_tutor
+
+
+ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".txt", ".docx"}
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+MAX_EXTRACTED_TEXT_LENGTH = 200_000
+MAX_DOCUMENT_CONTEXT_LENGTH = 30_000
 
 
 # ─────────────────────────────────────────────
@@ -13,10 +22,10 @@ from .services import ask_islamic_tutor
 # ─────────────────────────────────────────────
 def get_ai_answer(prompt, chat_history=None):
     """
-    ask_islamic_tutor may return:
-    1) plain string
-    2) tuple like (answer, history)
-    This always returns only the clean answer text.
+    Return clean text from the AI tutor service.
+
+    ask_islamic_tutor may return either a plain string or a tuple
+    containing the answer and updated chat history.
     """
     if chat_history is None:
         chat_history = []
@@ -24,14 +33,28 @@ def get_ai_answer(prompt, chat_history=None):
     result = ask_islamic_tutor(prompt, chat_history)
 
     if isinstance(result, tuple):
-        return str(result[0]).strip()
+        if not result:
+            raise ValueError("AI tutor returned an invalid response.")
 
-    return str(result).strip()
+        result = result[0]
+
+    if result is None:
+        raise ValueError("AI tutor returned an empty response.")
+
+    answer = str(result).strip()
+
+    if not answer:
+        raise ValueError("AI tutor returned an empty response.")
+
+    return answer
+
 
 def generate_chat_title(user_text):
     """
-    Generate a clean 4-6 word sidebar title from the user's first message.
-    Falls back to simple keyword cleanup if AI title generation fails.
+    Generate a short sidebar title from the user's first message.
+
+    AI title generation is attempted first. A local text-cleaning
+    fallback is used when title generation fails.
     """
     user_text = user_text.strip()
 
@@ -52,10 +75,7 @@ def generate_chat_title(user_text):
     try:
         title = get_ai_answer(title_prompt)
         title = title.replace('"', "").replace("'", "").strip()
-
-        # Keep max 5 words
-        words = title.split()
-        title = " ".join(words[:5]).strip()
+        title = " ".join(title.split()[:5]).strip()
 
         if title:
             return title.title()
@@ -63,7 +83,6 @@ def generate_chat_title(user_text):
     except Exception:
         pass
 
-    # Fallback if AI title generation fails
     remove_phrases = [
         "can you tell me",
         "could you tell me",
@@ -82,110 +101,117 @@ def generate_chat_title(user_text):
         "i am student",
         "i am in uni",
         "i am in university",
-        "hi",
         "hello",
+        "hi",
     ]
 
-    text = user_text.lower()
+    text = user_text.lower().strip()
 
     for phrase in remove_phrases:
-        text = text.replace(phrase, " ")
+        if text.startswith(phrase):
+            text = text[len(phrase):].strip(" ?.,!;:")
+            break
 
-    for ch in ["?", ".", ",", "!", ":", ";", '"', "'"]:
-        text = text.replace(ch, "")
+    for character in ["?", ".", ",", "!", ":", ";", '"', "'"]:
+        text = text.replace(character, "")
 
     stopwords = {
-        "the", "a", "an", "and", "or", "but", "to", "of", "in", "on",
-        "for", "with", "about", "me", "my", "is", "are", "was", "were",
-        "do", "does", "did", "be", "it", "this", "that", "please", "you",
-        "i", "am", "can", "could", "should", "would"
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "but",
+        "to",
+        "of",
+        "in",
+        "on",
+        "for",
+        "with",
+        "about",
+        "me",
+        "my",
+        "is",
+        "are",
+        "was",
+        "were",
+        "do",
+        "does",
+        "did",
+        "be",
+        "it",
+        "this",
+        "that",
+        "please",
+        "you",
+        "i",
+        "am",
+        "can",
+        "could",
+        "should",
+        "would",
     }
 
-    words = [w for w in text.split() if w not in stopwords]
+    words = [
+        word
+        for word in text.split()
+        if word not in stopwords
+    ]
+
     title = " ".join(words[:5]).strip()
 
     return title.title() if title else "New Chat"
 
-    # Remove common question starters
-    remove_phrases = [
-        "can you tell me",
-        "could you tell me",
-        "please tell me",
-        "tell me",
-        "how to",
-        "how do i",
-        "what is",
-        "what are",
-        "explain",
-        "give me",
-        "i want to know",
-        "hi,",
-        "hello,",
-    ]
 
-    lowered = text.lower()
+# ─────────────────────────────────────────────
+# GENERAL HELPERS
+# ─────────────────────────────────────────────
+def _is_safe_redirect_url(request, url):
+    """
+    Return True when a redirect URL belongs to the current application.
+    """
+    if not url:
+        return False
 
-    for phrase in remove_phrases:
-        if lowered.startswith(phrase):
-            text = text[len(phrase):].strip(" ?.,")
-            break
-
-    # Clean symbols
-    for ch in ["?", ".", ",", "!", ":", ";", '"', "'"]:
-        text = text.replace(ch, "")
-
-    words = text.split()
-
-    # Remove small filler words
-    stopwords = {
-        "the", "a", "an", "and", "or", "but", "to", "of", "in", "on",
-        "for", "with", "about", "me", "my", "is", "are", "was", "were",
-        "do", "does", "did", "be", "it", "this", "that", "please"
-    }
-
-    clean_words = [w for w in words if w.lower() not in stopwords]
-
-    if not clean_words:
-        clean_words = words
-
-    title_words = clean_words[:5]
-
-    title = " ".join(title_words).strip()
-
-    if not title:
-        title = "New Chat"
-
-    return title.title()
+    return url_has_allowed_host_and_scheme(
+        url=url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    )
 
 
 def _safe_redirect(request, fallback_name="ai_tutor_home", **fallback_kwargs):
     """
-    Safe redirect helper for normal form posts.
+    Redirect to a validated local destination or to the fallback route.
     """
-    nxt = request.POST.get("next") or request.GET.get("next")
-    if nxt:
-        return redirect(nxt)
+    redirect_candidates = [
+        request.POST.get("next"),
+        request.GET.get("next"),
+        request.META.get("HTTP_REFERER"),
+    ]
 
-    ref = request.META.get("HTTP_REFERER")
-    if ref:
-        return redirect(ref)
+    for target in redirect_candidates:
+        if _is_safe_redirect_url(request, target):
+            return redirect(target)
 
     return redirect(fallback_name, **fallback_kwargs)
 
 
 def _get_next_active_chat(user, exclude_id=None):
-    qs = TutorChat.objects.filter(user=user, is_archived=False)
+    queryset = TutorChat.objects.filter(
+        user=user,
+        is_archived=False,
+    )
 
-    if exclude_id:
-        qs = qs.exclude(id=exclude_id)
+    if exclude_id is not None:
+        queryset = queryset.exclude(id=exclude_id)
 
-    return qs.order_by("-updated_at").first()
+    return queryset.order_by("-updated_at").first()
 
 
 def _json_or_redirect(request, redirect_url):
     """
-    If frontend uses fetch(), return JSON.
-    If normal form submit, redirect normally.
+    Return JSON for AJAX requests and a normal redirect otherwise.
     """
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse({
@@ -196,30 +222,71 @@ def _json_or_redirect(request, redirect_url):
     return redirect(redirect_url)
 
 
+def _build_chat_history(chat, exclude_message_id=None):
+    """
+    Build ordered chat history from saved tutor messages.
+
+    The current user message can be excluded because the AI service
+    appends the current prompt itself.
+    """
+    messages = chat.messages.order_by("created_at")
+
+    if exclude_message_id is not None:
+        messages = messages.exclude(id=exclude_message_id)
+
+    return [
+        {
+            "role": message.role,
+            "content": message.content,
+        }
+        for message in messages
+    ]
+
+
+def _require_owner(msg_id, user):
+    """
+    Return a message only when it belongs to the current user.
+    """
+    return get_object_or_404(
+        TutorMessage,
+        id=msg_id,
+        chat__user=user,
+    )
+
+
 # ─────────────────────────────────────────────
 # HOME / NEW CHAT
 # ─────────────────────────────────────────────
 @login_required
 def chat_home(request):
     """
-    AI Tutor home opens the latest active chat.
-    It creates a new chat only if no active chat exists.
+    Open the latest active chat.
+
+    A new chat is created only when the user has no active chats.
     """
     chat = _get_next_active_chat(request.user)
 
     if chat:
         return redirect("ai_tutor_chat", chat_id=chat.id)
 
-    chat = TutorChat.objects.create(user=request.user, title="New Chat")
+    chat = TutorChat.objects.create(
+        user=request.user,
+        title="New Chat",
+    )
+
     return redirect("ai_tutor_chat", chat_id=chat.id)
 
 
 @login_required
 def new_chat(request):
     """
-    Use this for the New Conversation button.
+    Create a new AI Tutor conversation.
     """
-    chat = TutorChat.objects.create(user=request.user, title="New Chat")
+    chat = TutorChat.objects.create(
+        user=request.user,
+        title="New Chat",
+    )
+
     return redirect("ai_tutor_chat", chat_id=chat.id)
 
 
@@ -229,68 +296,90 @@ def new_chat(request):
 @login_required
 def chat_page(request, chat_id):
     """
-    Main AI Tutor chat page.
-    If chat does not exist, redirect safely to latest active chat/home.
+    Display and process the main AI Tutor chat page.
     """
     try:
-        chat = TutorChat.objects.get(id=chat_id, user=request.user)
+        chat = TutorChat.objects.get(
+            id=chat_id,
+            user=request.user,
+        )
     except TutorChat.DoesNotExist:
         next_chat = _get_next_active_chat(request.user)
+
         if next_chat:
-            return redirect("ai_tutor_chat", chat_id=next_chat.id)
+            return redirect(
+                "ai_tutor_chat",
+                chat_id=next_chat.id,
+            )
+
         return redirect("ai_tutor_home")
 
-    q = request.GET.get("q", "").strip()
+    search_query = request.GET.get("q", "").strip()
     show_archived = request.GET.get("archived") == "1"
 
-    chats_qs = TutorChat.objects.filter(user=request.user)
+    chats_queryset = TutorChat.objects.filter(
+        user=request.user,
+    )
 
     if show_archived:
-        chats_qs = chats_qs.filter(is_archived=True)
+        chats_queryset = chats_queryset.filter(
+            is_archived=True,
+        )
     else:
-        chats_qs = chats_qs.filter(is_archived=False)
+        chats_queryset = chats_queryset.filter(
+            is_archived=False,
+        )
 
-    if q:
-        chats_qs = chats_qs.filter(title__icontains=q)
+    if search_query:
+        chats_queryset = chats_queryset.filter(
+            title__icontains=search_query,
+        )
 
-    chats = chats_qs.order_by("-updated_at")[:100]
+    chats = chats_queryset.order_by("-updated_at")[:100]
 
     if request.method == "POST":
         user_text = request.POST.get("message", "").strip()
 
         if user_text:
-            TutorMessage.objects.create(
+            user_message = TutorMessage.objects.create(
                 chat=chat,
                 role="user",
-                content=user_text
+                content=user_text,
             )
+
             chat.save()
 
-            # Optional document context from uploaded files
-            doc_context = "\n\n".join(
-                chat.uploads.exclude(extracted_text="")
+            document_texts = (
+                chat.uploads
+                .exclude(extracted_text="")
                 .values_list("extracted_text", flat=True)[:3]
             )
 
+            document_context = "\n\n".join(
+                document_texts
+            )[:MAX_DOCUMENT_CONTEXT_LENGTH]
+
             prompt = user_text
 
-            if doc_context:
+            if document_context:
                 prompt = (
                     f"User question:\n{user_text}\n\n"
-                    f"Use this document context if relevant:\n{doc_context}"
+                    "Use this document context if relevant:\n"
+                    f"{document_context}"
                 )
 
-            # Build clean chat history
-            chat_history = []
-            for msg in chat.messages.order_by("created_at"):
-                chat_history.append({
-                    "role": msg.role,
-                    "content": msg.content
-                })
+            # Exclude the current message because ask_islamic_tutor
+            # appends the current prompt to the history itself.
+            chat_history = _build_chat_history(
+                chat,
+                exclude_message_id=user_message.id,
+            )
 
-            assistant_text = get_ai_answer(prompt, chat_history)
+            assistant_text = get_ai_answer(
+                prompt,
+                chat_history,
+            )
 
-            # Auto-title from first real user message
             if chat.title == "New Chat":
                 chat.title = generate_chat_title(user_text)
                 chat.save()
@@ -298,162 +387,210 @@ def chat_page(request, chat_id):
             TutorMessage.objects.create(
                 chat=chat,
                 role="assistant",
-                content=assistant_text
+                content=assistant_text,
             )
+
             chat.save()
 
-            return redirect("ai_tutor_chat", chat_id=chat.id)
+            return redirect(
+                "ai_tutor_chat",
+                chat_id=chat.id,
+            )
 
     messages = chat.messages.order_by("created_at")
 
-    return render(request, "ai_tutor/chat_page.html", {
-        "active_chat": chat,
-        "chats": chats,
-        "messages": messages,
-        "search_q": q,
-        "show_archived": show_archived,
-    })
+    return render(
+        request,
+        "ai_tutor/chat_page.html",
+        {
+            "active_chat": chat,
+            "chats": chats,
+            "messages": messages,
+            "search_q": search_query,
+            "show_archived": show_archived,
+        },
+    )
 
 
 # ─────────────────────────────────────────────
-# CHAT ACTIONS: RENAME / DELETE / ARCHIVE / SHARE
+# CHAT ACTIONS
 # ─────────────────────────────────────────────
 @require_POST
 @login_required
 def rename_chat(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
+        user=request.user,
+    )
 
     title = (request.POST.get("title") or "").strip()[:120]
 
     if title:
         chat.title = title
-        chat.save()
+        chat.save(update_fields=["title", "updated_at"])
 
-    return _safe_redirect(request, "ai_tutor_chat", chat_id=chat.id)
+    return _safe_redirect(
+        request,
+        "ai_tutor_chat",
+        chat_id=chat.id,
+    )
 
 
 @require_POST
 @login_required
 def delete_chat(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
+        user=request.user,
+    )
 
     chat.delete()
 
     next_chat = _get_next_active_chat(request.user)
 
     if next_chat:
-        redirect_url = reverse("ai_tutor_chat", args=[next_chat.id])
+        redirect_url = reverse(
+            "ai_tutor_chat",
+            args=[next_chat.id],
+        )
     else:
         redirect_url = reverse("ai_tutor_home")
 
-    return _json_or_redirect(request, redirect_url)
+    return _json_or_redirect(
+        request,
+        redirect_url,
+    )
 
 
 @require_POST
 @login_required
 def archive_chat(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
+        user=request.user,
+    )
 
     chat.is_archived = True
-    chat.save()
+    chat.save(update_fields=["is_archived", "updated_at"])
 
-    next_chat = _get_next_active_chat(request.user, exclude_id=chat.id)
+    next_chat = _get_next_active_chat(
+        request.user,
+        exclude_id=chat.id,
+    )
 
     if next_chat:
-        redirect_url = reverse("ai_tutor_chat", args=[next_chat.id])
+        redirect_url = reverse(
+            "ai_tutor_chat",
+            args=[next_chat.id],
+        )
     else:
         redirect_url = reverse("ai_tutor_home")
 
-    return _json_or_redirect(request, redirect_url)
+    return _json_or_redirect(
+        request,
+        redirect_url,
+    )
 
 
 @require_POST
 @login_required
 def unarchive_chat(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
+        user=request.user,
+    )
 
     chat.is_archived = False
-    chat.save()
+    chat.save(update_fields=["is_archived", "updated_at"])
 
-    redirect_url = reverse("ai_tutor_chat", args=[chat.id])
-    return _json_or_redirect(request, redirect_url)
+    redirect_url = reverse(
+        "ai_tutor_chat",
+        args=[chat.id],
+    )
+
+    return _json_or_redirect(
+        request,
+        redirect_url,
+    )
 
 
 @require_POST
 @login_required
 def share_chat(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
+        user=request.user,
+    )
 
     link = TutorShareLink.objects.create(chat=chat)
 
     share_url = request.build_absolute_uri(
-        reverse("ai_tutor_shared_view", args=[str(link.token)])
+        reverse(
+            "ai_tutor_shared_view",
+            args=[str(link.token)],
+        )
     )
 
     return JsonResponse({
         "ok": True,
-        "url": share_url
+        "url": share_url,
     })
 
 
 def shared_chat_view(request, token):
-    link = get_object_or_404(TutorShareLink, token=token, is_active=True)
+    link = get_object_or_404(
+        TutorShareLink,
+        token=token,
+        is_active=True,
+    )
 
     chat = link.chat
     messages = chat.messages.order_by("created_at")
 
-    return render(request, "ai_tutor/shared_chat.html", {
-        "chat": chat,
-        "messages": messages,
-    })
+    return render(
+        request,
+        "ai_tutor/shared_chat.html",
+        {
+            "chat": chat,
+            "messages": messages,
+        },
+    )
 
 
 # ─────────────────────────────────────────────
-# MESSAGE ACTIONS
+# MESSAGE ACTION HELPERS
 # ─────────────────────────────────────────────
-
-def _require_owner(msg_id, user):
-    msg = get_object_or_404(TutorMessage, id=msg_id)
-
-    if msg.chat.user != user:
-        return None
-
-    return msg
-
-
-def _build_chat_history(chat):
-    history = []
-
-    for old_msg in chat.messages.order_by("created_at"):
-        history.append({
-            "role": old_msg.role,
-            "content": old_msg.content
-        })
-
-    return history
-
-
 def _run_action_as_user_prompt(msg, user_prompt, ai_prompt):
     """
-    Saves the clicked action as a visible user message,
-    then saves the AI response under it.
+    Save an action as a visible user message and then save its AI response.
     """
     chat = msg.chat
 
-    TutorMessage.objects.create(
+    action_message = TutorMessage.objects.create(
         chat=chat,
         role="user",
-        content=user_prompt
+        content=user_prompt,
     )
 
-    chat_history = _build_chat_history(chat)
+    chat_history = _build_chat_history(
+        chat,
+        exclude_message_id=action_message.id,
+    )
 
-    ai_response = get_ai_answer(ai_prompt, chat_history)
+    ai_response = get_ai_answer(
+        ai_prompt,
+        chat_history,
+    )
 
     TutorMessage.objects.create(
         chat=chat,
         role="assistant",
-        content=ai_response
+        content=ai_response,
     )
 
     chat.save()
@@ -461,18 +598,29 @@ def _run_action_as_user_prompt(msg, user_prompt, ai_prompt):
     return JsonResponse({"ok": True})
 
 
+# ─────────────────────────────────────────────
+# MESSAGE ACTIONS
+# ─────────────────────────────────────────────
 @require_POST
 @login_required
 def regenerate_answer(request, msg_id):
     msg = _require_owner(msg_id, request.user)
 
-    if not msg or msg.role != "assistant":
+    if msg.role != "assistant":
         return HttpResponseForbidden("Not allowed")
 
-    last_user = msg.chat.messages.filter(role="user").order_by("-created_at").first()
+    last_user = (
+        msg.chat.messages
+        .filter(role="user")
+        .order_by("-created_at")
+        .first()
+    )
 
     if not last_user:
-        return JsonResponse({"error": "No user prompt found"}, status=400)
+        return JsonResponse(
+            {"error": "No user prompt found."},
+            status=400,
+        )
 
     user_prompt = "Regenerate this answer"
 
@@ -484,7 +632,11 @@ def regenerate_answer(request, msg_id):
         f"Previous answer:\n{msg.content}"
     )
 
-    return _run_action_as_user_prompt(msg, user_prompt, ai_prompt)
+    return _run_action_as_user_prompt(
+        msg,
+        user_prompt,
+        ai_prompt,
+    )
 
 
 @require_POST
@@ -492,7 +644,7 @@ def regenerate_answer(request, msg_id):
 def make_shorter(request, msg_id):
     msg = _require_owner(msg_id, request.user)
 
-    if not msg or msg.role != "assistant":
+    if msg.role != "assistant":
         return HttpResponseForbidden("Not allowed")
 
     user_prompt = "Make this answer shorter"
@@ -504,7 +656,11 @@ def make_shorter(request, msg_id):
         f"{msg.content}"
     )
 
-    return _run_action_as_user_prompt(msg, user_prompt, ai_prompt)
+    return _run_action_as_user_prompt(
+        msg,
+        user_prompt,
+        ai_prompt,
+    )
 
 
 @require_POST
@@ -512,7 +668,7 @@ def make_shorter(request, msg_id):
 def make_easier(request, msg_id):
     msg = _require_owner(msg_id, request.user)
 
-    if not msg or msg.role != "assistant":
+    if msg.role != "assistant":
         return HttpResponseForbidden("Not allowed")
 
     user_prompt = "Make this answer easier"
@@ -524,7 +680,11 @@ def make_easier(request, msg_id):
         f"{msg.content}"
     )
 
-    return _run_action_as_user_prompt(msg, user_prompt, ai_prompt)
+    return _run_action_as_user_prompt(
+        msg,
+        user_prompt,
+        ai_prompt,
+    )
 
 
 @require_POST
@@ -532,27 +692,39 @@ def make_easier(request, msg_id):
 def save_answer(request, msg_id):
     msg = _require_owner(msg_id, request.user)
 
-    if not msg or msg.role != "assistant":
+    if msg.role != "assistant":
         return HttpResponseForbidden("Not allowed")
 
+    if msg.saved:
+        return JsonResponse({
+            "ok": True,
+            "already_saved": True,
+        })
+
     msg.saved = True
-    msg.save()
+    msg.save(update_fields=["saved"])
 
     TutorMessage.objects.create(
         chat=msg.chat,
         role="user",
-        content="Save this answer"
+        content="Save this answer",
     )
 
     TutorMessage.objects.create(
         chat=msg.chat,
         role="assistant",
-        content="Saved. You can find this answer in your saved responses."
+        content=(
+            "Saved. You can find this answer "
+            "in your saved responses."
+        ),
     )
 
     msg.chat.save()
 
-    return JsonResponse({"ok": True})
+    return JsonResponse({
+        "ok": True,
+        "already_saved": False,
+    })
 
 
 @require_POST
@@ -560,7 +732,7 @@ def save_answer(request, msg_id):
 def generate_quiz(request, msg_id):
     msg = _require_owner(msg_id, request.user)
 
-    if not msg or msg.role != "assistant":
+    if msg.role != "assistant":
         return HttpResponseForbidden("Not allowed")
 
     user_prompt = "Generate quiz from this answer"
@@ -575,11 +747,16 @@ def generate_quiz(request, msg_id):
         "- Include correct answers for MCQs and True/False.\n"
         "- Keep the quiz easy to read.\n"
         "- Only return the quiz.\n"
-        "- Do not include tuples, brackets, chat history, source dictionaries, or role labels.\n\n"
+        "- Do not include tuples, brackets, chat history, "
+        "source dictionaries, or role labels.\n\n"
         f"{msg.content}"
     )
 
-    return _run_action_as_user_prompt(msg, user_prompt, ai_prompt)
+    return _run_action_as_user_prompt(
+        msg,
+        user_prompt,
+        ai_prompt,
+    )
 
 
 # ─────────────────────────────────────────────
@@ -588,61 +765,105 @@ def generate_quiz(request, msg_id):
 @login_required
 @require_POST
 def upload_file(request, chat_id):
-    chat = get_object_or_404(TutorChat, id=chat_id, user=request.user)
-
-    f = request.FILES.get("file")
-
-    if not f:
-        return JsonResponse({"error": "No file uploaded"}, status=400)
-
-    upload = TutorUpload.objects.create(
+    chat = get_object_or_404(
+        TutorChat,
+        id=chat_id,
         user=request.user,
-        chat=chat,
-        file=f,
-        filename=f.name,
-        extracted_text=""
     )
 
-    text = ""
-    name_lower = f.name.lower()
+    uploaded_file = request.FILES.get("file")
+
+    if not uploaded_file:
+        return JsonResponse(
+            {"error": "No file uploaded."},
+            status=400,
+        )
+
+    filename = Path(uploaded_file.name).name[:255]
+    extension = Path(filename).suffix.lower()
+
+    if extension not in ALLOWED_UPLOAD_EXTENSIONS:
+        return JsonResponse(
+            {
+                "error": (
+                    "Only PDF, TXT, and DOCX files are supported."
+                )
+            },
+            status=400,
+        )
+
+    if uploaded_file.size > MAX_UPLOAD_SIZE:
+        return JsonResponse(
+            {
+                "error": (
+                    "The uploaded file must be 10 MB or smaller."
+                )
+            },
+            status=400,
+        )
+
+    upload = None
 
     try:
-        if name_lower.endswith(".txt"):
-            text = f.read().decode("utf-8", errors="ignore")
+        upload = TutorUpload.objects.create(
+            user=request.user,
+            chat=chat,
+            file=uploaded_file,
+            filename=filename,
+            extracted_text="",
+        )
 
-        elif name_lower.endswith(".docx"):
+        if extension == ".txt":
+            with upload.file.open("rb") as file_pointer:
+                text = file_pointer.read().decode(
+                    "utf-8",
+                    errors="ignore",
+                )
+
+        elif extension == ".docx":
             import docx
 
-            doc = docx.Document(upload.file.path)
-            text = "\n".join([p.text for p in doc.paragraphs])
+            with upload.file.open("rb") as file_pointer:
+                document = docx.Document(file_pointer)
 
-        elif name_lower.endswith(".pdf"):
-            import PyPDF2
-
-            with open(upload.file.path, "rb") as fp:
-                reader = PyPDF2.PdfReader(fp)
-                pages = []
-
-                for page in reader.pages[:20]:
-                    pages.append(page.extract_text() or "")
-
-                text = "\n".join(pages)
+            text = "\n".join(
+                paragraph.text
+                for paragraph in document.paragraphs
+            )
 
         else:
-            return JsonResponse({
-                "error": "Only PDF, TXT, and DOCX files are supported."
-            }, status=400)
+            import PyPDF2
 
-    except Exception as e:
+            with upload.file.open("rb") as file_pointer:
+                reader = PyPDF2.PdfReader(file_pointer)
+
+                pages = [
+                    page.extract_text() or ""
+                    for page in reader.pages[:20]
+                ]
+
+            text = "\n".join(pages)
+
+        upload.extracted_text = text[:MAX_EXTRACTED_TEXT_LENGTH]
+        upload.save(update_fields=["extracted_text"])
+
+        chat.save()
+
         return JsonResponse({
-            "error": f"Could not read file: {str(e)}"
-        }, status=400)
+            "ok": True,
+            "filename": upload.filename,
+        })
 
-    upload.extracted_text = text[:200000]
-    upload.save()
-    chat.save()
+    except Exception:
+        if upload is not None:
+            upload.file.delete(save=False)
+            upload.delete()
 
-    return JsonResponse({
-        "ok": True,
-        "filename": upload.filename
-    })
+        return JsonResponse(
+            {
+                "error": (
+                    "The uploaded file could not be read."
+                )
+            },
+            status=400,
+        )
