@@ -20,6 +20,8 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 HADITH_API_KEY = os.getenv("HADITH_API_KEY")
 CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
 API_TIMEOUT_SECONDS = 20
+QURAN_CHAPTER_API_URL = "https://api.qurancdn.com/api/qdc/verses/by_chapter/{chapter_number}"
+HADITH_API_URL = HADITH_API_URL
 
 # ===== INITIALIZE CLIENTS =====
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
@@ -38,7 +40,7 @@ def clean_text(text):
 
 def fetch_chapter(chapter_number):
     response = requests.get(
-        f"https://api.qurancdn.com/api/qdc/verses/by_chapter/{chapter_number}",
+        QURAN_CHAPTER_API_URL.format(chapter_number=chapter_number),
         params={
             "fields": "text_uthmani",
             "translations": "85",
