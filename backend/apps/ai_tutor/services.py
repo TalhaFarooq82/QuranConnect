@@ -22,6 +22,8 @@ HADITH_API_KEY = os.getenv("HADITH_API_KEY")
 CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
 API_TIMEOUT_SECONDS = 20
 MAX_QUESTION_LENGTH = 2000
+RETRIEVAL_RESULT_COUNT = 20
+RERANK_RESULT_COUNT = 3
 QURAN_CHAPTER_API_URL = "https://api.qurancdn.com/api/qdc/verses/by_chapter/{chapter_number}"
 HADITH_API_URL = HADITH_API_URL
 
@@ -226,7 +228,7 @@ def ask_islamic_tutor(user_question, chat_history=None):
     # Step 1: Retrieve from ChromaDB
     results = collection.query(
         query_texts=[user_question],
-        n_results=20,
+        n_results=RETRIEVAL_RESULT_COUNT,
         include=["documents", "metadatas"]
     )
 
@@ -234,7 +236,8 @@ def ask_islamic_tutor(user_question, chat_history=None):
     top_docs, top_metas = rerank_results(
         user_question,
         results["documents"][0],
-        results["metadatas"][0]
+        results["metadatas"][0],
+        top_k=RERANK_RESULT_COUNT,
     )
 
     # Step 3: Build context
