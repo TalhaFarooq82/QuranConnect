@@ -7,7 +7,7 @@ from apps.users.models import CustomUser
 # Model to store each user's Quran recitation attempt and feedback
 
 class RecitationAttempt(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete= models.CASCADE)   # User who submitted the recitation
     score = models.IntegerField(default=0)
     ayah_number = models.IntegerField()
     surah_number = models.IntegerField()
