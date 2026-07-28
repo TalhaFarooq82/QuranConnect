@@ -19,6 +19,18 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+class AITutorServiceError(Exception):
+    """Base exception for AI Tutor service failures."""
+
+
+class AITutorConfigurationError(AITutorServiceError):
+    """Raised when required AI Tutor configuration is missing."""
+
+
+class AITutorResponseError(AITutorServiceError):
+    """Raised when an external service returns an invalid response."""
+
+
 def _env_int(name, default):
     try:
         return int(os.getenv(name, default))
@@ -70,7 +82,7 @@ def get_groq_client():
 
     if _groq_client is None:
         if not GROQ_API_KEY:
-            raise RuntimeError("GROQ_API_KEY is not configured.")
+            raise AITutorConfigurationError("GROQ_API_KEY is not configured.")
 
         _groq_client = Groq(api_key=GROQ_API_KEY)
 
@@ -108,7 +120,7 @@ def fetch_chapter(chapter_number):
     verses = data.get("verses")
 
     if not isinstance(verses, list):
-        raise ValueError("Quran API returned an invalid verses response.")
+        raise AITutorResponseError("Quran API returned an invalid verses response.")
 
     ayahs, ids, metadatas = [], [], []
 
@@ -146,7 +158,7 @@ def fetch_hadiths(book_name, page=1):
         raise ValueError("Hadith page must be greater than zero.")
 
     if not HADITH_API_KEY:
-        raise RuntimeError("HADITH_API_KEY is not configured.")
+        raise AITutorConfigurationError("HADITH_API_KEY is not configured.")
 
     response = requests.get(
         "https://hadithapi.com/api/hadiths/",
@@ -164,7 +176,7 @@ def fetch_hadiths(book_name, page=1):
     hadiths = hadith_container.get("data")
 
     if not isinstance(hadiths, list):
-        raise ValueError("Hadith API returned an invalid data response.")
+        raise AITutorResponseError("Hadith API returned an invalid data response.")
 
     texts, ids, metas = [], [], []
     for hadith in hadiths:
@@ -315,18 +327,18 @@ def extract_groq_answer(response):
     choices = getattr(response, "choices", None)
 
     if not choices:
-        raise ValueError("Groq returned no completion choices.")
+        raise AITutorResponseError("Groq returned no completion choices.")
 
     message = getattr(choices[0], "message", None)
     content = getattr(message, "content", None)
 
     if content is None:
-        raise ValueError("Groq returned a completion without content.")
+        raise AITutorResponseError("Groq returned a completion without content.")
 
     answer = str(content).strip()
 
     if not answer:
-        raise ValueError("Groq returned an empty answer.")
+        raise AITutorResponseError("Groq returned an empty answer.")
 
     return answer
 
