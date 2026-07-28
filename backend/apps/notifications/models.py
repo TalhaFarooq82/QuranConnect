@@ -8,6 +8,7 @@ class Notification(models.Model):
         ("message", "Message"),
         ("dispute", "Dispute"),
     ]
+    
     user = models.ForeignKey
     (
         settings.AUTH_USER_MODEL,
