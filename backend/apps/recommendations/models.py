@@ -1,7 +1,4 @@
-# ============================================================
-# apps/recommendations/models.py
-#
-# Two models live here:
+
 #
 #   1. ScoringConfig  — lets admin change algorithm weights
 #                       from Django Admin without touching code
