@@ -50,6 +50,7 @@ def release_escrow(request, job_id):
             note=f"Payment sent for job: {job.title}",
         )
 
+        
         escrow.current_state = 'released'
         escrow.save()
 
