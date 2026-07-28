@@ -270,6 +270,27 @@ def build_context(documents, metadatas):
     return "\n\n".join(context_parts)
 
 
+def extract_groq_answer(response):
+    """Extract non-empty answer text from a Groq completion."""
+    choices = getattr(response, "choices", None)
+
+    if not choices:
+        raise ValueError("Groq returned no completion choices.")
+
+    message = getattr(choices[0], "message", None)
+    content = getattr(message, "content", None)
+
+    if content is None:
+        raise ValueError("Groq returned a completion without content.")
+
+    answer = str(content).strip()
+
+    if not answer:
+        raise ValueError("Groq returned an empty answer.")
+
+    return answer
+
+
 def ask_islamic_tutor(user_question, chat_history=None):
     user_question = str(user_question or "").strip()
 
@@ -321,7 +342,7 @@ def ask_islamic_tutor(user_question, chat_history=None):
         ]
     )
 
-    answer = response.choices[0].message.content
+    answer = extract_groq_answer(response)
 
     # Step 6: Save answer to history
     chat_history.append({
