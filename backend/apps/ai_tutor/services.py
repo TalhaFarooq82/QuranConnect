@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import requests
@@ -15,6 +16,8 @@ from dotenv import load_dotenv
 
 # ===== CONFIGURATION =====
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
@@ -144,10 +147,10 @@ def populate_database():
     import time
 
     existing_count = collection.count()
-    print(f"Current documents in DB: {existing_count}")
+    logger.info("Current documents in DB: %s", existing_count)
 
     # ===== QURAN =====
-    print("Checking Quran...")
+    logger.info("Checking Quran knowledge documents")
     for surah in range(1, 115):
         existing = collection.get(ids=[f"{surah}:1"])
         if existing['ids']:
@@ -155,14 +158,14 @@ def populate_database():
         try:
             texts, ids, metas = fetch_chapter(surah)
             collection.add(documents=texts, ids=ids, metadatas=metas)
-            print(f"  Surah {surah}/114 stored ✅")
+            logger.info("Stored Surah %s/114", surah)
             time.sleep(2)
         except Exception as e:
-            print(f"  Surah {surah} failed: {e}")
+            logger.exception("Failed to store Surah %s", surah)
             continue
 
     # ===== HADITHS =====
-    print("Checking Sahih Bukhari...")
+    logger.info("Checking Sahih Bukhari documents")
     for page in range(1, 51):
         first_hadith_id = f"sahih-bukhari_{(page-1)*25+1}"
         existing = collection.get(ids=[first_hadith_id])
@@ -173,13 +176,13 @@ def populate_database():
             texts, ids, metas = fetch_hadiths("sahih-bukhari", page=page)
             if texts:
                 collection.add(documents=texts, ids=ids, metadatas=metas)
-                print(f"  Bukhari page {page}/50 stored ✅")
+                logger.info("Stored Bukhari page %s/50", page)
             time.sleep(2)
         except Exception as e:
-            print(f"  Bukhari page {page} failed, skipping")
+            logger.exception("Failed to store Bukhari page %s", page)
             continue  # just skip, no retry
 
-    print(f"\nDone! Total documents: {collection.count()} ✅")
+    logger.info("Knowledge population complete: %s documents", collection.count())
 
 # ===========================
 # PART 2 — RAG PIPELINE
