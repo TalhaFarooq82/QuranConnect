@@ -61,7 +61,8 @@ class Proposal(models.Model):
         on_delete=models.CASCADE,
         related_name="proposals"
     )
-    teacher = models.ForeignKey(
+    teacher = models.ForeignKey
+(
     settings.AUTH_USER_MODEL,
     on_delete=models.CASCADE,
     related_name="submitted_proposals",
