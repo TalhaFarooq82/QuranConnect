@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-
 class Notification(models.Model):
     TYPE_CHOICES = [
         ("proposal", "Proposal"),
