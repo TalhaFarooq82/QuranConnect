@@ -135,7 +135,8 @@ class Notification(models.Model):
         ("message", "message"),
     ]
 
-    user = models.ForeignKey(
+    user = models.ForeignKey
+(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="notifications"
