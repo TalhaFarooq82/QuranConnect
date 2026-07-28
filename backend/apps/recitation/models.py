@@ -14,7 +14,7 @@ class RecitationAttempt(models.Model):
 
     audio_file = models.FileField(upload_to='recitation/')  # Uploaded audio file of the user's recitation
     user_text = models.TextField() # Text generated from the user's recitation
-    correct_text = models.TextField()
+    correct_text = models.TextField() # Correct Quranic text used for comparison
 
     created_at = models.DateTimeField(auto_now_add=True)
 
