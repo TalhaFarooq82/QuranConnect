@@ -9,7 +9,6 @@ import stripe
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-
 @login_required
 def release_escrow(request, job_id):
     print("=== release_escrow view called ===")
