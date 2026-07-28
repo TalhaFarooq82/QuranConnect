@@ -12,6 +12,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope['user']
 
         # Reject if not logged in
+        
         if not self.user.is_authenticated:
             await self.close()
             return
