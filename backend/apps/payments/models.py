@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from apps.bookings.models import Job
 
-
 class Wallet(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
