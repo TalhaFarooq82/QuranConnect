@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
+urlpatterns = 
+[
     path("teacher/active-jobs/", views.teacher_active_jobs, name="teacher_active_jobs"),
     path("teacher/job/<int:job_id>/", views.job_detail, name="job_detail"),
 
