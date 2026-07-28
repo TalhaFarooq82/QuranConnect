@@ -209,8 +209,7 @@ def rerank_results(query, documents, metadatas, top_k=3):
 
 
 def ask_islamic_tutor(user_question, chat_history=None):
-    if chat_history is None:
-        chat_history = []
+    chat_history = list(chat_history or [])
 
     # Step 1: Retrieve from ChromaDB
     results = collection.query(
