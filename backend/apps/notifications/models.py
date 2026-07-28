@@ -8,7 +8,8 @@ class Notification(models.Model):
         ("message", "Message"),
         ("dispute", "Dispute"),
     ]
-    user = models.ForeignKey(
+    user = models.ForeignKey
+    (
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="notifications"
