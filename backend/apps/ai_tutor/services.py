@@ -209,6 +209,11 @@ def rerank_results(query, documents, metadatas, top_k=3):
 
 
 def ask_islamic_tutor(user_question, chat_history=None):
+    user_question = str(user_question or "").strip()
+
+    if not user_question:
+        raise ValueError("A tutor question is required.")
+
     chat_history = list(chat_history or [])
 
     # Step 1: Retrieve from ChromaDB
