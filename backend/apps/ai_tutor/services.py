@@ -182,6 +182,20 @@ def populate_database():
 # ===========================
 
 def rerank_results(query, documents, metadatas, top_k=3):
+    if not documents or not metadatas:
+        return [], []
+
+    result_count = min(len(documents), len(metadatas))
+    documents = documents[:result_count]
+    metadatas = metadatas[:result_count]
+
+    try:
+        top_k = int(top_k)
+    except (TypeError, ValueError):
+        top_k = 3
+
+    top_k = max(1, min(top_k, result_count))
+
     pairs = [[query, doc] for doc in documents]
     scores = reranker.predict(pairs)
     ranked = sorted(
