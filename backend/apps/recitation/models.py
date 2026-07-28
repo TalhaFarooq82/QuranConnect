@@ -20,7 +20,7 @@ class RecitationAttempt(models.Model):
 
 
     class Meta:
-        db_table = 'recitation_feedback_table'
+        db_table = 'recitation_feedback_table'  # Custom database table name
         ordering = ['created_at']
         verbose_name = "Recitation Attempt"
         verbose_name_plural = "Recitation Attempts"
