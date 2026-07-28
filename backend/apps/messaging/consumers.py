@@ -18,6 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         # Check user belongs to this conversation
+        
         belongs = await self.user_belongs_to_conversation()
         if not belongs:
             await self.close()
