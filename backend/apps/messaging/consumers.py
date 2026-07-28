@@ -15,7 +15,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not self.user.is_authenticated:
             await self.close()
             return
-
+            
         # Check user belongs to this conversation
         
         belongs = await self.user_belongs_to_conversation()
