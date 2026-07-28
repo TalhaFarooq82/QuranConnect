@@ -11,7 +11,7 @@ from camel_tools.utils.normalize import (
 )
 from apps.recitation.models import RecitationAttempt
 
-#Whisper Model 
+# Whisper Model 
 
 model = whisper.load_model("base")
 
