@@ -5,6 +5,7 @@ from .services import (
     fetch_chapter,
     fetch_hadiths,
     extract_query_results,
+    build_context,
 )
 
 
@@ -68,3 +69,46 @@ class ExtractQueryResultsTests(SimpleTestCase):
 
         self.assertEqual(documents, [])
         self.assertEqual(metadatas, [])
+
+
+class BuildContextTests(SimpleTestCase):
+    def test_formats_quran_source(self):
+        context = build_context(
+            ["Arabic and translated verse"],
+            [{
+                "source": "Quran",
+                "surah_number": 1,
+                "ayah_number": 1,
+                "arabic_text": "Arabic verse",
+            }],
+        )
+
+        self.assertIn("Source 1: Quran", context)
+        self.assertIn("Surah 1", context)
+        self.assertIn("Ayah 1", context)
+
+    def test_formats_hadith_source(self):
+        context = build_context(
+            ["Hadith text"],
+            [{
+                "source": "Hadith",
+                "collection": "Sahih Bukhari",
+                "hadith_number": "1",
+                "chapter": "Revelation",
+                "narrator": "Narrator",
+                "status": "Sahih",
+            }],
+        )
+
+        self.assertIn("Sahih Bukhari", context)
+        self.assertIn("Hadith #1", context)
+        self.assertIn("Status: Sahih", context)
+
+    def test_tolerates_missing_metadata(self):
+        context = build_context(
+            ["Knowledge text"],
+            [{}],
+        )
+
+        self.assertIn("Knowledge text", context)
+        self.assertIn("Unknown", context)
