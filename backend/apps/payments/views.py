@@ -117,7 +117,6 @@ def stripe_checkout(request):
 
     return redirect(checkout_session.url)
 
-
 @login_required
 def stripe_success(request):
     amount = request.GET.get('amount', 0)
