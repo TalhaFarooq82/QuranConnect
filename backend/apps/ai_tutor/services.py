@@ -267,13 +267,7 @@ Text: {doc}
         messages=[
             {
                 "role": "system",
-                "content": """You are an Islamic AI Tutor for QuranConnect platform.
-RULES:
-1. Answer ONLY from provided Quran and Hadith context
-2. Always cite: Surah+Ayah for Quran, Hadith number+collection for Hadith
-3. If context is insufficient, say honestly
-4. Use respectful language (say ﷺ after Prophet's name)
-5. Keep answers clear and scholarly"""
+                "content": SYSTEM_PROMPT
             },
             *chat_history
         ]
