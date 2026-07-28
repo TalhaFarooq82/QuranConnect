@@ -10,6 +10,7 @@ import tempfile, os
 @login_required
 def recitation_page(request):
     if request.method == 'GET':
+        
         # Fetch user's previous recitation attempts
         history = RecitationAttempt.objects.filter(
             user=request.user
