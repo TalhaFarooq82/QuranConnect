@@ -58,9 +58,14 @@ def fetch_chapter(chapter_number):
     )
     response.raise_for_status()
     data = response.json()
+    verses = data.get("verses")
+
+    if not isinstance(verses, list):
+        raise ValueError("Quran API returned an invalid verses response.")
+
     ayahs, ids, metadatas = [], [], []
 
-    for verse in data['verses']:
+    for verse in verses:
         translation = clean_text(verse['translations'][0]['text'])
         arabic      = verse['text_uthmani']
         verse_key   = verse['verse_key']
