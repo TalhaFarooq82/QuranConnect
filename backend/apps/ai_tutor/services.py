@@ -20,6 +20,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 HADITH_API_KEY = os.getenv("HADITH_API_KEY")
 CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
 API_TIMEOUT_SECONDS = 20
+MAX_QUESTION_LENGTH = 2000
 QURAN_CHAPTER_API_URL = "https://api.qurancdn.com/api/qdc/verses/by_chapter/{chapter_number}"
 HADITH_API_URL = HADITH_API_URL
 
@@ -213,6 +214,11 @@ def ask_islamic_tutor(user_question, chat_history=None):
 
     if not user_question:
         raise ValueError("A tutor question is required.")
+
+    if len(user_question) > MAX_QUESTION_LENGTH:
+        raise ValueError(
+            f"Tutor questions cannot exceed {MAX_QUESTION_LENGTH} characters."
+        )
 
     chat_history = list(chat_history or [])
 
