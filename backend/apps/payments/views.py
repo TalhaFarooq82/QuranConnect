@@ -145,6 +145,7 @@ def stripe_success(request):
             body=f"${amount} has been added to your wallet via Stripe.",
         )
 
+        
         messages.success(request, f"${amount} successfully added to your wallet!")
 
     return redirect('student_dashboard')
