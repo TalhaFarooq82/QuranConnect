@@ -43,7 +43,6 @@ def clean_whisper_output(text):
     text = tashkeel.sub('', text).strip()
 
     return text
-
 def compare_words(correct_text, user_text):
   correct_words = correct_text.split()
   user_words = user_text.split()
