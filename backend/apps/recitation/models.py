@@ -9,7 +9,7 @@ from apps.users.models import CustomUser
 class RecitationAttempt(models.Model):
     user = models.ForeignKey(CustomUser, on_delete= models.CASCADE)   # User who submitted the recitation
     score = models.IntegerField(default=0)  # Score assigned after evaluating the recitation
-    ayah_number = models.IntegerField()
+    ayah_number = models.IntegerField() # Ayah number that was recited
     surah_number = models.IntegerField()
 
     audio_file = models.FileField(upload_to='recitation/')
