@@ -4,6 +4,7 @@ from .services import (
     clean_text,
     fetch_chapter,
     fetch_hadiths,
+    extract_query_results,
 )
 
 
@@ -45,3 +46,25 @@ class FetchHadithValidationTests(SimpleTestCase):
     def test_rejects_non_numeric_page(self):
         with self.assertRaises(ValueError):
             fetch_hadiths("sahih-bukhari", page="first")
+
+
+class ExtractQueryResultsTests(SimpleTestCase):
+    def test_extracts_first_result_batch(self):
+        results = {
+            "documents": [["First document", "Second document"]],
+            "metadatas": [[{"source": "Quran"}, {"source": "Hadith"}]],
+        }
+
+        documents, metadatas = extract_query_results(results)
+
+        self.assertEqual(
+            documents,
+            ["First document", "Second document"],
+        )
+        self.assertEqual(len(metadatas), 2)
+
+    def test_returns_empty_lists_for_invalid_result(self):
+        documents, metadatas = extract_query_results(None)
+
+        self.assertEqual(documents, [])
+        self.assertEqual(metadatas, [])
