@@ -19,6 +19,7 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 HADITH_API_KEY = os.getenv("HADITH_API_KEY")
 CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
+API_TIMEOUT_SECONDS = 20
 
 # ===== INITIALIZE CLIENTS =====
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
@@ -42,8 +43,10 @@ def fetch_chapter(chapter_number):
             "fields": "text_uthmani",
             "translations": "85",
             "per_page": "300"
-        }
+        },
+        timeout=API_TIMEOUT_SECONDS,
     )
+    response.raise_for_status()
     data = response.json()
     ayahs, ids, metadatas = [], [], []
 
@@ -74,8 +77,10 @@ def fetch_hadiths(book_name, page=1):  # single page now
             "book": book_name,
             "paginate": 25,
             "page": page
-        }
+        },
+        timeout=API_TIMEOUT_SECONDS,
     )
+    response.raise_for_status()
     data = response.json()
     hadiths = data['hadiths']['data']
 
