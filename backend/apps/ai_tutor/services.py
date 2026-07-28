@@ -113,7 +113,11 @@ def fetch_hadiths(book_name, page=1):
     )
     response.raise_for_status()
     data = response.json()
-    hadiths = data['hadiths']['data']
+    hadith_container = data.get("hadiths", {})
+    hadiths = hadith_container.get("data")
+
+    if not isinstance(hadiths, list):
+        raise ValueError("Hadith API returned an invalid data response.")
 
     texts, ids, metas = [], [], []
     for hadith in hadiths:
