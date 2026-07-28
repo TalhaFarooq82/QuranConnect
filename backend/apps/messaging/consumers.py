@@ -110,7 +110,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_name': event['sender_name'],
             'timestamp': event['timestamp'],
         }))
-    # --- Database helpers (sync → async) 
+    #  Database helpers (sync → async) 
 
     @database_sync_to_async
     def user_belongs_to_conversation(self):
