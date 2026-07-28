@@ -40,7 +40,7 @@ def recitation_page(request):
         #Step 5: remove temp path
         os.unlink(temp_path)
 
-        #Step 5: Return the answer
+        #Step 6: Return the answer
         return JsonResponse({
             'surah':     result['surah'],
             'ayah':      result['ayah'],
