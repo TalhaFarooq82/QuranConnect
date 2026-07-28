@@ -237,6 +237,35 @@ def extract_query_results(results):
     return documents, metadatas
 
 
+def build_context(documents, metadatas):
+    """Format retrieved Quran and Hadith documents for the AI prompt."""
+    context_parts = []
+
+    for index, (document, metadata) in enumerate(
+        zip(documents, metadatas),
+        start=1,
+    ):
+        if metadata["source"] == "Quran":
+            context_parts.append(
+                f"Source {index}: Quran\n"
+                f"Location: Surah {metadata['surah_number']}, "
+                f"Ayah {metadata['ayah_number']}\n"
+                f"Arabic: {metadata['arabic_text']}\n"
+                f"English: {document}"
+            )
+        else:
+            context_parts.append(
+                f"Source {index}: {metadata['collection']}\n"
+                f"Hadith #{metadata['hadith_number']} | "
+                f"{metadata['chapter']}\n"
+                f"Narrator: {metadata['narrator']}\n"
+                f"Status: {metadata['status']}\n"
+                f"Text: {document}"
+            )
+
+    return "\n\n".join(context_parts)
+
+
 def ask_islamic_tutor(user_question, chat_history=None):
     user_question = str(user_question or "").strip()
 
@@ -268,23 +297,7 @@ def ask_islamic_tutor(user_question, chat_history=None):
     )
 
     # Step 3: Build context
-    context = ""
-    for i, (doc, meta) in enumerate(zip(top_docs, top_metas)):
-        if meta["source"] == "Quran":
-            context += f"""
-Source {i+1}: Quran
-Location: Surah {meta['surah_number']}, Ayah {meta['ayah_number']}
-Arabic: {meta['arabic_text']}
-English: {doc}
-"""
-        else:
-            context += f"""
-Source {i+1}: {meta['collection']}
-Hadith #{meta['hadith_number']} | {meta['chapter']}
-Narrator: {meta['narrator']}
-Status: {meta['status']}
-Text: {doc}
-"""
+    context = build_context(top_docs, top_metas)
 
     # Step 4: Append question with context to history
     chat_history.append({
