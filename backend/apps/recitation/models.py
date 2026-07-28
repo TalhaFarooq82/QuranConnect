@@ -13,7 +13,7 @@ class RecitationAttempt(models.Model):
     surah_number = models.IntegerField()   # Surah number of the recited Ayah
 
     audio_file = models.FileField(upload_to='recitation/')  # Uploaded audio file of the user's recitation
-    user_text = models.TextField()
+    user_text = models.TextField() # Text generated from the user's recitation
     correct_text = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
