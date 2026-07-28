@@ -3,6 +3,7 @@ from django.test import SimpleTestCase
 from .services import (
     clean_text,
     fetch_chapter,
+    fetch_hadiths,
 )
 
 
@@ -30,3 +31,17 @@ class FetchChapterValidationTests(SimpleTestCase):
     def test_rejects_non_numeric_chapter(self):
         with self.assertRaises(ValueError):
             fetch_chapter("first")
+
+
+class FetchHadithValidationTests(SimpleTestCase):
+    def test_rejects_empty_book_name(self):
+        with self.assertRaises(ValueError):
+            fetch_hadiths("", page=1)
+
+    def test_rejects_page_below_one(self):
+        with self.assertRaises(ValueError):
+            fetch_hadiths("sahih-bukhari", page=0)
+
+    def test_rejects_non_numeric_page(self):
+        with self.assertRaises(ValueError):
+            fetch_hadiths("sahih-bukhari", page="first")
