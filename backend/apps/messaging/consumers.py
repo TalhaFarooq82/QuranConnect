@@ -44,7 +44,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if msg_type == 'file':
             # File was already saved via HTTP upload
             # Just broadcast to the group so other person sees it
-            await self.channel_layer.group_send(
+            await self.channel_layer.group_send
+            (
                 self.room_group_name,
                 {
                     'type': 'chat_file',
