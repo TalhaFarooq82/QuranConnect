@@ -79,7 +79,23 @@ def fetch_chapter(chapter_number):
     return ayahs, ids, metadatas
 
 
-def fetch_hadiths(book_name, page=1):  # single page now
+def fetch_hadiths(book_name, page=1):
+    book_name = str(book_name or "").strip()
+
+    if not book_name:
+        raise ValueError("Hadith book name is required.")
+
+    try:
+        page = int(page)
+    except (TypeError, ValueError) as error:
+        raise ValueError("Hadith page must be an integer.") from error
+
+    if page < 1:
+        raise ValueError("Hadith page must be greater than zero.")
+
+    if not HADITH_API_KEY:
+        raise RuntimeError("HADITH_API_KEY is not configured.")
+
     response = requests.get(
         "https://hadithapi.com/api/hadiths/",
         params={
